@@ -1,0 +1,1 @@
+/usr/bin/g++ -O0 -Wl,--dependency-file=CMakeFiles/tactical_leftist.dir/link.d CMakeFiles/tactical_leftist.dir/src/main.cpp.o -o tactical_leftist  -lGL -lGLU -lX11 -lpng -lpthread -lstdc++fs
