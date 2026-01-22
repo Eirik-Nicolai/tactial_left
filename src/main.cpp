@@ -1,8 +1,11 @@
 #include <iostream>
 
-auto main(int argc, char *argv[]) -> int {
+#include "game.hpp"
 
-    std::cout << "HELLO WORLD" << std::endl;
+auto main(int argc, char *argv[]) -> int {
+    TacticalGame game;
+    if (game.Construct(1600, 900, 1, 1))
+        game.Start();
 
     return 0;
 }

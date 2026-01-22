@@ -14,7 +14,7 @@ set(CXX_STANDARD "C++20")
 # add_subdirectory(src)
 project(tactical_leftist)
 
-set(SRC_MAIN src/main.cpp)
+set(SRC_MAIN src/main.cpp src/game.cpp)
 
 # set(SRC_COMPONENTS
 #     src/components/statemachine.cpp
