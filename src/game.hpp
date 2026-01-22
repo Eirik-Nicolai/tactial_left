@@ -5,75 +5,32 @@
 
 #define OLC_PGE_APPLICATION
 
-
 #define BORDER_OFFS 10
+class TacticalGame;
 
-struct GameState
-{
-    enum class state
-    {
-    UNKNOWNTYPE = 0,
-    WALKING = 1,
-    COMBAT = 2,
-    DIALOGUE = 3,
-    CUTSCENE = 4,
-    PAUSED = 5,
-    STARTMENU = 6,
-    NONE
-};
-};
+class GameState {
+    public:
+        virtual void init();
+        virtual void cleanup();
 
-struct GameStateType
-{
-    enum class type {
-    UNKNOWNSUBTYPE = 0,
-    INIT = 1,
-    PLAYING_TRANSITION = 2,
+        virtual void handle_input();
 
-    // -------- TRANSITIONS --------
-    FROM_COMBAT_TRANSITION = 1001,
-    FROM_PAUSED_TRANSITION,
-    // -------- -------- -------- --
+        virtual void draw(TacticalGame* ge);
+        virtual void update(); // ?
 
-    // ROAMING----------------------
-    FREEROAM = 1101,
-    // -----------------------------
-
-    // -----------------------------
-    PLAYER_SELECTING_ACTION = 2102,
-    INIT_COMBAT_ROUND,
-    LOAD_ACTIONS,
-    LOAD_TARGETS,
-    PLAYER_SELECTING_TARGET,
-    ENEMY_SELECTING_ACTION,
-    ALLY_SELECTING_ACTION,
-    PERFORMING_COMBAT_ACTIONS_PLAYER,
-    PERFORMING_COMBAT_ACTIONS_ALLIES,
-    PERFORMING_COMBAT_ACTIONS_ENEMY,
-    PERFORMING_BUFF_DEBUFF_ACTIONS_ALLIES,
-    PERFORMING_BUFF_DEBUFF_ACTIONS_ENEMY,
-    CLEANUP_COMBAT_TURN,
-
-    // -----------------------------
-
-    // -----------------------------
-    OVERVIEW = 5001,
-    INIT_INVENTORY,
-    INVENTORY,
-    EQUIPMENT,
-    ITEM_SELECTED,
-    // -----------------------------
-};
+        // virtual void handle_input();
 };
 
+class InitState : public GameState {
+    public:
+        void init() override;
+        void cleanup() override;
 
-using state = GameState::state;
-using type = GameStateType::type;
+        void handle_input() override;
 
-struct State
-{
-   GameState::state state;
-   GameStateType::type type;
+        void draw(TacticalGame* ge) override;
+        void update() override; // ?
+
 };
 
 class TacticalGame : public olc::PixelGameEngine
@@ -86,7 +43,7 @@ class TacticalGame : public olc::PixelGameEngine
         bool OnUserUpdate(float) override;
 
     private: //states
-        void STATE_WALKING(float);
+        void STATE_SPACE(float);
         void STATE_COMBAT(float);
         void STATE_PAUSE(float);
 
@@ -95,8 +52,8 @@ class TacticalGame : public olc::PixelGameEngine
     private:
         entt::registry m_reg;
 
-        State CURR_STATE;
-        State NEXT_STATE;
+        std::unique_ptr<GameState> CURR_STATE;
+        std::unique_ptr<GameState> NEXT_STATE;
 
         float m_fElapsedTimeSinceTick;
 
