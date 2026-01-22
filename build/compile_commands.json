@@ -1,8 +1,0 @@
-[
-{
-  "directory": "/home/enoo/repos/personal/tactical_leftist/build",
-  "command": "/usr/bin/g++  -I/home/enoo/repos/personal/tactical_leftist/src -I/home/enoo/repos/personal/tactical_leftist/include -O0 -std=gnu++20 -o CMakeFiles/tactical_leftist.dir/src/main.cpp.o -c /home/enoo/repos/personal/tactical_leftist/src/main.cpp",
-  "file": "/home/enoo/repos/personal/tactical_leftist/src/main.cpp",
-  "output": "CMakeFiles/tactical_leftist.dir/src/main.cpp.o"
-}
-]

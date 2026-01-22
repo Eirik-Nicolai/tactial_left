@@ -1,3 +1,0 @@
-/home/enoo/repos/personal/tactical_leftist/build/CMakeFiles/tactical_leftist.dir
-/home/enoo/repos/personal/tactical_leftist/build/CMakeFiles/edit_cache.dir
-/home/enoo/repos/personal/tactical_leftist/build/CMakeFiles/rebuild_cache.dir
