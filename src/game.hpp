@@ -1,11 +1,17 @@
 #pragma once
-#include "olcPixelGameEngine.h"
+#include "olc/olcPixelGameEngine.h"
+#include "olc/olcPGEX_TransformedView.h"
 #include <entt/entt.hpp>
 #include <queue>
 #include <print>
 
 #include "states/gamestate.hpp"
 
+#define MOUSE_LBUTTON 0
+#define MOUSE_RBUTTON 1
+#define MOUSE_MBUTTON 2
+
+// TODO fix issue of overwriting NOL log lines
 #define PRINT_TEXT_NOL(x) std::cout << "[" << get_name() << "::" << __func__ << "()] -->" << " " << x << "\t\t\r";
 #define PRINT_FUNC_NOL std::cout << "[" << get_name() << "::" << __func__ << "()]" << "\t\t\r";
 #define PRINT_TEXT(x) std::cout << "[" << get_name() << "::" << __func__ << "()] -->" << " " << x << std::endl;
@@ -17,19 +23,12 @@ class TacticalGame : public olc::PixelGameEngine
         TacticalGame();
 
     public:
+        bool OnUserDestroy() override;
         bool OnUserCreate() override;
         bool OnUserUpdate(float) override;
 
     private: //states
         bool delay_for(float, float);
-
-    private:
-        entt::registry m_reg;
-
-        std::unique_ptr<GameState> CURR_STATE;
-        std::unique_ptr<GameState> NEXT_STATE;
-
-        float m_fElapsedTimeSinceTick;
 
     public:
         std::vector<std::string> m_debug;
@@ -97,9 +96,15 @@ class TacticalGame : public olc::PixelGameEngine
         void pop_state();
         void change_state(GameState* state);
 
+        entt::registry& get_reg() { return m_reg; }
+        std::shared_ptr<olc::TileTransformedView> get_tv() { return tvp; }
+
     private:
+        std::shared_ptr<olc::TileTransformedView> tvp;
         std::vector<GameState*> m_states;
+        entt::registry m_reg;
         std::string get_name() { return "MAIN ENGINE"; }
+
 
     private: //DEBUGGING HELPER FUNCTIONS
 };

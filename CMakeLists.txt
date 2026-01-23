@@ -19,6 +19,9 @@ set(SRC_MAIN
     src/game.cpp
     src/states/starstate.cpp
     src/states/initstate.cpp
+    src/states/loadstate.cpp
+
+    src/systems/rendering.cpp
 )
 
 # set(SRC_COMPONENTS

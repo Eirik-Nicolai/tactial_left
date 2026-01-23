@@ -2,23 +2,22 @@
 #include "game.hpp"
 #include "gamestate.hpp"
 
-
-namespace PlayingState {
-class InitState : public GameState {
+namespace TransitionState {
+class LoadState : public GameState {
     /// ------ SINGLETON LOGIC ------ ///
     public:
-        static InitState* get() {
+        static LoadState* get() {
             if(!m_state)
-                m_state = new InitState();
+                m_state = new LoadState();
             return m_state;
         }
     private:
-        static InitState* m_state;
+        static LoadState* m_state;
 
 
     /// --------- STATE LOGIC --------- ///
     public:
-        std::string get_name() { return "InitState"; }
+        std::string get_name() { return "LoadState"; }
 
         void init(TacticalGame* ge) override;
         void cleanup(TacticalGame* ge) override;

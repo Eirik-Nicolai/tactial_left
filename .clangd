@@ -1,0 +1,8 @@
+# Source - https://stackoverflow.com/a
+# Posted by HighCommander4
+# Retrieved 2026-01-23, License - CC BY-SA 4.0
+
+Diagnostics:
+  Suppress: ovl_no_viable_function_in_call
+  Suppress: invalid_consteval_take_address
+  Suppress: template_arg_list_constraints_not_satisfied
