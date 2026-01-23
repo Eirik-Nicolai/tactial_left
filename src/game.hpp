@@ -1,37 +1,15 @@
 #pragma once
-#include <queue>
-#include <entt/entt.hpp>
 #include "olcPixelGameEngine.h"
+#include <entt/entt.hpp>
+#include <queue>
+#include <print>
 
-#define OLC_PGE_APPLICATION
+#include "states/gamestate.hpp"
 
-#define BORDER_OFFS 10
-class TacticalGame;
-
-class GameState {
-    public:
-        virtual void init();
-        virtual void cleanup();
-
-        virtual void handle_input();
-
-        virtual void draw(TacticalGame* ge);
-        virtual void update(); // ?
-
-        // virtual void handle_input();
-};
-
-class InitState : public GameState {
-    public:
-        void init() override;
-        void cleanup() override;
-
-        void handle_input() override;
-
-        void draw(TacticalGame* ge) override;
-        void update() override; // ?
-
-};
+#define PRINT_TEXT_NOL(x) std::cout << "[" << get_name() << "::" << __func__ << "()] -->" << " " << x << "\t\t\r";
+#define PRINT_FUNC_NOL std::cout << "[" << get_name() << "::" << __func__ << "()]" << "\t\t\r";
+#define PRINT_TEXT(x) std::cout << "[" << get_name() << "::" << __func__ << "()] -->" << " " << x << std::endl;
+#define PRINT_FUNC std::cout << "[" << get_name() << "::" << __func__ << "()]" << std::endl;
 
 class TacticalGame : public olc::PixelGameEngine
 {
@@ -43,10 +21,6 @@ class TacticalGame : public olc::PixelGameEngine
         bool OnUserUpdate(float) override;
 
     private: //states
-        void STATE_SPACE(float);
-        void STATE_COMBAT(float);
-        void STATE_PAUSE(float);
-
         bool delay_for(float, float);
 
     private:
@@ -117,6 +91,15 @@ class TacticalGame : public olc::PixelGameEngine
         {
             return m_reg.get<component>(e);
         }
+
+    public:
+        void push_state(GameState* state);
+        void pop_state();
+        void change_state(GameState* state);
+
+    private:
+        std::vector<GameState*> m_states;
+        std::string get_name() { return "MAIN ENGINE"; }
 
     private: //DEBUGGING HELPER FUNCTIONS
 };

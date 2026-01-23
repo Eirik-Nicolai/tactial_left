@@ -17,6 +17,8 @@ project(tactical_leftist)
 set(SRC_MAIN
     src/main.cpp
     src/game.cpp
+    src/states/starstate.cpp
+    src/states/initstate.cpp
 )
 
 # set(SRC_COMPONENTS
