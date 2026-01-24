@@ -5,9 +5,9 @@
 #include "olc/olcPGEX_TransformedView.h"
 
 #include "game.hpp"
-#include "states/initstate.hpp"
-#include "states/starstate.hpp"
-#include "states/loadstate.hpp"
+#include "states/init/initstate.hpp"
+#include "states/star/starstate.hpp"
+#include "states/load/loadstate.hpp"
 
 void TacticalGame::push_state(GameState* state) {
     PRINT_FUNC
@@ -18,7 +18,6 @@ void TacticalGame::push_state(GameState* state) {
 
     m_states.push_back(state);
     m_states.back()->enter(this);
-
 }
 void TacticalGame::pop_state() {
     PRINT_FUNC
@@ -27,7 +26,6 @@ void TacticalGame::pop_state() {
         m_states.back()->exit(this);
         m_states.pop_back();
     }
-
 
     PRINT_TEXT("List after" << m_states.size())
     if(!m_states.empty()) {
@@ -55,9 +53,9 @@ TacticalGame::TacticalGame()
 bool TacticalGame::OnUserDestroy() {
     std::cout << "\e[?25h";
 
-    PlayingState::InitState::get()->cleanup(this);
-    PlayingState::StarState::get()->cleanup(this);
-    TransitionState::LoadState::get()->cleanup(this);
+    PlayingState::InitState::Instance()->cleanup(this);
+    PlayingState::StarState::Instance()->cleanup(this);
+    TransitionState::LoadState::Instance()->cleanup(this);
 
     return true;
 }
@@ -69,15 +67,15 @@ bool TacticalGame::OnUserCreate()
 
     // TODO maybe change these to be
     // stored in a list inside the GE ?
-    PlayingState::InitState::get()->init(this);
-    PlayingState::StarState::get()->init(this);
-    TransitionState::LoadState::get()->init(this);
+    PlayingState::InitState::Instance()->init(this);
+    PlayingState::StarState::Instance()->init(this);
+    TransitionState::LoadState::Instance()->init(this);
 
     tvp = std::make_shared<olc::TileTransformedView>( olc::vi2d( ScreenWidth(), ScreenHeight()), olc::vi2d(32, 32));
     tvp->SetWorldScale({1.0f, 1.0f});
     tvp->SetWorldOffset(olc::vi2d(0.f, 0.f) - (tvp->ScaleToWorld({ScreenWidth()/2.f,ScreenHeight()/2.f})));
 
-    change_state(TransitionState::LoadState::get());
+    change_state(TransitionState::LoadState::Instance());
     if(!m_states.empty()) {
         std::cout << "LOADED STATE" << std::endl;
     }

@@ -1,7 +1,7 @@
 #include "initstate.hpp"
 
-#include "starstate.hpp"
-#include "loadstate.hpp"
+#include "states/load/loadstate.hpp"
+#include "states/star/starstate.hpp"
 
 #include "systems/rendering.hpp"
 
@@ -48,6 +48,13 @@ void InitState::exit(TacticalGame* ge) {
 
 void InitState::draw(TacticalGame* ge) {
     //PRINT_FUNC
+    auto tv = ge->get_tv();
 
-    render(ge->get_reg(), ge);
+    auto w = ge->ScreenWidth()*0.8;
+    auto h = ge->ScreenHeight()*0.8;
+
+    ge->FillRect(ge->ScreenWidth()*0.1, ge->ScreenHeight()*0.1, w, h, olc::BLACK);
+    ge->DrawRect(ge->ScreenWidth()*0.1, ge->ScreenHeight()*0.1, w, h, olc::WHITE);
+    ge->DrawString({ge->ScreenWidth()/2,ge->ScreenHeight()/2}, "P", olc::RED, 4);
+
 }

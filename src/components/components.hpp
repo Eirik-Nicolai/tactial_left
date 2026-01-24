@@ -11,6 +11,15 @@ namespace Rendering {
   };
 };
 
+namespace Debugging {
+  struct Id {
+    unsigned value;
+  };
+  struct Print {
+    std::string name;
+  };
+};
+
 namespace World {
 };
 struct Pos {

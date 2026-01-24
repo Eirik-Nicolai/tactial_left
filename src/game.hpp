@@ -50,47 +50,6 @@ class TacticalGame : public olc::PixelGameEngine
 
         void draw_effect_icon(const std::string&, int x, int y, olc::Pixel inner, olc::Pixel outer);
 
-        template <typename component>
-        bool has(entt::entity &ent)
-        {
-            return m_reg.all_of<component>(ent);
-        }
-
-        template <typename component>
-        bool tryget_component(entt::entity &ent, component &comp)
-        {
-            if(auto getcomp = m_reg.try_get<component>(ent);m_reg.try_get<component>(ent) != nullptr)
-            {
-                comp = (*getcomp);
-                return true;
-            }
-            return false;
-        }
-
-        template <typename component>
-        bool tryget_component(const entt::entity &ent, component &comp)
-        {
-            if(auto getcomp = m_reg.try_get<component>(ent);m_reg.try_get<component>(ent) != nullptr)
-            {
-                comp = (*getcomp);
-                return true;
-            }
-            return false;
-        }
-
-        //TODO check reference
-        template <typename component>
-        component get(entt::entity e)
-        {
-            return m_reg.get<component>(e);
-        }
-
-        template <typename component>
-        const component cget(entt::entity e) const
-        {
-            return m_reg.get<component>(e);
-        }
-
     public:
         void push_state(GameState* state);
         void pop_state();

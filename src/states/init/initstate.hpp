@@ -1,23 +1,23 @@
 #pragma once
 #include "game.hpp"
-#include "gamestate.hpp"
+#include "states/gamestate.hpp"
+
 
 namespace PlayingState {
-class StarState : public GameState {
+class InitState : public GameState {
     /// ------ SINGLETON LOGIC ------ ///
     public:
-        static StarState* get() {
+        static InitState* Instance() {
             if(!m_state)
-                m_state = new StarState();
+                m_state = new InitState();
             return m_state;
         }
     private:
-        static StarState* m_state;
-
+        static InitState* m_state;
 
     /// --------- STATE LOGIC --------- ///
     public:
-        std::string get_name() { return "StarState"; }
+        std::string get_name() { return "InitState"; }
 
         void init(TacticalGame* ge) override;
         void cleanup(TacticalGame* ge) override;
@@ -37,11 +37,5 @@ class StarState : public GameState {
     /// ------ PRIVATE LOGIC ------ ///
     private:
         float sElapsedTime; // useful for debugging
-
-        olc::vf2d get_mouse_pos_screen(TacticalGame* ge) {
-            return ge->get_tv()->ScaleToWorld(ge->GetMousePos()) + ge->get_tv()->GetWorldOffset();
-        }
-
-        entt::entity pointofinterest;
 };
 }

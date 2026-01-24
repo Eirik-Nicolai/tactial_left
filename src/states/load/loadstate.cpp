@@ -1,7 +1,7 @@
 #include "loadstate.hpp"
 
-#include "initstate.hpp"
-#include "starstate.hpp"
+#include "states/init/initstate.hpp"
+#include "states/star/starstate.hpp"
 
 #include "components/components.hpp"
 using namespace TransitionState;
@@ -11,7 +11,6 @@ LoadState* LoadState::m_state;
 void LoadState::init(TacticalGame* ge) {
     PRINT_FUNC
 }
-
 
 void LoadState::cleanup(TacticalGame* ge) {
     PRINT_FUNC
@@ -42,8 +41,8 @@ void LoadState::enter(TacticalGame* ge) {
     reg.emplace<Tag::Hoverable>(moon);
 
 
-    reg.emplace<Orbiting>(earth, sun, 500.f, 0.3f);
-    reg.emplace<Orbiting>(moon, earth, 50.f, -1.f);
+    reg.emplace<Orbiting>(earth, sun, 500.f, 0.1f);
+    reg.emplace<Orbiting>(moon, earth, 50.f, -0.5f);
 }
 void LoadState::exit(TacticalGame* ge) {
     PRINT_FUNC
@@ -70,7 +69,7 @@ void LoadState::update(TacticalGame* ge) {
     sElapsedTime += ge->GetElapsedTime();
 
     if(sElapsedTime > 1) { // 3 second wait to simulate loading
-        ge->change_state(PlayingState::StarState::get());
+        ge->change_state(PlayingState::StarState::Instance());
     }
 }
 

@@ -1,12 +1,12 @@
 #pragma once
 #include "game.hpp"
-#include "gamestate.hpp"
+#include "states/gamestate.hpp"
 
 namespace TransitionState {
 class LoadState : public GameState {
     /// ------ SINGLETON LOGIC ------ ///
     public:
-        static LoadState* get() {
+        static LoadState* Instance() {
             if(!m_state)
                 m_state = new LoadState();
             return m_state;

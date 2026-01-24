@@ -17,41 +17,24 @@ project(tactical_leftist)
 set(SRC_MAIN
     src/main.cpp
     src/game.cpp
-    src/states/starstate.cpp
-    src/states/initstate.cpp
-    src/states/loadstate.cpp
+)
 
+set(SRC_STATES
+    src/states/star/starstate.cpp
+
+    src/states/init/initstate.cpp
+
+    src/states/load/loadstate.cpp
+)
+
+set(SRC_SYSTEMS
     src/systems/rendering.cpp
 )
 
-# set(SRC_COMPONENTS
-#     src/components/statemachine.cpp
-# )
-
-# set(SRC_ENGINE
-#     src/engine/game.cpp
-#     src/engine/menu.cpp
-#     src/engine/keypress.cpp
-#     src/engine/initialize.cpp
-#     src/engine/asset_manager.cpp
-#     src/engine/rendering/render.cpp
-# )
-
-# set(SRC_UTILS
-#     src/utils/debug.cpp
-# )
-
-# set(SRC_SYSTEMS
-#     src/systems/logic/logic.cpp
-#     src/systems/movement/moving.cpp
-#     src/systems/status/system_status.cpp
-#     src/systems/animation/system_animation.cpp
-#     src/systems/statemachine/system_statechange.cpp
-# )
-
 set(SRC_GAME
     ${SRC_MAIN}
-    # ${SRC_ENGINE} ${SRC_COMPONENTS} ${SRC_UTILS} ${SRC_SYSTEMS}
+    ${SRC_STATES}
+    ${SRC_SYSTEMS}
 )
 
 message ("Adding executable...")

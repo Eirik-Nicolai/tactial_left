@@ -3,7 +3,11 @@
 class TacticalGame;
 
 class GameState {
-    public:
+  public:
+        GameState(GameState const&) = delete;
+        GameState operator=(GameState const&) = delete;
+
+  public:
         std::string get_name() { return "GameState"; }
 
         virtual void init(TacticalGame* ge) {}
@@ -18,5 +22,8 @@ class GameState {
         virtual void handle_input(TacticalGame* ge) {}
 
         virtual void draw(TacticalGame* ge) {}
-        virtual void update(TacticalGame* ge) {} // ?
+        virtual void update(TacticalGame* ge) {}
+
+    protected:
+        GameState() {}
 };
