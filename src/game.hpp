@@ -7,15 +7,11 @@
 
 #include "states/gamestate.hpp"
 
+#include "logger.hpp"
+
 #define MOUSE_LBUTTON 0
 #define MOUSE_RBUTTON 1
 #define MOUSE_MBUTTON 2
-
-// TODO fix issue of overwriting NOL log lines
-#define PRINT_TEXT_NOL(x) std::cout << "[" << get_name() << "::" << __func__ << "()] -->" << " " << x << "\t\t\r";
-#define PRINT_FUNC_NOL std::cout << "[" << get_name() << "::" << __func__ << "()]" << "\t\t\r";
-#define PRINT_TEXT(x) std::cout << "[" << get_name() << "::" << __func__ << "()] -->" << " " << x << std::endl;
-#define PRINT_FUNC std::cout << "[" << get_name() << "::" << __func__ << "()]" << std::endl;
 
 class TacticalGame : public olc::PixelGameEngine
 {

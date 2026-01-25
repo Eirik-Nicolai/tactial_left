@@ -10,7 +10,7 @@
 #include "states/load/loadstate.hpp"
 
 void TacticalGame::push_state(GameState* state) {
-    PRINT_FUNC
+    TRACE_LOG_FUNC
     std::cout << "Pushing " << state->get_name() << std::endl;
     if(!m_states.empty()) {
         m_states.back()->pause(this);
@@ -20,22 +20,22 @@ void TacticalGame::push_state(GameState* state) {
     m_states.back()->enter(this);
 }
 void TacticalGame::pop_state() {
-    PRINT_FUNC
+    TRACE_LOG_FUNC
     if(!m_states.empty()) {
-        PRINT_TEXT("List before" << m_states.size())
+        TRACE_LOG_TEXT("List before" << m_states.size())
         m_states.back()->exit(this);
         m_states.pop_back();
     }
 
-    PRINT_TEXT("List after" << m_states.size())
+    TRACE_LOG_TEXT("List after" << m_states.size())
     if(!m_states.empty()) {
         m_states.back()->resume(this);
     }
 }
 void TacticalGame::change_state(GameState* state) {
-    PRINT_FUNC
-    // cleanup the current state
-    if ( !m_states.empty() ) {
+    TRACE_LOG_FUNC
+    // cleanup all the current states
+    while ( !m_states.empty() ) {
         m_states.back()->exit(this);
         m_states.pop_back();
     }
@@ -71,7 +71,9 @@ bool TacticalGame::OnUserCreate()
     PlayingState::StarState::Instance()->init(this);
     TransitionState::LoadState::Instance()->init(this);
 
-    tvp = std::make_shared<olc::TileTransformedView>( olc::vi2d( ScreenWidth(), ScreenHeight()), olc::vi2d(32, 32));
+    tvp = std::make_shared<olc::TileTransformedView>(
+        olc::vi2d( ScreenWidth(), ScreenHeight()),
+        olc::vi2d(1, 1));
     tvp->SetWorldScale({1.0f, 1.0f});
     tvp->SetWorldOffset(olc::vi2d(0.f, 0.f) - (tvp->ScaleToWorld({ScreenWidth()/2.f,ScreenHeight()/2.f})));
 
@@ -96,14 +98,14 @@ bool TacticalGame::OnUserUpdate(float dt)
         state->draw(this);
     }
 
-    static auto offs = 100;
-    int i = 0;
-    for(auto state : m_states) {
-        std::stringstream ss;
-        ss << "i:" << i << " -> " << state->get_name();
-        DrawString(100, 500 + (100*i), ss.str());
-        ++i;
-    }
+    // static auto offs = 100;
+    // int i = 0;
+    // for(auto state : m_states) {
+    //     std::stringstream ss;
+    //     ss << "i:" << i << " -> " << state->get_name();
+    //     DrawString(100, 500 + (100*i), ss.str());
+    //     ++i;
+    // }
 
     return true;
 }

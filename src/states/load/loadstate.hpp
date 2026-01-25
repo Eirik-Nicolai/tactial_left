@@ -14,7 +14,6 @@ class LoadState : public GameState {
     private:
         static LoadState* m_state;
 
-
     /// --------- STATE LOGIC --------- ///
     public:
         std::string get_name() { return "LoadState"; }

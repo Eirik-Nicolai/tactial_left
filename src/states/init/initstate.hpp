@@ -2,7 +2,6 @@
 #include "game.hpp"
 #include "states/gamestate.hpp"
 
-
 namespace PlayingState {
 class InitState : public GameState {
     /// ------ SINGLETON LOGIC ------ ///
