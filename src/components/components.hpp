@@ -2,6 +2,12 @@
 #include "olc/olcPixelGameEngine.h"
 #include "entt/entt.hpp"
 
+struct Component {
+  Component() = default;
+  virtual std::string print() const = 0;
+};
+
+
 namespace Rendering {
   struct Texture {};
 

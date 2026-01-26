@@ -1,6 +1,14 @@
 #pragma once
 
 #include "spdlog/spdlog-inl.h"
+#include <spdlog/fmt/bundled/format.h>
+#include "components/components.hpp"
+#include "utils/logger_helper.hpp"
+#include <concepts>
+
+// TODO change to self method to allow custom formatting of f. ex. components
+// or find an example of the fucking formatter for spdlog
+//
 
 class Logger {
     /// ------ SINGLETON LOGIC ------ ///
@@ -31,20 +39,18 @@ class Logger {
 
 using namespace spdlog::level;
 #define PRINT_FUNC(x)                                                    \
-    if(Logger::Get()->level() > x) {                                     \
-        std::cout << "--> [" << get_name() << "::" << __func__ << "()]"; \
+    if(Logger::Get()->level() <= x) {                                     \
+        std::cout << "[" << get_name() << "::" << __func__ << "()]" << std::endl; \
     }
 
 #define LOG(_1, _2, ...) \
-    Logger::Get()->log(_1, _2, __VA_ARGS__)
+    Logger::Get()->log(_1, _2, ##__VA_ARGS__)
 
-#define Error(_1, ...) LOG(spdlog::level::err,  _1, __VA_ARGS__)
-#define Warn(_1, ...)  LOG(spdlog::level::warn, _1, __VA_ARGS__)
-#define Info(_1, ...)  LOG(spdlog::level::info, _1, __VA_ARGS__)
-#define Debug(_1, ...) LOG(spdlog::level::debug,_1, __VA_ARGS__)
-#define Trace(_1, ...) LOG(spdlog::level::trace,_1, __VA_ARGS__)
+#define Error(_1, ...) LOG(spdlog::level::err,  _1, ##__VA_ARGS__)
+#define Warn(_1, ...)  LOG(spdlog::level::warn, _1, ##__VA_ARGS__)
+#define Info(_1, ...)  LOG(spdlog::level::info, _1, ##__VA_ARGS__)
+#define Debug(_1, ...) LOG(spdlog::level::debug,_1, ##__VA_ARGS__)
+#define Trace(_1, ...) LOG(spdlog::level::trace,_1, ##__VA_ARGS__)
 
 
-#define LOG_FUNC                       \
-    PRINT_FUNC(spdlog::level::trace)   \
-    std::cout << std::endl;
+#define LOG_FUNC PRINT_FUNC(spdlog::level::trace)

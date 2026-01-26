@@ -56,5 +56,4 @@ void InitState::draw(TacticalGame* ge) {
     ge->FillRect(ge->ScreenWidth()*0.1, ge->ScreenHeight()*0.1, w, h, olc::BLACK);
     ge->DrawRect(ge->ScreenWidth()*0.1, ge->ScreenHeight()*0.1, w, h, olc::WHITE);
     ge->DrawString({ge->ScreenWidth()/2,ge->ScreenHeight()/2}, "P", olc::RED, 4);
-
 }

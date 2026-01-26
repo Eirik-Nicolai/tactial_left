@@ -17,7 +17,7 @@ class StarState : public GameState {
 
     /// --------- STATE LOGIC --------- ///
     public:
-        std::string get_name() { return "StarState"; }
+        std::string get_name() override { return "StarState"; }
 
         void init(TacticalGame* ge) override;
         void cleanup(TacticalGame* ge) override;
@@ -48,7 +48,7 @@ class StarStateSelected : public StarState {
 
         /// --------- STATE LOGIC --------- ///
     public:
-        std::string get_name() { return "StarState - Selected"; }
+        std::string get_name() final { return "StarState - Selected"; }
 
         void init(TacticalGame* ge) override;
         void cleanup(TacticalGame* ge) override;

@@ -16,7 +16,7 @@ class LoadState : public GameState {
 
     /// --------- STATE LOGIC --------- ///
     public:
-        std::string get_name() { return "LoadState"; }
+        std::string get_name() override { return "LoadState"; }
 
         void init(TacticalGame* ge) override;
         void cleanup(TacticalGame* ge) override;

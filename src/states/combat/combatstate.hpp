@@ -3,20 +3,20 @@
 #include "states/gamestate.hpp"
 
 namespace PlayingState {
-class InitState : public GameState {
+class CombatState : public GameState {
     /// ------ SINGLETON LOGIC ------ ///
     public:
-        static InitState* Instance() {
+        static CombatState* Instance() {
             if(!m_state)
-                m_state = new InitState();
+                m_state = new CombatState();
             return m_state;
         }
     private:
-        static InitState* m_state;
+        static CombatState* m_state;
 
     /// --------- STATE LOGIC --------- ///
     public:
-        std::string get_name() final { return "InitState"; }
+        std::string get_name() final { return "CombatState"; }
 
         void init(TacticalGame* ge) override;
         void cleanup(TacticalGame* ge) override;

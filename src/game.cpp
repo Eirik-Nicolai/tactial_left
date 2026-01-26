@@ -8,11 +8,13 @@
 #include "states/init/initstate.hpp"
 #include "states/star/starstate.hpp"
 #include "states/load/loadstate.hpp"
+#include "states/combat/combatstate.hpp"
 
 void TacticalGame::push_state(GameState* state) {
     LOG_FUNC
-    std::cout << "Pushing " << state->get_name() << std::endl;
+    Debug("Pushing state {}", state->get_name());
     if(!m_states.empty()) {
+        Debug("Pausing state {}", m_states.back()->get_name());
         m_states.back()->pause(this);
     }
 
@@ -35,11 +37,14 @@ void TacticalGame::pop_state() {
 void TacticalGame::change_state(GameState* state) {
     LOG_FUNC
     // cleanup all the current states
+    Debug("Cleaning up {} states", m_states.size());
     while ( !m_states.empty() ) {
         m_states.back()->exit(this);
+        Debug("Exiting state {}", m_states.back()->get_name());
         m_states.pop_back();
     }
 
+    Debug("Changing to state {}", state->get_name());
     // store and init the new state
     m_states.push_back(state);
     m_states.back()->enter(this);
@@ -49,21 +54,13 @@ TacticalGame::TacticalGame()
 {
     sAppName = "TACTICAL LEFTIST";
 
-    // spdlog::info("Welcome to spdlog!");
-    // spdlog::error("Some error message with arg: {}", 1);
+    // TODO move to config
     Logger::Get()->set_log_level(spdlog::level::trace);
-
-    Error("This is a error line number {}", 12);
-    Warn("This is a warning line number {}", 12);
-    Info("This is a info line number {}", 12);
-    Debug("This is a debug line number {}", 12);
-    Trace("This is a trace line number {}", 12);
 }
 
 bool TacticalGame::OnUserDestroy() {
-    std::cout << "\e[?25h";
-
     PlayingState::InitState::Instance()->cleanup(this);
+    PlayingState::CombatState::Instance()->cleanup(this);
     PlayingState::StarState::Instance()->cleanup(this);
     TransitionState::LoadState::Instance()->cleanup(this);
 
@@ -72,24 +69,26 @@ bool TacticalGame::OnUserDestroy() {
 
 bool TacticalGame::OnUserCreate()
 {
-    // hide terminal cursor
-    std::cout << "\e[?25l";
+    Info("Initializing game ...");
 
     // TODO maybe change these to be
     // stored in a list inside the GE ?
     PlayingState::InitState::Instance()->init(this);
     PlayingState::StarState::Instance()->init(this);
+    PlayingState::CombatState::Instance()->init(this);
     TransitionState::LoadState::Instance()->init(this);
 
     tvp = std::make_shared<olc::TileTransformedView>(
         olc::vi2d( ScreenWidth(), ScreenHeight()),
-        olc::vi2d(1, 1));
+        olc::vi2d(1, 1)
+    );
+
     tvp->SetWorldScale({1.0f, 1.0f});
     tvp->SetWorldOffset(olc::vi2d(0.f, 0.f) - (tvp->ScaleToWorld({ScreenWidth()/2.f,ScreenHeight()/2.f})));
 
-    change_state(TransitionState::LoadState::Instance());
+    change_state(PlayingState::CombatState::Instance());
     if(!m_states.empty()) {
-        std::cout << "LOADED STATE" << std::endl;
+        Info("Starting on state {}", m_states.front()->get_name());
     }
 
     return true;
@@ -100,6 +99,13 @@ bool TacticalGame::OnUserUpdate(float dt)
     Clear(olc::BLACK);
 
     auto CURR_STATE = m_states.back();
+
+    // HACK shoud find a better way of testing state
+    // but also shouldnt really need it
+    if(GetKey(olc::Key::P).bReleased && CURR_STATE->get_name()!="InitState") {
+        push_state(PlayingState::InitState::Instance());
+    }
+
     if(CURR_STATE) {
         CURR_STATE->handle_input(this);
         CURR_STATE->update(this);

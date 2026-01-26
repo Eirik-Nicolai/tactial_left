@@ -8,21 +8,22 @@ class GameState {
         GameState operator=(GameState const&) = delete;
 
   public:
-        std::string get_name() { return "GameState"; }
+        virtual std::string get_name() { return "GameState"; }
 
-        virtual void init(TacticalGame* ge) {}
-        virtual void cleanup(TacticalGame* ge) {}
+        // ------ SINGLE RUN FUNCTIONS ------
+        virtual void init(TacticalGame* ge) {}          // initialize state start of game
+        virtual void cleanup(TacticalGame* ge) {}       // clean up state at end of game
 
-        virtual void enter(TacticalGame* ge) {}
-        virtual void exit(TacticalGame* ge) {}
+        virtual void enter(TacticalGame* ge) {}         // set up to enter state during game
+        virtual void exit(TacticalGame* ge) {}          // set up to switch state during game
 
-        virtual void pause(TacticalGame* ge) {}
-        virtual void resume(TacticalGame* ge) {}
+        virtual void pause(TacticalGame* ge) {}         // pause logic, if needed
+        virtual void resume(TacticalGame* ge) {}        // resume logic, if paused
 
-        virtual void handle_input(TacticalGame* ge) {}
-
-        virtual void draw(TacticalGame* ge) {}
-        virtual void update(TacticalGame* ge) {}
+        // ------ LOOPING FUNCTIONS ------
+        virtual void handle_input(TacticalGame* ge) {}  // handle all user input, if any
+        virtual void update(TacticalGame* ge) {}        // update and handle logic of state
+        virtual void draw(TacticalGame* ge) {}          // draw state to screen
 
     protected:
         GameState() {}
