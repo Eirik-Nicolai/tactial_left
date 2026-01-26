@@ -10,15 +10,15 @@ using namespace TransitionState;
 LoadState* LoadState::m_state;
 
 void LoadState::init(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 }
 
 void LoadState::cleanup(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 }
 
 void LoadState::enter(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
     sElapsedTime = 0;
 
     auto& reg = ge->get_reg();
@@ -46,26 +46,26 @@ void LoadState::enter(TacticalGame* ge) {
     reg.emplace<Orbiting>(moon, earth, 50.f, -0.5f);
 }
 void LoadState::exit(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 }
 
 void LoadState::pause(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 void LoadState::resume(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 void LoadState::handle_input(TacticalGame* ge) {
-    //TRACE_LOG_FUNC
+    //LOG_FUNC
 
     if(ge->GetMouse(MOUSE_LBUTTON).bReleased) {
-        TRACE_LOG_TEXT("Loading, please wait")
+        //TRACE_LOG_TEXT("Loading, please wait")
     }
 }
 void LoadState::update(TacticalGame* ge) {
-    TRACE_LOG_TEXT_NOL(sElapsedTime)
+    //TRACE_LOG_TEXT_NOL(sElapsedTime)
 
     sElapsedTime += ge->GetElapsedTime();
 
@@ -75,7 +75,7 @@ void LoadState::update(TacticalGame* ge) {
 }
 
 void LoadState::draw(TacticalGame* ge) {
-    //TRACE_LOG_FUNC
+    //LOG_FUNC
 
     ge->DrawString(300, 300, "LOADING, PLEASE WAIT...",olc::RED, 3);
 }

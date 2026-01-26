@@ -15,30 +15,30 @@ using namespace PlayingState;
 StarState* StarState::m_state;
 
 void StarState::init(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 }
 void StarState::cleanup(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 }
 
 void StarState::enter(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 void StarState::exit(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 }
 
 void StarState::pause(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 void StarState::resume(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 void StarState::handle_input(TacticalGame* ge) {
-    //TRACE_LOG_FUNC
+    //LOG_FUNC
     auto tv = ge->get_tv();
     auto pos_mouse = ge->GetMousePos();
     if(ge->GetMouse(MOUSE_MBUTTON).bPressed) tv->StartPan(pos_mouse);
@@ -69,7 +69,7 @@ void StarState::handle_input(TacticalGame* ge) {
     }
 }
 void StarState::update(TacticalGame* ge) {
-    //TRACE_LOG_FUNC
+    //LOG_FUNC
     // std::cout << get_name() << " -> " << __func__ << "\t\t\t\r";
     auto &reg = ge->get_reg();
 
@@ -81,7 +81,7 @@ void StarState::update(TacticalGame* ge) {
         auto new_angle = orb.angle + (orb.speed * ge->GetElapsedTime()) * 0.5f;
         if(new_angle > 360.f) new_angle -= 360.f;
 
-        TRACE_LOG_TEXT_NOL(new_angle)
+        //Debug(new_angle);
         auto rot_centre = get<Pos>(reg, orb.anchor).coordinates;
 
         float x = rot_centre.x - (orb.dist * cosf(new_angle));
@@ -105,7 +105,7 @@ void StarState::update(TacticalGame* ge) {
 }
 
 void StarState::draw(TacticalGame* ge) {
-    //TRACE_LOG_FUNC
+    //LOG_FUNC
     auto &reg = ge->get_reg();
 
     State::Star::render_stars(reg, ge);
@@ -118,37 +118,37 @@ void StarState::draw(TacticalGame* ge) {
 StarStateSelected* StarStateSelected::m_state;
 
 void StarStateSelected::init(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
     pointofinterest = entt::null;
 }
 void StarStateSelected::cleanup(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 }
 
 void StarStateSelected::enter(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
     auto tv = ge->get_tv();
     tv->SetWorldScale({3.f, 3.f});
 }
 void StarStateSelected::exit(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
     auto tv = ge->get_tv();
     tv->SetWorldScale({1.f, 1.f});
 }
 
 void StarStateSelected::pause(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 void StarStateSelected::resume(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 void StarStateSelected::handle_input(TacticalGame* ge) {
-    //TRACE_LOG_FUNC
+    //LOG_FUNC
     if(ge->GetMouse(MOUSE_MBUTTON).bReleased) {
         pointofinterest = entt::null;
         ge->pop_state();
@@ -167,7 +167,7 @@ void StarStateSelected::update(TacticalGame* ge) {
     }
 }
 void StarStateSelected::draw(TacticalGame* ge) {
-    //TRACE_LOG_FUNC
+    //LOG_FUNC
     auto &reg = ge->get_reg();
 
     ge->DrawRect({0,0}, ge->GetScreenSize()-1);

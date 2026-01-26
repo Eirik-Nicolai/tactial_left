@@ -10,44 +10,44 @@ using namespace PlayingState;
 InitState* InitState::m_state;
 
 void InitState::init(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 void InitState::cleanup(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 
 void InitState::pause(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 void InitState::resume(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 void InitState::handle_input(TacticalGame* ge) {
-    //TRACE_LOG_FUNC
+    //LOG_FUNC
 
     if(ge->GetMouse(MOUSE_LBUTTON).bReleased){
         ge->pop_state();
     }
 }
 void InitState::update(TacticalGame* ge) {
-    //TRACE_LOG_FUNC
+    //LOG_FUNC
 }
 
 void InitState::enter(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 void InitState::exit(TacticalGame* ge) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
 
 }
 
 void InitState::draw(TacticalGame* ge) {
-    //TRACE_LOG_FUNC
+    //LOG_FUNC
     auto tv = ge->get_tv();
 
     auto w = ge->ScreenWidth()*0.8;

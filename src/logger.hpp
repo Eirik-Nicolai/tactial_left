@@ -1,18 +1,50 @@
 #pragma once
 
-static int LOG_LEVEL = 3;
+#include "spdlog/spdlog-inl.h"
 
-// TODO placeholder logging
-// move to separate thread able to pipe in text/valus that logs to screen and std::cout
+class Logger {
+    /// ------ SINGLETON LOGIC ------ ///
+    public:
+        static Logger* Get() {
+            if(!m_state)
+                m_state = new Logger();
+            return m_state;
+        }
+    private:
+        static Logger* m_state;
+        Logger() {}
 
-// TODO fix issue of overwriting NOL log lines
-#define TRACE_LOG_TEXT_NOL(x) if(LOG_LEVEL>2) std::cout << "T - [" << get_name() << "::" << __func__ << "()] -->" << " " << x << "\t\t\r";
-#define TRACE_LOG_FUNC_NOL    if(LOG_LEVEL>2) std::cout << "T - [" << get_name() << "::" << __func__ << "()]" << "\t\t\r";
-#define TRACE_LOG_TEXT(x)     if(LOG_LEVEL>2) std::cout << "T - [" << get_name() << "::" << __func__ << "()] -->" << " " << x << std::endl;
-#define TRACE_LOG_FUNC        if(LOG_LEVEL>2) std::cout << "T - [" << get_name() << "::" << __func__ << "()]" << std::endl;
+    public:
+        void set_log_level(spdlog::level::level_enum log_level);
+        bool level() { return m_logger->level(); }
+
+        template <typename ... Args>
+        void log(spdlog::level::level_enum level,
+                 spdlog::format_string_t<Args...> fmt, Args && ...args) {
+            m_logger->log(level, fmt, std::forward<Args>(args) ...);
+        }
+
+    private:
+        std::shared_ptr<spdlog::logger> m_logger;
+        std::string m_format;
+};
+
+using namespace spdlog::level;
+#define PRINT_FUNC(x)                                                    \
+    if(Logger::Get()->level() > x) {                                     \
+        std::cout << "--> [" << get_name() << "::" << __func__ << "()]"; \
+    }
+
+#define LOG(_1, _2, ...) \
+    Logger::Get()->log(_1, _2, __VA_ARGS__)
+
+#define Error(_1, ...) LOG(spdlog::level::err,  _1, __VA_ARGS__)
+#define Warn(_1, ...)  LOG(spdlog::level::warn, _1, __VA_ARGS__)
+#define Info(_1, ...)  LOG(spdlog::level::info, _1, __VA_ARGS__)
+#define Debug(_1, ...) LOG(spdlog::level::debug,_1, __VA_ARGS__)
+#define Trace(_1, ...) LOG(spdlog::level::trace,_1, __VA_ARGS__)
 
 
-#define DEBUG_LOG_TEXT_NOL(x) if(LOG_LEVEL>1) std::cout << "D - [" << get_name() << "::" << __func__ << "()] -->" << " " << x << "\t\t\r";
-#define DEBUG_LOG_FUNC_NOL    if(LOG_LEVEL>1) std::cout << "D - [" << get_name() << "::" << __func__ << "()]" << "\t\t\r";
-#define DEBUG_LOG_TEXT(x)     if(LOG_LEVEL>1) std::cout << "D - [" << get_name() << "::" << __func__ << "()] -->" << " " << x << std::endl;
-#define DEBUG_LOG_FUNC        if(LOG_LEVEL>1) std::cout << "D - [" << get_name() << "::" << __func__ << "()]" << std::endl;
+#define LOG_FUNC                       \
+    PRINT_FUNC(spdlog::level::trace)   \
+    std::cout << std::endl;

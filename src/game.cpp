@@ -10,7 +10,7 @@
 #include "states/load/loadstate.hpp"
 
 void TacticalGame::push_state(GameState* state) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
     std::cout << "Pushing " << state->get_name() << std::endl;
     if(!m_states.empty()) {
         m_states.back()->pause(this);
@@ -20,20 +20,20 @@ void TacticalGame::push_state(GameState* state) {
     m_states.back()->enter(this);
 }
 void TacticalGame::pop_state() {
-    TRACE_LOG_FUNC
+    LOG_FUNC
     if(!m_states.empty()) {
-        TRACE_LOG_TEXT("List before" << m_states.size())
+        Debug("List before {}", m_states.size());
         m_states.back()->exit(this);
         m_states.pop_back();
     }
 
-    TRACE_LOG_TEXT("List after" << m_states.size())
+    Debug("List after {}", m_states.size());
     if(!m_states.empty()) {
         m_states.back()->resume(this);
     }
 }
 void TacticalGame::change_state(GameState* state) {
-    TRACE_LOG_FUNC
+    LOG_FUNC
     // cleanup all the current states
     while ( !m_states.empty() ) {
         m_states.back()->exit(this);
@@ -48,6 +48,16 @@ void TacticalGame::change_state(GameState* state) {
 TacticalGame::TacticalGame()
 {
     sAppName = "TACTICAL LEFTIST";
+
+    // spdlog::info("Welcome to spdlog!");
+    // spdlog::error("Some error message with arg: {}", 1);
+    Logger::Get()->set_log_level(spdlog::level::trace);
+
+    Error("This is a error line number {}", 12);
+    Warn("This is a warning line number {}", 12);
+    Info("This is a info line number {}", 12);
+    Debug("This is a debug line number {}", 12);
+    Trace("This is a trace line number {}", 12);
 }
 
 bool TacticalGame::OnUserDestroy() {
@@ -97,15 +107,6 @@ bool TacticalGame::OnUserUpdate(float dt)
     for(auto &state : m_states) {
         state->draw(this);
     }
-
-    // static auto offs = 100;
-    // int i = 0;
-    // for(auto state : m_states) {
-    //     std::stringstream ss;
-    //     ss << "i:" << i << " -> " << state->get_name();
-    //     DrawString(100, 500 + (100*i), ss.str());
-    //     ++i;
-    // }
 
     return true;
 }

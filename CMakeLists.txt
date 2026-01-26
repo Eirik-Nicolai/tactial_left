@@ -15,8 +15,9 @@ set(CXX_STANDARD "C++20")
 project(tactical_leftist)
 
 set(SRC_MAIN
-    src/main.cpp
     src/game.cpp
+    src/main.cpp
+    src/logger.cpp
 )
 
 set(SRC_STATES
