@@ -57,7 +57,7 @@ class TacticalGame : public olc::PixelGameEngine
         std::shared_ptr<olc::TileTransformedView> tvp;
         std::vector<GameState*> m_states;
         entt::registry m_reg;
-        std::string get_name() { return "MAIN ENGINE"; }
+        std::string get_name() const { return "MAIN ENGINE"; }
 
 
     private: //DEBUGGING HELPER FUNCTIONS

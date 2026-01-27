@@ -8,7 +8,7 @@ class GameState {
         GameState operator=(GameState const&) = delete;
 
   public:
-        virtual std::string get_name() { return "GameState"; }
+        virtual std::string get_name() const { return "GameState"; }
 
         // ------ SINGLE RUN FUNCTIONS ------
         virtual void init(TacticalGame* ge) {}          // initialize state start of game

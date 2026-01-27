@@ -16,7 +16,7 @@ class LoadState : public GameState {
 
     /// --------- STATE LOGIC --------- ///
     public:
-        std::string get_name() override { return "LoadState"; }
+        std::string get_name() const override { return "LoadState"; }
 
         void init(TacticalGame* ge) override;
         void cleanup(TacticalGame* ge) override;
@@ -36,5 +36,7 @@ class LoadState : public GameState {
     /// ------ PRIVATE LOGIC ------ ///
     private:
         float sElapsedTime; // useful for debugging
+        std::thread m_tLoader;
+        std::vector<int> m_assets;  //dummy placeholder
 };
 }

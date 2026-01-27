@@ -10,6 +10,12 @@
 #include "states/load/loadstate.hpp"
 #include "states/combat/combatstate.hpp"
 
+
+//TODO move to own file/class
+#include <fstream>
+#include <fkYAML/node.hpp>
+
+
 void TacticalGame::push_state(GameState* state) {
     LOG_FUNC
     Debug("Pushing state {}", state->get_name());
@@ -53,9 +59,6 @@ void TacticalGame::change_state(GameState* state) {
 TacticalGame::TacticalGame()
 {
     sAppName = "TACTICAL LEFTIST";
-
-    // TODO move to config
-    Logger::Get()->set_log_level(spdlog::level::trace);
 }
 
 bool TacticalGame::OnUserDestroy() {
@@ -69,7 +72,42 @@ bool TacticalGame::OnUserDestroy() {
 
 bool TacticalGame::OnUserCreate()
 {
-    Info("Initializing game ...");
+    std::cout << "Initializing game ..." << std::endl;;
+
+    std::cout << "READ CONFIG.." << std::endl;
+
+    // TODO move all this logic to config reading
+    // class
+    std::fstream fs;
+    fs.open("/home/enoo/repos/personal/tactical_leftist/config.yml");
+    if(!fs.is_open()) {
+        //Error("NO CONFIG FILE");
+        throw std::runtime_error("Unable to find config");
+    }
+
+    auto conf = fkyaml::node::deserialize(fs);
+    try {
+        // TODO can cast string to enum instead
+        auto conf_level = [&](std::string& conf) -> int {
+            if(conf == "TRACE") {
+                    return 0;
+            }
+            if(conf == "DEBUG") {
+                    return 1;
+            }
+            if(conf == "INFO") {
+                    return 2;
+            }
+            throw std::runtime_error("Throw");
+        };
+
+        auto level = conf.at("log_level").as_str();
+        std::cout << "Level is " << level << std::endl;
+        Logger::Get()->set_log_level(
+            static_cast<spdlog::level::level_enum>(conf_level(level)));
+    } catch(...) {
+        throw std::runtime_error("CANNOT READ CONFIG");
+    }
 
     // TODO maybe change these to be
     // stored in a list inside the GE ?
@@ -86,7 +124,7 @@ bool TacticalGame::OnUserCreate()
     tvp->SetWorldScale({1.0f, 1.0f});
     tvp->SetWorldOffset(olc::vi2d(0.f, 0.f) - (tvp->ScaleToWorld({ScreenWidth()/2.f,ScreenHeight()/2.f})));
 
-    change_state(PlayingState::CombatState::Instance());
+    change_state(TransitionState::LoadState::Instance());
     if(!m_states.empty()) {
         Info("Starting on state {}", m_states.front()->get_name());
     }
