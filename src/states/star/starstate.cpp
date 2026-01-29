@@ -11,11 +11,46 @@
 
 #include "logger.hpp"
 
+#include "engine/input.hpp"
+
 using namespace PlayingState;
 StarState* StarState::m_state;
 
+class PanInputStart : public Input {
+    public:
+    std::string get_name() const final { return "InputPanningStart"; };
+    void execute(TacticalGame *ge) final {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        ge->get_tv()->StartPan(pos_mouse);
+    }
+};
+
+class PanInputEnd : public Input {
+    public:
+    std::string get_name() const final { return "InputPanningEnd"; };
+    void execute(TacticalGame *ge) final {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        ge->get_tv()->EndPan(pos_mouse);
+    }
+};
+
+class PanInputUpdate : public Input {
+    public:
+    std::string get_name() const final { return "InputPanningUpdate"; };
+    void execute(TacticalGame *ge) final {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        ge->get_tv()->UpdatePan(pos_mouse);
+    }
+};
+
 void StarState::init(TacticalGame* ge) {
     LOG_FUNC
+    //handler->register_input(INPUT_TYPE::middle_mouse_PRESSED, new PanInputStart());
+    // handler->register_input(INPUT_TYPE::middle_mouse_RELEASED, new PanInputEnd());
+    // handler->register_input(INPUT_TYPE::middle_mouse_HELD, new PanInputUpdate());
 }
 void StarState::cleanup(TacticalGame* ge) {
     LOG_FUNC
@@ -23,6 +58,8 @@ void StarState::cleanup(TacticalGame* ge) {
 
 void StarState::enter(TacticalGame* ge) {
     LOG_FUNC
+
+
 
 }
 void StarState::exit(TacticalGame* ge) {
@@ -38,35 +75,33 @@ void StarState::resume(TacticalGame* ge) {
 
 }
 void StarState::handle_input(TacticalGame* ge) {
-    //LOG_FUNC
-    auto tv = ge->get_tv();
-    auto pos_mouse = ge->GetMousePos();
-    if(ge->GetMouse(MOUSE_MBUTTON).bPressed) tv->StartPan(pos_mouse);
-    if(ge->GetMouse(MOUSE_MBUTTON).bReleased) tv->EndPan(pos_mouse);
-    if(ge->GetMouse(MOUSE_MBUTTON).bHeld) tv->UpdatePan(pos_mouse);
+    handler->get_input(ge)->execute(ge);
+    // //LOG_FUNC
+    // auto tv = ge->get_tv();
+    // auto pos_mouse = ge->GetMousePos();
 
-    if(ge->GetMouseWheel() < 0) tv->ZoomAtScreenPos(0.5f, pos_mouse);
-    if(ge->GetMouseWheel() > 0) tv->ZoomAtScreenPos(2.0f, pos_mouse);
+    // if(ge->GetMouseWheel() < 0) tv->ZoomAtScreenPos(0.5f, pos_mouse);
+    // if(ge->GetMouseWheel() > 0) tv->ZoomAtScreenPos(2.0f, pos_mouse);
 
-    if(ge->GetMouse(MOUSE_RBUTTON).bReleased) {
-        // ge->change_state(TransitionState::LoadState::get());
-        ge->push_state(InitState::Instance());
-    }
+    // if(ge->GetMouse(MOUSE_RBUTTON).bReleased) {
+    //     // ge->change_state(TransitionState::LoadState::get());
+    //     ge->push_state(InitState::Instance());
+    // }
 
-    if(ge->GetMouse(MOUSE_LBUTTON).bReleased) {
-        auto &reg = ge->get_reg();
-        auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();  // (ge->GetMousePos() - tv->GetTileOffset()) / tv->GetWorldScale();
-        for(auto [ent, pos, circular] : reg.view<Pos, SizeCirc, Tag::Hoverable, Tag::Selectable>().each()) {
-            if(isInside(pos.coordinates.x, pos.coordinates.y, circular.r, mouse_pos.x, mouse_pos.y))
-            {
-                tv->FillCircle(pos.coordinates, circular.r*0.75, olc::WHITE);
-                if(ge->GetMouse(MOUSE_LBUTTON).bReleased) {
-                    StarStateSelected::Instance()->set_camera_point(ent);
-                    ge->push_state(StarStateSelected::Instance());
-                }
-            }
-        }
-    }
+    // if(ge->GetMouse(MOUSE_LBUTTON).bReleased) {
+    //     auto &reg = ge->get_reg();
+    //     auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();  // (ge->GetMousePos() - tv->GetTileOffset()) / tv->GetWorldScale();
+    //     for(auto [ent, pos, circular] : reg.view<Pos, SizeCirc, Tag::Hoverable, Tag::Selectable>().each()) {
+    //         if(isInside(pos.coordinates.x, pos.coordinates.y, circular.r, mouse_pos.x, mouse_pos.y))
+    //         {
+    //             tv->FillCircle(pos.coordinates, circular.r*0.75, olc::WHITE);
+    //             if(ge->GetMouse(MOUSE_LBUTTON).bReleased) {
+    //                 StarStateSelected::Instance()->set_camera_point(ent);
+    //                 ge->push_state(StarStateSelected::Instance());
+    //             }
+    //         }
+    //     }
+    // }
 }
 void StarState::update(TacticalGame* ge) {
     //LOG_FUNC

@@ -8,10 +8,6 @@
 
 #include "logger.hpp"
 
-#define MOUSE_LBUTTON 0
-#define MOUSE_RBUTTON 1
-#define MOUSE_MBUTTON 2
-
 class TacticalGame : public olc::PixelGameEngine
 {
     public:

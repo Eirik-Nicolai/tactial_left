@@ -4,6 +4,8 @@
 #define OLC_PGEX_TRANSFORMEDVIEW
 #include "olc/olcPGEX_TransformedView.h"
 
+
+
 #include "game.hpp"
 #include "states/init/initstate.hpp"
 #include "states/star/starstate.hpp"
@@ -111,11 +113,13 @@ bool TacticalGame::OnUserCreate()
 
     // TODO maybe change these to be
     // stored in a list inside the GE ?
+    Debug("Initializing game states");
     PlayingState::InitState::Instance()->init(this);
     PlayingState::StarState::Instance()->init(this);
     PlayingState::CombatState::Instance()->init(this);
     TransitionState::LoadState::Instance()->init(this);
 
+    Debug("Setting up camera");
     tvp = std::make_shared<olc::TileTransformedView>(
         olc::vi2d( ScreenWidth(), ScreenHeight()),
         olc::vi2d(1, 1)
@@ -124,6 +128,7 @@ bool TacticalGame::OnUserCreate()
     tvp->SetWorldScale({1.0f, 1.0f});
     tvp->SetWorldOffset(olc::vi2d(0.f, 0.f) - (tvp->ScaleToWorld({ScreenWidth()/2.f,ScreenHeight()/2.f})));
 
+    Debug("Setting init state");
     change_state(TransitionState::LoadState::Instance());
     if(!m_states.empty()) {
         Info("Starting on state {}", m_states.front()->get_name());

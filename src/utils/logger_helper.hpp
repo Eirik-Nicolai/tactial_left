@@ -3,7 +3,6 @@
 #include <spdlog/fmt/bundled/format.h>
 #include "components/components.hpp"
 
-
 template <typename C>
 class fmt::formatter<std::vector<C>> {
   // format specification storage

@@ -1,5 +1,7 @@
 #pragma once
-#include "game.hpp"
+#include "engine/input_handler.hpp"
+
+class InputHandler;
 class TacticalGame;
 
 class GameState {
@@ -27,4 +29,5 @@ class GameState {
 
     protected:
         GameState() {}
+        InputHandler* handler;
 };

@@ -44,7 +44,7 @@ class Subject
             m_observers = m_nObservers;
         }
 
-        void notify(const entt::registry& reg, Event event)
+        void notify(const entt::registry& reg, const Event& event)
         {
             for (int i = 0; i < m_numObservers; i++)
             {

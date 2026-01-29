@@ -30,6 +30,11 @@ set(SRC_STATES
     src/states/load/loadstate.cpp
 )
 
+set(SRC_ENGINE
+    src/engine/input_handler.cpp
+    src/engine/sound.cpp
+)
+
 set(SRC_SYSTEMS
     src/systems/rendering.cpp
 )
@@ -37,6 +42,7 @@ set(SRC_SYSTEMS
 set(SRC_GAME
     ${SRC_MAIN}
     ${SRC_STATES}
+    ${SRC_ENGINE}
     ${SRC_SYSTEMS}
 )
 
