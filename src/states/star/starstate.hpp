@@ -2,6 +2,10 @@
 #include "game.hpp"
 #include "states/gamestate.hpp"
 #include "utils/geometry.hpp"
+
+#include "engine/event.hpp"
+
+
 namespace PlayingState {
 class StarState : public GameState {
     /// ------ SINGLETON LOGIC ------ ///

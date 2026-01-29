@@ -9,12 +9,11 @@ class InputHandler {
 
     void unregister_input(INPUT_TYPE type);
 
-    void register_input(INPUT_TYPE type, Input* inp);
+    void register_input(INPUT_TYPE type, std::shared_ptr<Input> inp);
 
-    Input* get_input(TacticalGame* ge);
+    std::shared_ptr<Input> get_input(TacticalGame* ge);
 
   private:
-    //TODO could make into a C array for speed ?
-    std::map<INPUT_TYPE, Input*> m_registered_inputs;
-    NULLInput* NONE;
+    std::array<std::shared_ptr<Input>, 40> m_registered_inputs;
+    std::shared_ptr<NULLInput> NONE;
 };

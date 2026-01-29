@@ -33,17 +33,6 @@ class Input{
     virtual void execute(TacticalGame*) = 0;
 };
 
-
-class DebugInputWrapper : public Input {
-  private:
-    Input* input;
-  public:
-    virtual std::string get_name() const { return "InputLogWrapper"; };
-    inline void execute(TacticalGame* ge) final {
-      Debug("Executing input: {}", input->get_name());
-    };
-};
-
 class NULLInput : public Input{
   public:
     virtual std::string get_name() const { return "NONEInput"; };
@@ -51,4 +40,18 @@ class NULLInput : public Input{
       std::ignore = ge;
       // do nothing
     };
+};
+
+class InputDebugWrapper : public Input {
+  private:
+    std::shared_ptr<Input> input;
+  public:
+    InputDebugWrapper(std::shared_ptr<Input> wrapped = std::make_shared<NULLInput>()) : input(std::move(wrapped)) {}
+    virtual std::string get_name() const { return "InputLogWrapper"; };
+    inline void execute(TacticalGame* ge) final {
+      Debug("Executing input: {}", input->get_name());
+      input->execute(ge);
+    };
+
+    std::shared_ptr<Input> get_underlying() { return input; }
 };

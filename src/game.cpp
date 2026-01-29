@@ -4,13 +4,13 @@
 #define OLC_PGEX_TRANSFORMEDVIEW
 #include "olc/olcPGEX_TransformedView.h"
 
-
-
 #include "game.hpp"
 #include "states/init/initstate.hpp"
 #include "states/star/starstate.hpp"
 #include "states/load/loadstate.hpp"
 #include "states/combat/combatstate.hpp"
+
+#include "systems/rendering.hpp"
 
 
 //TODO move to own file/class
@@ -61,6 +61,8 @@ void TacticalGame::change_state(GameState* state) {
 TacticalGame::TacticalGame()
 {
     sAppName = "TACTICAL LEFTIST";
+
+    m_system_managers_amount = 0;
 }
 
 bool TacticalGame::OnUserDestroy() {
@@ -134,13 +136,23 @@ bool TacticalGame::OnUserCreate()
         Info("Starting on state {}", m_states.front()->get_name());
     }
 
+    Debug("Initiating systems");
+    // TODO add helper function
+    auto rendering_manager = std::make_unique<RenderingSystemManager>();
+    rendering_manager->add(std::make_unique<PreRenderer>());
+    rendering_manager->add(std::make_unique<FirstRenderer>());
+    rendering_manager->add(std::make_unique<SecondRenderer>());
+    rendering_manager->add(std::make_unique<ThirdRenderer>());
+    rendering_manager->add(std::make_unique<GUIRenderer>());
+    rendering_manager->add(std::make_unique<WireframeRenderer>());
+    Debug("Adding {}", rendering_manager->get_name());
+    m_system_managers[m_system_managers_amount] = std::move(rendering_manager);
+    m_system_managers_amount++;
     return true;
 }
 
 bool TacticalGame::OnUserUpdate(float dt)
 {
-    Clear(olc::BLACK);
-
     auto CURR_STATE = m_states.back();
 
     // HACK shoud find a better way of testing state
@@ -154,8 +166,12 @@ bool TacticalGame::OnUserUpdate(float dt)
         CURR_STATE->update(this);
     }
     for(auto &state : m_states) {
-        state->draw(this);
+        //state->draw(this);
     }
 
+
+    for(int i = 0; i < m_system_managers_amount; ++i) {
+        m_system_managers[i]->dispatch(this);
+    }
     return true;
 }

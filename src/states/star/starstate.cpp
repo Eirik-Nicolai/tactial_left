@@ -16,6 +16,15 @@
 using namespace PlayingState;
 StarState* StarState::m_state;
 
+
+class TestInput : public Input {
+    public:
+    std::string get_name() const final { return "Test Input StarState key P"; };
+    void execute(TacticalGame *ge) final {
+        Error("Triggered input {}", get_name());
+    }
+};
+
 class PanInputStart : public Input {
     public:
     std::string get_name() const final { return "InputPanningStart"; };
@@ -23,6 +32,26 @@ class PanInputStart : public Input {
         auto tv = ge->get_tv();
         auto pos_mouse = ge->GetMousePos();
         ge->get_tv()->StartPan(pos_mouse);
+    }
+};
+
+class ScrollUpInput : public Input {
+    public:
+    std::string get_name() const final { return "ScrollUpInputStart"; };
+    void execute(TacticalGame *ge) final {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        tv->ZoomAtScreenPos(0.5f, pos_mouse);
+    }
+};
+
+class ScrollDownInput : public Input {
+    public:
+    std::string get_name() const final { return "ScrollDownInputStart"; };
+    void execute(TacticalGame *ge) final {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        tv->ZoomAtScreenPos(2.f, pos_mouse);
     }
 };
 
@@ -48,9 +77,30 @@ class PanInputUpdate : public Input {
 
 void StarState::init(TacticalGame* ge) {
     LOG_FUNC
-    //handler->register_input(INPUT_TYPE::middle_mouse_PRESSED, new PanInputStart());
-    // handler->register_input(INPUT_TYPE::middle_mouse_RELEASED, new PanInputEnd());
-    // handler->register_input(INPUT_TYPE::middle_mouse_HELD, new PanInputUpdate());
+    handler = std::make_unique<InputHandler>();
+
+    handler->register_input(INPUT_TYPE::middle_mouse_PRESSED,
+                            std::make_shared<InputDebugWrapper>(
+                                std::make_shared<PanInputStart>()));
+    handler->register_input(INPUT_TYPE::middle_mouse_RELEASED,
+                            std::make_shared<InputDebugWrapper>(
+                                std::make_shared<PanInputEnd>()));
+    handler->register_input(INPUT_TYPE::middle_mouse_HELD,
+                            std::make_shared<InputDebugWrapper>(
+                                std::make_shared<PanInputUpdate>()));
+
+    handler->register_input(INPUT_TYPE::middle_mouse_SCROLLDOWN,
+                            std::make_shared<InputDebugWrapper>(
+                                std::make_shared<ScrollUpInput>()));
+
+    handler->register_input(INPUT_TYPE::middle_mouse_SCROLLUP,
+                            std::make_shared<InputDebugWrapper>(
+                                std::make_shared<ScrollDownInput>()));
+
+
+
+    handler->register_input(INPUT_TYPE::left_mouse_PRESSED,
+                            std::make_shared<TestInput>());
 }
 void StarState::cleanup(TacticalGame* ge) {
     LOG_FUNC
@@ -58,9 +108,6 @@ void StarState::cleanup(TacticalGame* ge) {
 
 void StarState::enter(TacticalGame* ge) {
     LOG_FUNC
-
-
-
 }
 void StarState::exit(TacticalGame* ge) {
     LOG_FUNC
@@ -75,13 +122,13 @@ void StarState::resume(TacticalGame* ge) {
 
 }
 void StarState::handle_input(TacticalGame* ge) {
-    handler->get_input(ge)->execute(ge);
+    auto input = handler->get_input(ge);
+    input->execute(ge);
+
+
     // //LOG_FUNC
     // auto tv = ge->get_tv();
     // auto pos_mouse = ge->GetMousePos();
-
-    // if(ge->GetMouseWheel() < 0) tv->ZoomAtScreenPos(0.5f, pos_mouse);
-    // if(ge->GetMouseWheel() > 0) tv->ZoomAtScreenPos(2.0f, pos_mouse);
 
     // if(ge->GetMouse(MOUSE_RBUTTON).bReleased) {
     //     // ge->change_state(TransitionState::LoadState::get());
@@ -117,20 +164,21 @@ void StarState::update(TacticalGame* ge) {
         if(new_angle > 360.f) new_angle -= 360.f;
 
         //Debug(new_angle);
-        auto rot_centre = get<Pos>(reg, orb.anchor).coordinates;
+        auto rot_centre = get<Pos>(reg, orb.anchor);
 
         float x = rot_centre.x - (orb.dist * cosf(new_angle));
         float y = rot_centre.y - (orb.dist * sinf(new_angle));
 
-        pos.coordinates = {x, y};
+        pos.x = x;
+        pos.y = y;
         orb.angle = new_angle;
 
-        tv->DrawLine(rot_centre, pos.coordinates, olc::CYAN, 0xF0F0F0F0);
+        // tv->DrawLine(rot_centre.x, rot_centre.y, pos.x, pos.y, olc::CYAN, 0xF0F0F0F0);
     }
 
     auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();  // (ge->GetMousePos() - tv->GetTileOffset()) / tv->GetWorldScale();
     for(auto [ent, pos, circular] : reg.view<Pos, SizeCirc, Tag::Hoverable, Tag::Selectable>().each()) {
-        if(isInside(pos.coordinates.x, pos.coordinates.y, circular.r, mouse_pos.x, mouse_pos.y))
+        if(isInside(pos.x, pos.y, circular.r, mouse_pos.x, mouse_pos.y))
         {
             if(!has<Tag::Hovered>(reg, ent)) reg.emplace<Tag::Hovered>(ent);
         } else {
@@ -143,11 +191,8 @@ void StarState::draw(TacticalGame* ge) {
     //LOG_FUNC
     auto &reg = ge->get_reg();
 
-    State::Star::render_stars(reg, ge);
+    // State::Star::render_stars(reg, ge);
 }
-
-
-
 
 
 StarStateSelected* StarStateSelected::m_state;
@@ -198,7 +243,8 @@ void StarStateSelected::update(TacticalGame* ge) {
     if(pointofinterest != entt::null) {
         auto tv = ge->get_tv();
         auto pos = get<Pos>(ge->get_reg(),pointofinterest);
-        tv->SetWorldOffset(pos.coordinates - (tv->ScaleToWorld({ge->ScreenWidth()/2.f,ge->ScreenHeight()/2.f})));
+        auto coordinates = olc::vi2d(pos.x, pos.y);
+        tv->SetWorldOffset(coordinates - (tv->ScaleToWorld({ge->ScreenWidth()/2.f,ge->ScreenHeight()/2.f})));
     }
 }
 void StarStateSelected::draw(TacticalGame* ge) {

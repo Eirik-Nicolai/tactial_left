@@ -9,10 +9,12 @@
 #include <thread>
 #include <cstdlib>
 
+#define LOADING_ELEMENTS 3
+
 using namespace TransitionState;
 LoadState* LoadState::m_state;
 
-unsigned bounded_rand(unsigned upper_range = 6)
+unsigned bounded_rand(unsigned upper_range = 2)
 {
     for (unsigned x, r;;)
         if (x = rand(), r = x % upper_range, x - r <= -upper_range)
@@ -25,18 +27,11 @@ void sleep_for(int seconds) {
 
 void do_work(std::vector<int>& assets) {
     sleep_for(bounded_rand());
-    Trace("Adding element");
-    assets.emplace_back(5);
-    sleep_for(bounded_rand());
-    Trace("Adding element");
-    assets.emplace_back(5);
-    sleep_for(bounded_rand());
-    Trace("Adding element");
-    assets.emplace_back(5);
-    sleep_for(bounded_rand());
-    Trace("Adding element");
-    assets.emplace_back(5);
-    sleep_for(bounded_rand());
+    for(auto i = 0; i < LOADING_ELEMENTS; ++i) {
+        Trace("Adding element");
+        assets.emplace_back(i);
+        sleep_for(bounded_rand());
+    }
     Debug("Finished thread");
 }
 
@@ -53,31 +48,27 @@ void LoadState::enter(TacticalGame* ge) {
     sElapsedTime = 0;
     m_assets.clear();
 
-
     Debug("Making thread");
     m_tLoader = std::thread(do_work, std::ref(m_assets));
     m_tLoader.detach();
 
     auto& reg = ge->get_reg();
     auto sun = reg.create();
-    reg.emplace<Pos>(sun, olc::vf2d(0, 0 ));
-    reg.emplace<Rendering::Wireframe>(sun, olc::DARK_RED);
-    reg.emplace<SizeCirc>(sun, 60);
+    reg.emplace<Pos>(sun, 0, 0);
+    reg.emplace<Rendering::Wireframe>(sun, Rendering::Wireframe::TYPE::CIRCLE_FILL, olc::DARK_RED);
+    reg.emplace<Rendering::Size>(sun, 60, 0);
 
     auto earth = reg.create();
-    reg.emplace<Pos>(earth, olc::vf2d(0, 0 ));
-    reg.emplace<Rendering::Wireframe>(earth, olc::DARK_BLUE);
-    reg.emplace<SizeCirc>(earth, 10);
+    reg.emplace<Pos>(earth, 50, 50 );
+    reg.emplace<Rendering::Wireframe>(earth, Rendering::Wireframe::TYPE::TRIANGLE_FILL, olc::DARK_BLUE);
+    reg.emplace<Rendering::Size>(earth, 30, 0);
     reg.emplace<Tag::Selectable>(earth);
     reg.emplace<Tag::Hoverable>(earth);
 
-
-    m_assets.emplace_back(1);
-
     auto moon = reg.create();
-    reg.emplace<Pos>(moon, olc::vf2d(0, 0 ));
-    reg.emplace<Rendering::Wireframe>(moon, olc::DARK_GREY);
-    reg.emplace<SizeCirc>(moon, 5);
+    reg.emplace<Pos>(moon, 100, 100 );
+    reg.emplace<Rendering::Wireframe>(moon,Rendering::Wireframe::TYPE::SQUARE, olc::WHITE);
+    reg.emplace<Rendering::Size>(moon, 10, 10);
     reg.emplace<Tag::Selectable>(moon);
     reg.emplace<Tag::Hoverable>(moon);
 
@@ -107,7 +98,7 @@ void LoadState::handle_input(TacticalGame* ge) {
 void LoadState::update(TacticalGame* ge) {
     //TRACE_LOG_TEXT_NOL(sElapsedTime)
 
-    if(m_assets.size() >= 5) {
+    if(m_assets.size() >= LOADING_ELEMENTS) {
         sElapsedTime += ge->GetElapsedTime();
     }
 
@@ -119,7 +110,7 @@ void LoadState::update(TacticalGame* ge) {
 void LoadState::draw(TacticalGame* ge) {
     //LOG_FUNC
 
-    if(m_assets.size() >= 5) {
+    if(m_assets.size() >= LOADING_ELEMENTS) {
         ge->DrawString(400, 300, "DONE",olc::RED, 3);
     } else {
         ge->DrawString(400, 300, "LOADING, PLEASE WAIT...",olc::RED, 3);

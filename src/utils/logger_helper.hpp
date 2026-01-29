@@ -68,8 +68,8 @@ public:
       switch (presentation_) {
           default:
               // 'ctx.out()' is an output iterator
-          case 'f': return format_to(ctx.out(), "({:f}, {:f})", p.coordinates.x, p.coordinates.y);
-          case 'e': return format_to(ctx.out(), "({:e}, {:e})", p.coordinates.x, p.coordinates.y);
+          case 'f': return format_to(ctx.out(), "({:f}, {:f})", p.x, p.y);
+          case 'e': return format_to(ctx.out(), "({:e}, {:e})", p.x, p.y);
       }
   }
 };

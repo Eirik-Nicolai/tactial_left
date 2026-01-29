@@ -7,6 +7,7 @@
 #include "states/gamestate.hpp"
 
 #include "logger.hpp"
+#include "systems/system.hpp"
 
 class TacticalGame : public olc::PixelGameEngine
 {
@@ -55,6 +56,8 @@ class TacticalGame : public olc::PixelGameEngine
         entt::registry m_reg;
         std::string get_name() const { return "MAIN ENGINE"; }
 
+        unsigned m_system_managers_amount;
+        std::array<std::unique_ptr<SystemManager>, MAX_SYSTEM_AMOUNT> m_system_managers;
 
     private: //DEBUGGING HELPER FUNCTIONS
 };

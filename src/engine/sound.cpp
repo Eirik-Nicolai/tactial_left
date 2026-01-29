@@ -8,6 +8,6 @@ void SoundEngine::init() {
     Error("onNotify not yet implemented !");
 }
 
-void SoundEngine::onNotify(const entt::registry& entity, const Event& event) {
+void SoundEngine::on_notify(const entt::registry& entity, const Event& event) {
     Error("onNotify not yet implemented !");
 }

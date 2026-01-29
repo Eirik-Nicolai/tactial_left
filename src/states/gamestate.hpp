@@ -29,5 +29,5 @@ class GameState {
 
     protected:
         GameState() {}
-        InputHandler* handler;
+        std::unique_ptr<InputHandler> handler;
 };

@@ -11,9 +11,21 @@ struct Component {
 namespace Rendering {
   struct Texture {};
 
+  struct Size{
+    int h;
+    int w;
+  };
   struct Wireframe{
+    enum class TYPE{
+      CIRCLE,
+      SQUARE,
+      TRIANGLE,
+      CIRCLE_FILL,
+      SQUARE_FILL,
+      TRIANGLE_FILL,
+    } type;
     olc::Pixel color;
-    bool is_circular;
+
   };
 };
 
@@ -29,7 +41,8 @@ namespace Debugging {
 namespace World {
 };
 struct Pos {
-  olc::vf2d coordinates;
+  int x;
+  int y;
 };
 struct SizeCirc {
   int r;
