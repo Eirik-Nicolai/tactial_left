@@ -177,12 +177,13 @@ void StarState::update(TacticalGame* ge) {
     }
 
     auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();  // (ge->GetMousePos() - tv->GetTileOffset()) / tv->GetWorldScale();
-    for(auto [ent, pos, circular] : reg.view<Pos, SizeCirc, Tag::Hoverable, Tag::Selectable>().each()) {
-        if(isInside(pos.x, pos.y, circular.r, mouse_pos.x, mouse_pos.y))
+    for(auto [ent, pos, size] : reg.view<Pos, Rendering::Size>().each()) {
+        if(isInside(pos.x, pos.y, size.h, mouse_pos.x, mouse_pos.y))
         {
-            if(!has<Tag::Hovered>(reg, ent)) reg.emplace<Tag::Hovered>(ent);
+            Debug("INSIDE ENTITY {} {}", Debugging::entity_name(reg, ent), Debugging::entity_id(reg, ent));
+            if(!has<_hovered>(reg, ent)) reg.emplace<_hovered>(ent);
         } else {
-            if(has<Tag::Hovered>(reg,ent)) reg.remove<Tag::Hovered>(ent);
+            if(has<_hovered>(reg,ent)) reg.remove<_hovered>(ent);
         }
     }
 }
@@ -191,7 +192,7 @@ void StarState::draw(TacticalGame* ge) {
     //LOG_FUNC
     auto &reg = ge->get_reg();
 
-    // State::Star::render_stars(reg, ge);
+
 }
 
 

@@ -2,6 +2,7 @@
 #include "game.hpp"
 #include "entt/entt.hpp"
 
+#include "utils/debugging.hpp"
 #include "systems/system.hpp"
 
 // TODO move systems to subdir of states probably
@@ -18,43 +19,44 @@
 // };
 
 class Renderer : public System {
-    std::string_view get_name() override { return "System - Renderer"; }
+    GET_NAME(System, Renderer)
     virtual void execute(TacticalGame* ge) override {};
 };
 
 class PreRenderer : public Renderer {
     // TODO can we make this a macro to generate names of subclasses like this
-    std::string_view get_name() override { return "System - Renderer - PreRenderer"; }
+
+    GET_NAME(Renderer, PreRenderer)
     void execute(TacticalGame* ge) override;
 };
 
 class FirstRenderer : public Renderer {
     // TODO can we make this a macro to generate names of subclasses like this
-    std::string_view get_name() override { return "System - Renderer - FirstRenderer"; }
+    GET_NAME(Renderer, FirstRenderer)
     void execute(TacticalGame* ge) override;
 };
 
 class SecondRenderer : public Renderer {
     // TODO can we make this a macro to generate names of subclasses like this
-    std::string_view get_name() override { return "System - Renderer - SecondRenderer"; }
+    GET_NAME(Renderer, SecondRenderer)
     void execute(TacticalGame* ge) override;
 };
 
 class ThirdRenderer : public Renderer {
     // TODO can we make this a macro to generate names of subclasses like this
-    std::string_view get_name() override { return "System - Renderer - ThirdRenderer"; }
+    GET_NAME(Renderer, ThirdRenderer)
     void execute(TacticalGame* ge) override;
 };
 
 class PostRenderer : public Renderer {
     // TODO can we make this a macro to generate names of subclasses like this
-    std::string_view get_name() override { return "System - Renderer - PostRenderer"; }
+    GET_NAME(Renderer, PostRenderer)
     void execute(TacticalGame* ge) override;
 };
 
 class GUIRenderer : public Renderer {
     // TODO can we make this a macro to generate names of subclasses like this
-    std::string_view get_name() override { return "System - Renderer - GUIRenderer"; }
+    GET_NAME(Renderer, GUIRenderer)
     void execute(TacticalGame* ge) override;
 };
 
@@ -62,14 +64,14 @@ class GUIRenderer : public Renderer {
 // Debugging
 class WireframeRenderer : public Renderer {
     // TODO can we make this a macro to generate names of subclasses like this
-    std::string_view get_name() override { return "System - Renderer - WireframeRenderer"; }
+    GET_NAME(Renderer, WireframeRenderer)
     void execute(TacticalGame* ge) override;
 };
 
 
 class RenderingSystemManager : public SystemManager {
   public:
-    std::string_view get_name() override { return "RenderingSystemManager"; }
+    GET_NAME(SystemManager, RenderingSystemManager)
     RenderingSystemManager();
     void add(std::unique_ptr<System> system) override;
     void dispatch(TacticalGame* ge) override;

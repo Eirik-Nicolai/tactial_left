@@ -83,7 +83,7 @@ bool TacticalGame::OnUserCreate()
     // TODO move all this logic to config reading
     // class
     std::fstream fs;
-    fs.open("/home/enoo/repos/personal/tactical_leftist/config.yml");
+    fs.open("config.yml");
     if(!fs.is_open()) {
         //Error("NO CONFIG FILE");
         throw std::runtime_error("Unable to find config");
@@ -121,6 +121,9 @@ bool TacticalGame::OnUserCreate()
     PlayingState::CombatState::Instance()->init(this);
     TransitionState::LoadState::Instance()->init(this);
 
+    Error("Printing {}", fmt::ptr(PlayingState::StarStateSelected::Instance()));
+    Error("Printing {}", fmt::ptr(PlayingState::StarStateSelected::Instance()));
+
     Debug("Setting up camera");
     tvp = std::make_shared<olc::TileTransformedView>(
         olc::vi2d( ScreenWidth(), ScreenHeight()),
@@ -136,7 +139,7 @@ bool TacticalGame::OnUserCreate()
         Info("Starting on state {}", m_states.front()->get_name());
     }
 
-    Debug("Initiating systems");
+    Debug("Initiating systems");;
     // TODO add helper function
     auto rendering_manager = std::make_unique<RenderingSystemManager>();
     rendering_manager->add(std::make_unique<PreRenderer>());

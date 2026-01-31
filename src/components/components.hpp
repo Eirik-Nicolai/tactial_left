@@ -2,15 +2,49 @@
 #include "olc/olcPixelGameEngine.h"
 #include "entt/entt.hpp"
 
+#include <string>
+
+// ------------------------------------------------
+// |    COMPONENTS FOR ECS SYSTEM MAIN FILE
+// |    Naming:
+// |    Tags: _name
+// |    Logic: Name
+// ------------------------------------------------
+
 struct Component {
   Component() = default;
   virtual std::string print() const = 0;
 };
 
+// size and pos in screenspace not game space
+// mostly for gui ?
+namespace Screen{
+  struct Size{
+    int h;
+    int w;
+  };
+  struct Pos{
+    int x;
+    int y;
+  };
+}
 
 namespace Rendering {
-  struct Texture {};
-
+  namespace Layer {
+    struct _pre{};
+    struct _first{};
+    struct _second{};
+    struct _third{};
+    struct _post{};
+    struct _gui{};
+    struct _wireframe{};
+  };
+  // playing states (name pending, parent states ?) keep track of sprites which are
+  // loaded on enter and passed to decals
+  // which are sent to renderer system to render in correct layer
+  struct Decal {
+    olc::Decal value;
+  };
   struct Size{
     int h;
     int w;
@@ -30,11 +64,13 @@ namespace Rendering {
 };
 
 namespace Debugging {
-  struct Id {
-    unsigned value;
-  };
-  struct Print {
+  struct Debug{
+    Debug() {};
+    Debug(std::string s) : name(s)
+    { id=std::hash<std::string>{}(s); }
+
     std::string name;
+    uint32_t id;
   };
 };
 
@@ -44,32 +80,18 @@ struct Pos {
   int x;
   int y;
 };
-struct SizeCirc {
-  int r;
-};
-struct SizeRect {
-  int w;
-  int h;
-};
-
 struct Orbiting {
   entt::entity anchor;
   float dist;
   float speed;
   float angle;
 };
+// TODO move to game logic namespace and file
+struct _hoverable{};
+struct _hovered{};
+struct _selectable{};
+struct _selected{};
 
-
-namespace Tag {
-struct Hoverable{};
-struct Hovered{};
-struct Selectable{};
-struct Selected{};
-
-struct Star{};
-struct Planet{};
-struct Moon{};
-
-
-
-};
+struct _star{};
+struct _planet{};
+struct _moon{};

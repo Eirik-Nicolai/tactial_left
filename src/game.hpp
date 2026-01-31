@@ -24,7 +24,6 @@ class TacticalGame : public olc::PixelGameEngine
 
     public:
         std::vector<std::string> m_debug;
-        std::string get_name(const entt::entity&, std::string = "UNNAMED_ENTITY");
 
         bool has_enough_resources(entt::entity&, entt::entity&);
         std::vector<entt::entity> get_inventory_of_equip_type(entt::entity&);

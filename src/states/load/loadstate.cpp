@@ -62,19 +62,23 @@ void LoadState::enter(TacticalGame* ge) {
     reg.emplace<Pos>(earth, 50, 50 );
     reg.emplace<Rendering::Wireframe>(earth, Rendering::Wireframe::TYPE::TRIANGLE_FILL, olc::DARK_BLUE);
     reg.emplace<Rendering::Size>(earth, 30, 0);
-    reg.emplace<Tag::Selectable>(earth);
-    reg.emplace<Tag::Hoverable>(earth);
+    reg.emplace<_selectable>(earth);
+    reg.emplace<_hoverable>(earth);
 
     auto moon = reg.create();
     reg.emplace<Pos>(moon, 100, 100 );
     reg.emplace<Rendering::Wireframe>(moon,Rendering::Wireframe::TYPE::SQUARE, olc::WHITE);
     reg.emplace<Rendering::Size>(moon, 10, 10);
-    reg.emplace<Tag::Selectable>(moon);
-    reg.emplace<Tag::Hoverable>(moon);
+    reg.emplace<_selectable>(moon);
+    reg.emplace<_hoverable>(moon);
 
 
     reg.emplace<Orbiting>(earth, sun, 500.f, 0.1f);
     reg.emplace<Orbiting>(moon, earth, 50.f, -0.5f);
+
+    reg.emplace<Debugging::Debug>(sun, "SUN");
+    reg.emplace<Debugging::Debug>(earth, "EARTH");
+    reg.emplace<Debugging::Debug>(moon, "MOON");
 }
 void LoadState::exit(TacticalGame* ge) {
     LOG_FUNC

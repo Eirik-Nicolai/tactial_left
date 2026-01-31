@@ -55,3 +55,23 @@ component add(entt::registry& reg, entt::entity e, Args && ...args)
 {
   return reg.emplace<component>(e, std::forward<Args>(args) ...);
 }
+
+
+
+
+
+#include "components/components.hpp"
+namespace Debugging {
+  inline std::string entity_name(const entt::registry& reg, entt::entity& ent) {
+    Debugging::Debug d;
+    auto res = tryget_component(reg, ent, d);
+    if(!res) return "[NAMELESS ENTITY]";
+    return d.name;
+  }
+  inline uint32_t entity_id(const entt::registry& reg, entt::entity& ent) {
+    Debugging::Debug d;
+    auto res = tryget_component(reg, ent, d);
+    if(!res) return 0;
+    return d.id;
+  }
+};

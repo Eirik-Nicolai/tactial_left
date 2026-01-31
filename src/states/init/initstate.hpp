@@ -14,9 +14,9 @@ class InitState : public GameState {
     private:
         static InitState* m_state;
 
+    GET_NAME(GameState, Initstate)
     /// --------- STATE LOGIC --------- ///
     public:
-        std::string get_name() const final { return "InitState"; }
 
         void init(TacticalGame* ge) override;
         void cleanup(TacticalGame* ge) override;

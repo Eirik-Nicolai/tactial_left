@@ -1,17 +1,18 @@
 #pragma once
 #include "game.hpp"
-
+#include "utils/debugging.hpp"
 constexpr auto MAX_SYSTEM_AMOUNT = 20;
 
 class System {
+  GET_BASE(System)
+
   public:
-    virtual std::string_view get_name() { return "System"; }
     virtual void execute(TacticalGame* ge) = 0;
 };
 
 class SystemManager{
+  GET_BASE(SystemManager)
   public:
-    virtual std::string_view get_name() { return "SystemManager"; }
     virtual void dispatch(TacticalGame* ge) = 0;
     virtual void add(std::unique_ptr<System> system) = 0;
   protected:

@@ -1,10 +1,12 @@
 #pragma once
 #include "engine/input_handler.hpp"
 
+#include "utils/debugging.hpp"
 class InputHandler;
 class TacticalGame;
 
 class GameState {
+  GET_BASE(GameState)
   public:
         GameState(GameState const&) = delete;
         GameState operator=(GameState const&) = delete;
