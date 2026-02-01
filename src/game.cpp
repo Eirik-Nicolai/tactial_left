@@ -13,11 +13,6 @@
 #include "systems/rendering.hpp"
 
 
-//TODO move to own file/class
-#include <fstream>
-#include <fkYAML/node.hpp>
-
-
 void TacticalGame::push_state(GameState* state) {
     LOG_FUNC
     Debug("Pushing state {}", state->get_name());
@@ -76,42 +71,9 @@ bool TacticalGame::OnUserDestroy() {
 
 bool TacticalGame::OnUserCreate()
 {
-    std::cout << "Initializing game ..." << std::endl;;
-
-    std::cout << "READ CONFIG.." << std::endl;
-
-    // TODO move all this logic to config reading
-    // class
-    std::fstream fs;
-    fs.open("config.yml");
-    if(!fs.is_open()) {
-        //Error("NO CONFIG FILE");
-        throw std::runtime_error("Unable to find config");
-    }
-
-    auto conf = fkyaml::node::deserialize(fs);
-    try {
-        // TODO can cast string to enum instead
-        auto conf_level = [&](std::string& conf) -> int {
-            if(conf == "TRACE") {
-                    return 0;
-            }
-            if(conf == "DEBUG") {
-                    return 1;
-            }
-            if(conf == "INFO") {
-                    return 2;
-            }
-            throw std::runtime_error("Throw");
-        };
-
-        auto level = conf.at("log_level").as_str();
-        std::cout << "Level is " << level << std::endl;
-        Logger::Get()->set_log_level(
-            static_cast<spdlog::level::level_enum>(conf_level(level)));
-    } catch(...) {
-        throw std::runtime_error("CANNOT READ CONFIG");
-    }
+    // layer_1 = std::make_unique<olc::Sprite>(GetScreenSize().x,GetScreenSize().y);
+    // layer_2 = std::make_unique<olc::Sprite>(GetScreenSize().x,GetScreenSize().y);
+    // layer_3 = std::make_unique<olc::Sprite>(GetScreenSize().x,GetScreenSize().y);
 
     // TODO maybe change these to be
     // stored in a list inside the GE ?
@@ -121,7 +83,6 @@ bool TacticalGame::OnUserCreate()
     PlayingState::CombatState::Instance()->init(this);
     TransitionState::LoadState::Instance()->init(this);
 
-    Error("Printing {}", fmt::ptr(PlayingState::StarStateSelected::Instance()));
     Error("Printing {}", fmt::ptr(PlayingState::StarStateSelected::Instance()));
 
     Debug("Setting up camera");
@@ -139,7 +100,8 @@ bool TacticalGame::OnUserCreate()
         Info("Starting on state {}", m_states.front()->get_name());
     }
 
-    Debug("Initiating systems");;
+    Debug("Initiating systems");
+
     // TODO add helper function
     auto rendering_manager = std::make_unique<RenderingSystemManager>();
     rendering_manager->add(std::make_unique<PreRenderer>());
@@ -148,7 +110,8 @@ bool TacticalGame::OnUserCreate()
     rendering_manager->add(std::make_unique<ThirdRenderer>());
     rendering_manager->add(std::make_unique<GUIRenderer>());
     rendering_manager->add(std::make_unique<WireframeRenderer>());
-    Debug("Adding {}", rendering_manager->get_name());
+    Debug("Adding system {}", rendering_manager->get_name());
+
     m_system_managers[m_system_managers_amount] = std::move(rendering_manager);
     m_system_managers_amount++;
     return true;

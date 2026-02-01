@@ -1,1 +1,9 @@
 log_level: DEBUG
+fullscreen: false
+vsync: false
+cohesion: false
+realwindow: true
+screenwidth: 1920
+screenheight: 1080
+pixelheight: 1
+pixelwidth: 1

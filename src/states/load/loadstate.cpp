@@ -37,6 +37,11 @@ void do_work(std::vector<int>& assets) {
 
 void LoadState::init(TacticalGame* ge) {
     LOG_FUNC
+    olc::Sprite* s;
+
+    olc::Decal d = olc::Decal(s);
+
+    ge->SetDrawTarget(1);
 }
 
 void LoadState::cleanup(TacticalGame* ge) {
@@ -56,19 +61,19 @@ void LoadState::enter(TacticalGame* ge) {
     auto sun = reg.create();
     reg.emplace<Pos>(sun, 0, 0);
     reg.emplace<Rendering::Wireframe>(sun, Rendering::Wireframe::TYPE::CIRCLE_FILL, olc::DARK_RED);
-    reg.emplace<Rendering::Size>(sun, 60, 0);
+    reg.emplace<Size>(sun, 60, 0);
 
     auto earth = reg.create();
     reg.emplace<Pos>(earth, 50, 50 );
     reg.emplace<Rendering::Wireframe>(earth, Rendering::Wireframe::TYPE::TRIANGLE_FILL, olc::DARK_BLUE);
-    reg.emplace<Rendering::Size>(earth, 30, 0);
+    reg.emplace<Size>(earth, 30, 0);
     reg.emplace<_selectable>(earth);
     reg.emplace<_hoverable>(earth);
 
     auto moon = reg.create();
     reg.emplace<Pos>(moon, 100, 100 );
     reg.emplace<Rendering::Wireframe>(moon,Rendering::Wireframe::TYPE::SQUARE, olc::WHITE);
-    reg.emplace<Rendering::Size>(moon, 10, 10);
+    reg.emplace<Size>(moon, 10, 10);
     reg.emplace<_selectable>(moon);
     reg.emplace<_hoverable>(moon);
 

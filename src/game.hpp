@@ -14,6 +14,8 @@ class TacticalGame : public olc::PixelGameEngine
     public:
         TacticalGame();
 
+        int test_x = 0;
+        float fElapsedTime;
     public:
         bool OnUserDestroy() override;
         bool OnUserCreate() override;
@@ -48,6 +50,10 @@ class TacticalGame : public olc::PixelGameEngine
 
         entt::registry& get_reg() { return m_reg; }
         std::shared_ptr<olc::TileTransformedView> get_tv() { return tvp; }
+
+        std::unique_ptr<olc::Sprite> layer_1;
+        std::unique_ptr<olc::Sprite> layer_2;
+        std::unique_ptr<olc::Sprite> layer_3;
 
     private:
         std::shared_ptr<olc::TileTransformedView> tvp;

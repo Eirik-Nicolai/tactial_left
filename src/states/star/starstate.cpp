@@ -177,7 +177,7 @@ void StarState::update(TacticalGame* ge) {
     }
 
     auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();  // (ge->GetMousePos() - tv->GetTileOffset()) / tv->GetWorldScale();
-    for(auto [ent, pos, size] : reg.view<Pos, Rendering::Size>().each()) {
+    for(auto [ent, pos, size] : reg.view<Pos, Size>().each()) {
         if(isInside(pos.x, pos.y, size.h, mouse_pos.x, mouse_pos.y))
         {
             Debug("INSIDE ENTITY {} {}", Debugging::entity_name(reg, ent), Debugging::entity_id(reg, ent));

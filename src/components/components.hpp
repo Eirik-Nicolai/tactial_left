@@ -44,10 +44,17 @@ namespace Rendering {
   // which are sent to renderer system to render in correct layer
   struct Decal {
     olc::Decal value;
+    Screen::Size size;
+    Screen::Pos pos; // if needed
   };
-  struct Size{
-    int h;
-    int w;
+  struct Background {
+    olc::Decal value;
+  };
+
+  namespace GUI {
+
+
+
   };
   struct Wireframe{
     enum class TYPE{
@@ -59,7 +66,6 @@ namespace Rendering {
       TRIANGLE_FILL,
     } type;
     olc::Pixel color;
-
   };
 };
 
@@ -79,6 +85,10 @@ namespace World {
 struct Pos {
   int x;
   int y;
+};
+struct Size{
+  int h;
+  int w;
 };
 struct Orbiting {
   entt::entity anchor;

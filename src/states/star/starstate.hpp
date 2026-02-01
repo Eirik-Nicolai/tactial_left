@@ -36,6 +36,9 @@ class StarState : public GameState {
 
         void draw(TacticalGame* ge) override;
         void update(TacticalGame* ge) override; // ?
+
+    private:
+
 };
 
 class StarStateSelected : public StarState {
