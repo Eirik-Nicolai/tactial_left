@@ -127,27 +127,25 @@ void FirstRenderer::execute(TacticalGame* ge) {
     ge->SetDrawTarget(ge->layer_1.get());
 
     ge->DrawString(10,10,"HELLO FROM 1", olc::VERY_DARK_RED, 2);
-
-    ge->get_tv()->FillCircle(ge->test_x, 100, 40, olc::BLUE);
-    if(ge->fElapsedTime >= 0.5) {
-        ge->fElapsedTime=0;
-        ge->test_x+=10;
-    }
-    ge->fElapsedTime += ge->GetElapsedTime();
 }
 
 
 void SecondRenderer::execute(TacticalGame* ge) {
     LOG_FUNC
 
+    auto& reg = ge->get_reg();
+    auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_2.get());
 
-    ge->DrawRect(120, 120, 30, 30);
-    ge->get_tv()->FillRect(120, 120, 30, 30);
+    for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal, Rendering::Layer::_second>().each())
+    {
+        decal.value.UpdateSprite();
+        auto v2 = olc::vf2d(pos.x, pos.y);
+        tv->DrawDecal(v2, &decal.value);
+        tv->DrawSprite(pos.x, pos.y, decal.value.sprite->Duplicate());
+    }
 
     ge->DrawString(14,14,"HELLO FROM 2", olc::DARK_RED, 2);
-
-    ge->get_tv()->FillCircle(ge->test_x+10, 100, 40, olc::DARK_BLUE);
 }
 
 
@@ -157,11 +155,6 @@ void ThirdRenderer::execute(TacticalGame* ge) {
     ge->SetDrawTarget(ge->layer_3.get());
 
     ge->DrawString(18,18,"HELLO FROM 3", olc::RED, 2);
-
-    for(auto i = 0; i < 1000; ++i) {
-        ge->FillCircle(30, 10+(i*3), 40, olc::GREEN);
-    }
-    ge->get_tv()->FillCircle(ge->test_x+21, 100, 40, olc::VERY_DARK_BLUE);
 }
 
 

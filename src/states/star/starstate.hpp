@@ -38,6 +38,7 @@ class StarState : public GameState {
         void update(TacticalGame* ge) override; // ?
 
     private:
+        olc::Sprite* test_sprite;
 
 };
 

@@ -101,7 +101,22 @@ void StarState::init(TacticalGame* ge) {
 
     handler->register_input(INPUT_TYPE::left_mouse_PRESSED,
                             std::make_shared<TestInput>());
+
+    auto& reg = ge->get_reg();
+    auto test = reg.create();
+    reg.emplace<Pos>(test, 40, 40);
+    reg.emplace<Size>(test, 4000, 4000);
+
+    test_sprite = new olc::Sprite();
+    auto path = "assets/Cute_Fantasy_Free/Player/Player.png";
+    auto res = test_sprite->LoadFromFile(path);
+    if(res == olc::FAIL) {
+        Error("Unable to load file {}", path);
+    }
+    reg.emplace<Rendering::Decal>(test, olc::Decal(test_sprite));
+    reg.emplace<Rendering::Layer::_second>(test);
 }
+
 void StarState::cleanup(TacticalGame* ge) {
     LOG_FUNC
 }

@@ -20,12 +20,12 @@ struct Component {
 // mostly for gui ?
 namespace Screen{
   struct Size{
-    int h;
-    int w;
+    float h;
+    float w;
   };
   struct Pos{
-    int x;
-    int y;
+    float x;
+    float y;
   };
 }
 
