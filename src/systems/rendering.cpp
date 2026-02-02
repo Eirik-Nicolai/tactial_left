@@ -42,30 +42,30 @@
 //     }
 // }
 
-// TODO move all this to arent class init since we don't change it between
-// types of managers
-// or make templated ? unsure what is better
-RenderingSystemManager::RenderingSystemManager() {
-    Debug("{} initialized", get_name());
-    m_systems = std::array<std::unique_ptr<System>, MAX_SYSTEM_AMOUNT>();
-    m_system_amount = 0;
-}
+// // TODO move all this to arent class init since we don't change it between
+// // types of managers
+// // or make templated ? unsure what is better
+// RenderingSystemManager::RenderingSystemManager() {
+//     Debug("{} initialized", get_name());
+//     m_systems = std::array<std::unique_ptr<System>, MAX_SYSTEM_AMOUNT>();
+//     m_system_amount = 0;
+// }
 
-void RenderingSystemManager::add(std::unique_ptr<System> system) {
-    Debug("Adding to list of systems, size: {}", m_system_amount);
-    if(m_system_amount < m_systems.max_size()) {
-        m_systems[m_system_amount] = std::move(system);
-        m_system_amount++;
-    } else {
-        Error("System manager {} is full !", get_name());
-    }
-}
+// void RenderingSystemManager::add(std::unique_ptr<System> system) {
+//     Debug("Adding to list of systems, size: {}", m_system_amount);
+//     if(m_system_amount < m_systems.max_size()) {
+//         m_systems[m_system_amount] = std::move(system);
+//         m_system_amount++;
+//     } else {
+//         Error("System manager {} is full !", get_name());
+//     }
+// }
 
-void RenderingSystemManager::dispatch(TacticalGame* ge) {
-    for(int i = 0; i < m_system_amount; ++i) {
-        m_systems[i]->execute(ge);
-    }
-}
+// void RenderingSystemManager::dispatch(TacticalGame* ge) {
+//     for(int i = 0; i < m_system_amount; ++i) {
+//         m_systems[i]->execute(ge);
+//     }
+// }
 
 // ---------------------------
 // | FIXME TODO
@@ -124,7 +124,17 @@ void WireframeRenderer::execute(TacticalGame* ge) {
 void FirstRenderer::execute(TacticalGame* ge) {
     LOG_FUNC
 
+    auto& reg = ge->get_reg();
+    auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_1.get());
+
+    for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal,
+            Rendering::Layer::_first>().each())
+    {
+        decal.value->UpdateSprite();
+        auto v2 = olc::vf2d(pos.x, pos.y);
+        tv->DrawDecal(v2, decal.value);
+    }
 
     ge->DrawString(10,10,"HELLO FROM 1", olc::VERY_DARK_RED, 2);
 }
@@ -139,10 +149,9 @@ void SecondRenderer::execute(TacticalGame* ge) {
 
     for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal, Rendering::Layer::_second>().each())
     {
-        decal.value.UpdateSprite();
+        decal.value->UpdateSprite();
         auto v2 = olc::vf2d(pos.x, pos.y);
-        tv->DrawDecal(v2, &decal.value);
-        tv->DrawSprite(pos.x, pos.y, decal.value.sprite->Duplicate());
+        tv->DrawDecal(v2, decal.value);
     }
 
     ge->DrawString(14,14,"HELLO FROM 2", olc::DARK_RED, 2);
@@ -152,7 +161,17 @@ void SecondRenderer::execute(TacticalGame* ge) {
 void ThirdRenderer::execute(TacticalGame* ge) {
     LOG_FUNC
 
+    auto& reg = ge->get_reg();
+    auto tv = ge->get_tv();
+
     ge->SetDrawTarget(ge->layer_3.get());
+
+    for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal, Rendering::Layer::_third>().each())
+    {
+        decal.value->UpdateSprite();
+        auto v2 = olc::vf2d(pos.x, pos.y);
+        tv->DrawDecal(v2, decal.value);
+    }
 
     ge->DrawString(18,18,"HELLO FROM 3", olc::RED, 2);
 }

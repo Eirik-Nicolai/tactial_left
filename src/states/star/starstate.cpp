@@ -103,18 +103,70 @@ void StarState::init(TacticalGame* ge) {
                             std::make_shared<TestInput>());
 
     auto& reg = ge->get_reg();
+    auto path_1 = "assets/Cute_Fantasy_Free/Player/Player.png";
+    auto path_2 = "assets/Cute_Fantasy_Free/Enemies/Skeleton.png";
+    auto path_3 = "assets/Cute_Fantasy_Free/Enemies/Slime_Green.png";
+    for(auto i = 0; i < 10; ++i) {
+        auto test = reg.create();
+        reg.emplace<Pos>(test, -400+(100*i), 40);
+        reg.emplace<Size>(test, 400, 400);
+
+        test_sprite = new olc::Sprite();
+        switch(i % 3) {
+            case 0: {
+                reg.emplace<Rendering::Layer::_first>(test);
+                auto res = test_sprite->LoadFromFile(path_1);
+                if(res == olc::FAIL) {
+                    Error("Unable to load file {}", path_1);
+                }
+            } break;
+            case 1: {
+                reg.emplace<Rendering::Layer::_second>(test);
+                auto res = test_sprite->LoadFromFile(path_3);
+                if(res == olc::FAIL) {
+                    Error("Unable to load file {}", path_3);
+                }
+            } break;
+            case 2: {
+                reg.emplace<Rendering::Layer::_third>(test);
+                auto res = test_sprite->LoadFromFile(path_2);
+                if(res == olc::FAIL) {
+                    Error("Unable to load file {}", path_2);
+                }
+            } break;
+        }
+
+        // TODO probably what we can do is save references to sprite + positon +
+        // size/etc and keep them saved in memory in the state before pushing
+        // to an array
+        // since using pointers with ECS components defeats the purpose a bit ?
+        reg.emplace<Rendering::Decal>(test, new olc::Decal(test_sprite));
+    }
+
+
     auto test = reg.create();
-    reg.emplace<Pos>(test, 40, 40);
+    reg.emplace<Pos>(test, 10, 10);
     reg.emplace<Size>(test, 4000, 4000);
 
     test_sprite = new olc::Sprite();
-    auto path = "assets/Cute_Fantasy_Free/Player/Player.png";
-    auto res = test_sprite->LoadFromFile(path);
+    reg.emplace<Rendering::Layer::_first>(test);
+    auto res = test_sprite->LoadFromFile(path_1);
     if(res == olc::FAIL) {
-        Error("Unable to load file {}", path);
+        Error("Unable to load file {}", path_1);
     }
-    reg.emplace<Rendering::Decal>(test, olc::Decal(test_sprite));
-    reg.emplace<Rendering::Layer::_second>(test);
+
+    reg.emplace<Rendering::Decal>(test, new olc::Decal(test_sprite));
+    using Rendering::Animation::Anim;
+    auto frames = std::array<Anim::AnimationFrame, 40>();
+    frames[0] = Anim::AnimationFrame{Pos{0, 0}, Size{140,140}, 1.f};
+    frames[1] = Anim::AnimationFrame{Pos{1, 0}, Size{140,140}, 3.f};
+    reg.emplace<Rendering::Animation::Anim>(test, "TEST ANIM",
+                                            std::move(frames),
+                                            0,
+                                            true,
+                                            2,
+                                            0
+    );
 }
 
 void StarState::cleanup(TacticalGame* ge) {
@@ -195,7 +247,6 @@ void StarState::update(TacticalGame* ge) {
     for(auto [ent, pos, size] : reg.view<Pos, Size>().each()) {
         if(isInside(pos.x, pos.y, size.h, mouse_pos.x, mouse_pos.y))
         {
-            Debug("INSIDE ENTITY {} {}", Debugging::entity_name(reg, ent), Debugging::entity_id(reg, ent));
             if(!has<_hovered>(reg, ent)) reg.emplace<_hovered>(ent);
         } else {
             if(has<_hovered>(reg,ent)) reg.remove<_hovered>(ent);

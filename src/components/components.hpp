@@ -15,6 +15,14 @@ struct Component {
   Component() = default;
   virtual std::string print() const = 0;
 };
+struct Pos {
+  int x;
+  int y;
+};
+struct Size{
+  int h;
+  int w;
+};
 
 // size and pos in screenspace not game space
 // mostly for gui ?
@@ -43,12 +51,29 @@ namespace Rendering {
   // loaded on enter and passed to decals
   // which are sent to renderer system to render in correct layer
   struct Decal {
-    olc::Decal value;
+    olc::Decal* value;
     Screen::Size size;
     Screen::Pos pos; // if needed
   };
   struct Background {
     olc::Decal value;
+  };
+
+  namespace Animation {
+    struct Anim {
+      struct AnimationFrame {
+        Pos pos;
+        Size size;
+        float duration;
+      };
+      std::string name;
+      std::array<AnimationFrame, 40> frames;
+      float current_duration_elapsed;
+      bool looping;
+      size_t amt_frames;
+      size_t curren_frame;
+    };
+
   };
 
   namespace GUI {
@@ -81,14 +106,6 @@ namespace Debugging {
 };
 
 namespace World {
-};
-struct Pos {
-  int x;
-  int y;
-};
-struct Size{
-  int h;
-  int w;
 };
 struct Orbiting {
   entt::entity anchor;

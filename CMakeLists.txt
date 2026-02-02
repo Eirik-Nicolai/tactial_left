@@ -36,6 +36,7 @@ set(SRC_ENGINE
 )
 
 set(SRC_SYSTEMS
+    src/systems/animation.cpp
     src/systems/rendering.cpp
 )
 

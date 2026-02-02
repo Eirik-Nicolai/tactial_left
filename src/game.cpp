@@ -11,7 +11,7 @@
 #include "states/combat/combatstate.hpp"
 
 #include "systems/rendering.hpp"
-
+#include "systems/animation.hpp"
 
 void TacticalGame::push_state(GameState* state) {
     LOG_FUNC
@@ -103,17 +103,25 @@ bool TacticalGame::OnUserCreate()
     Debug("Initiating systems");
 
     // TODO add helper function
-    auto rendering_manager = std::make_unique<RenderingSystemManager>();
+    auto rendering_manager = std::make_unique<SystemManager>("Rendering System Manager");
     rendering_manager->add(std::make_unique<PreRenderer>());
     rendering_manager->add(std::make_unique<FirstRenderer>());
     rendering_manager->add(std::make_unique<SecondRenderer>());
     rendering_manager->add(std::make_unique<ThirdRenderer>());
     rendering_manager->add(std::make_unique<GUIRenderer>());
     rendering_manager->add(std::make_unique<WireframeRenderer>());
-    Debug("Adding system {}", rendering_manager->get_name());
-
     m_system_managers[m_system_managers_amount] = std::move(rendering_manager);
+    Debug("Adding system {}", m_system_managers[m_system_managers_amount]->get_name());
     m_system_managers_amount++;
+
+    auto animation_manager = std::make_unique<SystemManager>("Animation System Manager");
+    animation_manager->add(std::make_unique<BGAnimation>());
+    animation_manager->add(std::make_unique<CharacterAnimation>());
+    animation_manager->add(std::make_unique<GUIRenderer>());
+    m_system_managers[m_system_managers_amount] = std::move(animation_manager);
+    Debug("Adding system {}", m_system_managers[m_system_managers_amount]->get_name());
+    m_system_managers_amount++;
+
     return true;
 }
 
@@ -135,6 +143,10 @@ bool TacticalGame::OnUserUpdate(float dt)
         //state->draw(this);
     }
 
+    // HACK TESTING DECALS
+    auto path = "assets/Cute_Fantasy_Free/Player/Player.png";
+    auto decal = olc::Decal(new olc::Sprite(path), false, true);
+    DrawDecal(olc::vf2d(600,10), decal, {1,1});
 
     for(int i = 0; i < m_system_managers_amount; ++i) {
         m_system_managers[i]->dispatch(this);

@@ -69,10 +69,10 @@ class WireframeRenderer : public Renderer {
 };
 
 
-class RenderingSystemManager : public SystemManager {
-  public:
-    GET_NAME(SystemManager, RenderingSystemManager)
-    RenderingSystemManager();
-    void add(std::unique_ptr<System> system) override;
-    void dispatch(TacticalGame* ge) override;
-};
+// class RenderingSystemManager : public SystemManager {
+//   public:
+//     GET_NAME(SystemManager, RenderingSystemManager)
+//     RenderingSystemManager();
+//     void add(std::unique_ptr<System> system) override;
+//     void dispatch(TacticalGame* ge) override;
+// };
