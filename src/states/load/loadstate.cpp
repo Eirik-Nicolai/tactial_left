@@ -9,7 +9,7 @@
 #include <thread>
 #include <cstdlib>
 
-#define LOADING_ELEMENTS 3
+#define LOADING_ELEMENTS 2
 
 using namespace TransitionState;
 LoadState* LoadState::m_state;
@@ -77,13 +77,31 @@ void LoadState::enter(TacticalGame* ge) {
     reg.emplace<_selectable>(moon);
     reg.emplace<_hoverable>(moon);
 
-
     reg.emplace<Orbiting>(earth, sun, 500.f, 0.1f);
     reg.emplace<Orbiting>(moon, earth, 50.f, -0.5f);
 
     reg.emplace<Debugging::Debug>(sun, "SUN");
     reg.emplace<Debugging::Debug>(earth, "EARTH");
     reg.emplace<Debugging::Debug>(moon, "MOON");
+
+    auto path_1 = "assets/Cute_Fantasy_Free/Player/Player.png";
+    auto player_decal_index = ge->load_decal(path_1, false, true);
+    reg.emplace<Rendering::Decal>(moon, player_decal_index, Screen::Size{400,400}, Screen::Pos{40,40});
+    reg.emplace<Rendering::Layer::_first>(moon);
+    Debug("LOADED SPRITE {}", player_decal_index);
+
+    auto path_2 = "assets/Cute_Fantasy_Free/Enemies/Skeleton.png";
+    auto skeleton_decal_index = ge->load_decal(path_2, false, true);
+    reg.emplace<Rendering::Decal>(earth, skeleton_decal_index, Screen::Size{400,400}, Screen::Pos{40,40});
+    reg.emplace<Rendering::Layer::_second>(earth);
+    Debug("LOADED SPRITE {}", skeleton_decal_index);
+
+    auto path_3 = "assets/Cute_Fantasy_Free/Enemies/Slime_Green.png";
+    auto slime_decal_index = ge->load_decal(path_3, false, true);
+    reg.emplace<Rendering::Decal>(sun, slime_decal_index, Screen::Size{400,400}, Screen::Pos{40,40});
+    reg.emplace<Rendering::Layer::_third>(sun);
+    Debug("LOADED SPRITE {}", slime_decal_index);
+
 }
 void LoadState::exit(TacticalGame* ge) {
     LOG_FUNC

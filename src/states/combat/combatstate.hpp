@@ -37,5 +37,7 @@ class CombatState : public GameState {
     /// ------ PRIVATE LOGIC ------ ///
     private:
         float sElapsedTime; // useful for debugging
+
+        std::array<entt::entity, 60> combat_tiles; // 6 long by 10 wide
 };
 }

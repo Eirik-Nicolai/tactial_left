@@ -13,6 +13,9 @@
 #include "systems/rendering.hpp"
 #include "systems/animation.hpp"
 
+// TODO keep 2 lists of states for one
+// current_states one next states and
+// change at the end of the game update func
 void TacticalGame::push_state(GameState* state) {
     LOG_FUNC
     Debug("Pushing state {}", state->get_name());
@@ -95,6 +98,7 @@ bool TacticalGame::OnUserCreate()
     tvp->SetWorldOffset(olc::vi2d(0.f, 0.f) - (tvp->ScaleToWorld({ScreenWidth()/2.f,ScreenHeight()/2.f})));
 
     Debug("Setting init state");
+    //change_state(PlayingState::CombatState::Instance());
     change_state(TransitionState::LoadState::Instance());
     if(!m_states.empty()) {
         Info("Starting on state {}", m_states.front()->get_name());
@@ -122,6 +126,18 @@ bool TacticalGame::OnUserCreate()
     Debug("Adding system {}", m_system_managers[m_system_managers_amount]->get_name());
     m_system_managers_amount++;
 
+
+
+
+    Debug("Loading sprite sheets");
+
+    // auto path_1 = "assets/Cute_Fantasy_Free/Player/Player.png";
+    // auto path_2 = "assets/Cute_Fantasy_Free/Enemies/Skeleton.png";
+    // auto path_3 = "assets/Cute_Fantasy_Free/Enemies/Slime_Green.png";
+    // Debug("LOADED SPRITE {}", load_decal(path_1, false, true));
+    // load_decal(path_2, false, true);
+    // load_decal(path_3, false, true);
+
     return true;
 }
 
@@ -142,11 +158,6 @@ bool TacticalGame::OnUserUpdate(float dt)
     for(auto &state : m_states) {
         //state->draw(this);
     }
-
-    // HACK TESTING DECALS
-    auto path = "assets/Cute_Fantasy_Free/Player/Player.png";
-    auto decal = olc::Decal(new olc::Sprite(path), false, true);
-    DrawDecal(olc::vf2d(600,10), decal, {1,1});
 
     for(int i = 0; i < m_system_managers_amount; ++i) {
         m_system_managers[i]->dispatch(this);

@@ -2,7 +2,6 @@
 #include "game.hpp"
 #include "utils/debugging.hpp"
 constexpr auto MAX_SYSTEM_AMOUNT = 20;
-
 class System {
   GET_BASE(System)
 
@@ -25,7 +24,7 @@ class SystemManager{
       }
     }
     inline void add(std::unique_ptr<System> system) {
-      Debug("Adding to list of systems, size: {}", m_system_amount);
+      Debug("Adding to list of {}, size: {}", get_name(), m_system_amount);
       if(m_system_amount < m_systems.max_size()) {
         m_systems[m_system_amount] = std::move(system);
         m_system_amount++;

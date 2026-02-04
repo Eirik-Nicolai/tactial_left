@@ -36,9 +36,6 @@ void CombatState::exit(TacticalGame* ge) {
 
 }
 
-
-
-
 void CombatState::handle_input(TacticalGame* ge) {
     //LOG_FUNC
 }
@@ -49,13 +46,20 @@ void CombatState::update(TacticalGame* ge) {
 void CombatState::draw(TacticalGame* ge) {
     //LOG_FUNC
     auto tv = ge->get_tv();
-
+    auto tile_amt_x = 20;
+    auto tile_amt_y = 18;
     auto sw = ge->ScreenWidth();
     auto sh = ge->ScreenHeight();
+    auto w = (0.04);
+    auto h = (0.05);
+    auto rect_w = sw*w;
+    auto rect_h = sh*h;
+    auto offs_x = (sw/2) - (rect_w*tile_amt_x/2);
+    auto offs_y = (sh/2) - (rect_h*tile_amt_y/2);
 
-    for(float i = sw*0.1; i<sw*0.9; i+=sw*0.1) {
-        for(float j = sh*0.1; j<sh*0.9; j+=sh*0.1) {
-            ge->DrawRect(i,j, sw*0.1,sh*0.1);
+    for(auto x = 0; x < tile_amt_x; x += 1) {
+        for(auto y = 0; y < tile_amt_y; y += 1) {
+            ge->DrawRect(offs_x + (x*rect_w), offs_y + (y*rect_h), rect_w, rect_h);
         }
     }
 }

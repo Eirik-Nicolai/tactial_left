@@ -131,9 +131,12 @@ void FirstRenderer::execute(TacticalGame* ge) {
     for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal,
             Rendering::Layer::_first>().each())
     {
-        decal.value->UpdateSprite();
+        auto d = ge->get_decal(decal.index);
+        d->UpdateSprite();
         auto v2 = olc::vf2d(pos.x, pos.y);
-        tv->DrawDecal(v2, decal.value);
+        tv->DrawPartialDecal(v2, d,
+                             olc::vf2d(0,0),
+                             olc::vf2d(20,20));
     }
 
     ge->DrawString(10,10,"HELLO FROM 1", olc::VERY_DARK_RED, 2);
@@ -149,9 +152,12 @@ void SecondRenderer::execute(TacticalGame* ge) {
 
     for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal, Rendering::Layer::_second>().each())
     {
-        decal.value->UpdateSprite();
+        auto d = ge->get_decal(decal.index);
+        d->UpdateSprite();
         auto v2 = olc::vf2d(pos.x, pos.y);
-        tv->DrawDecal(v2, decal.value);
+        tv->DrawPartialDecal(v2, d,
+                             olc::vf2d(100,100),
+                             olc::vf2d(10,10));
     }
 
     ge->DrawString(14,14,"HELLO FROM 2", olc::DARK_RED, 2);
@@ -168,9 +174,12 @@ void ThirdRenderer::execute(TacticalGame* ge) {
 
     for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal, Rendering::Layer::_third>().each())
     {
-        decal.value->UpdateSprite();
-        auto v2 = olc::vf2d(pos.x, pos.y);
-        tv->DrawDecal(v2, decal.value);
+        auto d = ge->get_decal(decal.index);
+        d->UpdateSprite();
+        auto v2 = olc::vf2d(310, 100);
+        tv->DrawPartialDecal(v2, d,
+                             olc::vf2d(300, 100),
+                             olc::vf2d(100, 100));
     }
 
     ge->DrawString(18,18,"HELLO FROM 3", olc::RED, 2);

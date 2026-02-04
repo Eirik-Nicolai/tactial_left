@@ -51,7 +51,7 @@ namespace Rendering {
   // loaded on enter and passed to decals
   // which are sent to renderer system to render in correct layer
   struct Decal {
-    olc::Decal* value;
+    unsigned index;
     Screen::Size size;
     Screen::Pos pos; // if needed
   };
