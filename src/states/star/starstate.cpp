@@ -144,9 +144,9 @@ void StarState::init(TacticalGame* ge) {
     // }
 
 
-    auto test = reg.create();
-    reg.emplace<Pos>(test, 10, 10);
-    reg.emplace<Size>(test, 4000, 4000);
+    // auto test = reg.create();
+    // reg.emplace<Pos>(test, 10, 10);
+    // reg.emplace<Size>(test, 4000.f, 4000.f);
 
     // test_sprite = new olc::Sprite();
     // reg.emplace<Rendering::Layer::_first>(test);
@@ -252,6 +252,8 @@ void StarState::update(TacticalGame* ge) {
             if(has<_hovered>(reg,ent)) reg.remove<_hovered>(ent);
         }
     }
+
+    if(!ge->animation_tick()) return;
 }
 
 void StarState::draw(TacticalGame* ge) {

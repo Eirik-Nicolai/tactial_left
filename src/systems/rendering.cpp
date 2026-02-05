@@ -124,7 +124,7 @@ void WireframeRenderer::execute(TacticalGame* ge) {
 void FirstRenderer::execute(TacticalGame* ge) {
     LOG_FUNC
 
-    if(!ge->animation_tick()) return;
+    //if(!ge->animation_tick()) return;
     auto& reg = ge->get_reg();
     auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_1.get());
@@ -138,19 +138,16 @@ void FirstRenderer::execute(TacticalGame* ge) {
             continue;
         }
         auto d = ge->get_decal(mng.index_decal);
-        Debug("Sprite sheet info {} {}", sheet.decal_index, sheet.animations_amt);
-
-        Error("Rendering manager info {} {} {}", mng.index_decal, mng.pos_sprite_sheet,
-              mng.sprite_scale);
+        // if(ge->animation_tick()) Debug("Sprite sheet info {} {}", sheet.decal_index, sheet.animations_amt);
 
         if(!d) {
             Error("NO DECAL FOR {}", Debugging::entity_name(reg, ent));
             throw std::runtime_error("nullptr");
         }
         //d->UpdateSprite();
-        Debug("rendering pos {} for entity {}", mng.pos_sprite_sheet, Debugging::entity_name(reg, ent));
-        // Debug("SPRITE SIZE {}", sheet.pixel_frame_size.as_vf2d());
-        // Debug("SPRITE POS {}", mng.sprite_scale);
+        // if(ge->animation_tick()) Debug("rendering pos {} size {} for entity {}",
+        //                                mng.pos_sprite_sheet, sheet.pixel_frame_size.as_vf2d(),
+        //                                Debugging::entity_name(reg, ent));
         tv->DrawPartialDecal(pos.as_vf2d(), d,
                              mng.pos_sprite_sheet,
                              sheet.pixel_frame_size.as_vf2d(),

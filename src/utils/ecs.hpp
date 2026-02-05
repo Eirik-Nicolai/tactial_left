@@ -20,16 +20,16 @@ bool tryget_component(entt::registry& reg, entt::entity &ent, component &comp)
   return false;
 }
 
-template <typename component>
-bool tryget_component(const entt::registry& reg, const entt::entity &ent, component &comp)
-{
-  if(auto getcomp = reg.try_get<component>(ent);reg.try_get<component>(ent) != nullptr)
-  {
-    comp = (*getcomp);
-    return true;
-  }
-  return false;
-}
+// template <typename component>
+// bool tryget_component(const entt::registry& reg, const entt::entity &ent, component &comp)
+// {
+//   if(auto getcomp = reg.try_get<component>(ent);reg.try_get<component>(ent) != nullptr)
+//   {
+//     comp = (*getcomp);
+//     return true;
+//   }
+//   return false;
+// }
 
 //TODO check reference
 template <typename component>
@@ -62,13 +62,13 @@ component add(entt::registry& reg, entt::entity e, Args && ...args)
 
 #include "components/components.hpp"
 namespace Debugging {
-  inline std::string entity_name(const entt::registry& reg, entt::entity& ent) {
+  inline std::string entity_name(entt::registry& reg, entt::entity& ent) {
     Debugging::Debug d;
     auto res = tryget_component(reg, ent, d);
     if(!res) return "[NAMELESS ENTITY]";
     return d.name;
   }
-  inline uint32_t entity_id(const entt::registry& reg, entt::entity& ent) {
+  inline uint32_t entity_id(entt::registry& reg, entt::entity& ent) {
     Debugging::Debug d;
     auto res = tryget_component(reg, ent, d);
     if(!res) return 0;

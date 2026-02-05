@@ -10,7 +10,7 @@
 #include "systems/system.hpp"
 
 constexpr auto MAX_SPRITE_SHEETS = 200;
-constexpr auto ANIMATION_TICK_TIME = 3;
+constexpr auto ANIMATION_TICK_TIME = 0.017;
 class TacticalGame : public olc::PixelGameEngine
 {
     public:

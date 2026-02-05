@@ -91,34 +91,34 @@ void LoadState::enter(TacticalGame* ge) {
     Debug("creating anim idle");
     Rendering::Animation::SpriteSheetAnimation idle_animation;
     idle_animation.name = "idle";
-    idle_animation.frames[0] = Rendering::Animation::AnimationFrame{Pos{0,0}, 4};
-    idle_animation.frames[1] = Rendering::Animation::AnimationFrame{Pos{1,0}, 4};
-    idle_animation.frames[2] = Rendering::Animation::AnimationFrame{Pos{2,0}, 4};
-    idle_animation.frames[3] = Rendering::Animation::AnimationFrame{Pos{3,0}, 4};
-    idle_animation.frames[4] = Rendering::Animation::AnimationFrame{Pos{4,0}, 4};
-    idle_animation.frames[5] = Rendering::Animation::AnimationFrame{Pos{5,0}, 20};
+    idle_animation.frames[0] = Rendering::Animation::AnimationFrame{Pos{0,0}, 1};
+    idle_animation.frames[1] = Rendering::Animation::AnimationFrame{Pos{1,0}, 1};
+    idle_animation.frames[2] = Rendering::Animation::AnimationFrame{Pos{2,0}, 1};
+    idle_animation.frames[3] = Rendering::Animation::AnimationFrame{Pos{3,0}, 1};
+    idle_animation.frames[4] = Rendering::Animation::AnimationFrame{Pos{4,0}, 1};
+    idle_animation.frames[5] = Rendering::Animation::AnimationFrame{Pos{5,0}, 1};
     idle_animation.is_looping = true;
     idle_animation.frame_animation_length = 6;
 
     Debug("creating anim walking");
     Rendering::Animation::SpriteSheetAnimation walking_east;
     walking_east.name = "walking_east";
-    walking_east.frames[0] = Rendering::Animation::AnimationFrame{Pos{0,4}, 8};
-    walking_east.frames[1] = Rendering::Animation::AnimationFrame{Pos{1,4}, 8};
-    walking_east.frames[2] = Rendering::Animation::AnimationFrame{Pos{2,4}, 8};
-    walking_east.frames[3] = Rendering::Animation::AnimationFrame{Pos{3,4}, 8};
-    walking_east.frames[4] = Rendering::Animation::AnimationFrame{Pos{4,4}, 8};
-    walking_east.frames[5] = Rendering::Animation::AnimationFrame{Pos{5,4}, 8};
+    walking_east.frames[0] = Rendering::Animation::AnimationFrame{Pos{0,4}, 1};
+    walking_east.frames[1] = Rendering::Animation::AnimationFrame{Pos{1,4}, 1};
+    walking_east.frames[2] = Rendering::Animation::AnimationFrame{Pos{2,4}, 1};
+    walking_east.frames[3] = Rendering::Animation::AnimationFrame{Pos{3,4}, 1};
+    walking_east.frames[4] = Rendering::Animation::AnimationFrame{Pos{4,4}, 1};
+    walking_east.frames[5] = Rendering::Animation::AnimationFrame{Pos{5,4}, 1};
     walking_east.is_looping = true;
     walking_east.frame_animation_length = 6;
 
     Debug("creating anim dead");
     Rendering::Animation::SpriteSheetAnimation dead;
     dead.name = "dead";
-    dead.frames[0] = Rendering::Animation::AnimationFrame{Pos{0,9}, 20};
-    dead.frames[1] = Rendering::Animation::AnimationFrame{Pos{1,9}, 20};
-    dead.frames[2] = Rendering::Animation::AnimationFrame{Pos{2,9}, 20};
-    dead.frames[3] = Rendering::Animation::AnimationFrame{Pos{3,9}, 20};
+    dead.frames[0] = Rendering::Animation::AnimationFrame{Pos{0,9}, 1};
+    dead.frames[1] = Rendering::Animation::AnimationFrame{Pos{1,9}, 1};
+    dead.frames[2] = Rendering::Animation::AnimationFrame{Pos{2,9}, 1};
+    dead.frames[3] = Rendering::Animation::AnimationFrame{Pos{3,9}, 1};
     dead.is_looping = false;
     dead.frame_animation_length = 4;
 
@@ -146,6 +146,7 @@ void LoadState::enter(TacticalGame* ge) {
     rendering_manager.sprite_sheet = spritesheet_player;
     rendering_manager.pos_sprite_sheet = {0.f, 0.f};
     rendering_manager.sprite_scale = {1.f, 1.f};
+    rendering_manager.index_decal = player_decal_index;
     reg.emplace<Rendering::RenderingManager>(moon, rendering_manager);
 
     Debug("Rendering manager info {} {} {}", rendering_manager.index_decal,
