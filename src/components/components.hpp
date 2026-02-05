@@ -15,13 +15,17 @@ struct Component {
   Component() = default;
   virtual std::string print() const = 0;
 };
-struct Pos {
+struct Size{
+  float h;
+  float w;
+  olc::vf2d as_vf2d() { return olc::vf2d(h,w); }
+  olc::vf2d as_vi2d() { return olc::vi2d(h,w); }
+};
+struct Pos{
   int x;
   int y;
-};
-struct Size{
-  int h;
-  int w;
+  olc::vf2d as_vf2d() { return olc::vf2d(x,y); }
+  olc::vf2d as_vi2d() { return olc::vi2d(x,y); }
 };
 
 // size and pos in screenspace not game space
@@ -30,10 +34,14 @@ namespace Screen{
   struct Size{
     float h;
     float w;
+    olc::vf2d as_vf2d() { return olc::vf2d(h,w); }
+    olc::vf2d as_vi2d() { return olc::vi2d(h,w); }
   };
   struct Pos{
     float x;
     float y;
+    olc::vf2d as_vf2d() { return olc::vf2d(x,y); }
+    olc::vf2d as_vi2d() { return olc::vi2d(x,y); }
   };
 }
 
@@ -50,37 +58,54 @@ namespace Rendering {
   // playing states (name pending, parent states ?) keep track of sprites which are
   // loaded on enter and passed to decals
   // which are sent to renderer system to render in correct layer
-  struct Decal {
-    unsigned index;
-    Screen::Size size;
-    Screen::Pos pos; // if needed
-  };
   struct Background {
     olc::Decal value;
   };
 
   namespace Animation {
-    struct Anim {
-      struct AnimationFrame {
-        Pos pos;
-        Size size;
-        float duration;
-      };
+    struct AnimationFrame {
+      Pos frame_pos; // based on relative frame of the spritesheet, not pixel pos
+      int frame_duration; // in frames
+    };
+    // add state ?
+    struct SpriteSheetAnimation {
       std::string name;
       std::array<AnimationFrame, 40> frames;
-      float current_duration_elapsed;
-      bool looping;
-      size_t amt_frames;
-      size_t curren_frame;
+      int frame_animation_length;
+      bool is_looping;
+      bool is_flipped;
     };
 
+    /// TODO rename these
+    struct AnimManager {
+      std::string name;
+      int frame_duration;
+      SpriteSheetAnimation curr_animation;
+
+      int frames_elapsed;
+
+      size_t index_curren_frame;
+      size_t index_curren_animation;
+
+      entt::entity sprite_sheet;
+    };
   };
 
-  namespace GUI {
-
-
-
+  struct Spritesheet {
+    unsigned decal_index;
+    Size pixel_frame_size;
+    unsigned animations_amt;
+    std::array<Animation::SpriteSheetAnimation, 40> animations;
   };
+
+  struct RenderingManager{
+    entt::entity sprite_sheet;
+    olc::vf2d pos_sprite_sheet;
+    olc::vf2d sprite_scale;
+    unsigned index_decal;
+  };
+
+  namespace GUI {};
   struct Wireframe{
     enum class TYPE{
       CIRCLE,

@@ -3,7 +3,7 @@ fullscreen: false
 vsync: false
 cohesion: false
 realwindow: true
-screenwidth: 1920
-screenheight: 1080
+screenwidth: 1000
+screenheight: 800
 pixelheight: 1
 pixelwidth: 1

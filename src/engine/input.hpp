@@ -49,7 +49,7 @@ class InputDebugWrapper : public Input {
     InputDebugWrapper(std::shared_ptr<Input> wrapped = std::make_shared<NULLInput>()) : input(std::move(wrapped)) {}
     virtual std::string get_name() const { return "InputLogWrapper"; };
     inline void execute(TacticalGame* ge) final {
-      Debug("Executing input: {}", input->get_name());
+      Trace("Executing input: {}", input->get_name());
       input->execute(ge);
     };
 

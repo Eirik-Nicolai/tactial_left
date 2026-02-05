@@ -124,19 +124,38 @@ void WireframeRenderer::execute(TacticalGame* ge) {
 void FirstRenderer::execute(TacticalGame* ge) {
     LOG_FUNC
 
+    if(!ge->animation_tick()) return;
     auto& reg = ge->get_reg();
     auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_1.get());
 
-    for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal,
-            Rendering::Layer::_first>().each())
+    for(auto &&[ent, pos, size, mng] : reg.view<Pos, Size,
+            Rendering::RenderingManager, Rendering::Layer::_first>().each())
     {
-        auto d = ge->get_decal(decal.index);
-        d->UpdateSprite();
-        auto v2 = olc::vf2d(pos.x, pos.y);
-        tv->DrawPartialDecal(v2, d,
-                             olc::vf2d(0,0),
-                             olc::vf2d(20,20));
+        Rendering::Spritesheet sheet;
+        if(!tryget_component(reg, mng.sprite_sheet, sheet)) {
+            Error("Error when attempting to get spritesheet");
+            continue;
+        }
+        auto d = ge->get_decal(mng.index_decal);
+        Debug("Sprite sheet info {} {}", sheet.decal_index, sheet.animations_amt);
+
+        Error("Rendering manager info {} {} {}", mng.index_decal, mng.pos_sprite_sheet,
+              mng.sprite_scale);
+
+        if(!d) {
+            Error("NO DECAL FOR {}", Debugging::entity_name(reg, ent));
+            throw std::runtime_error("nullptr");
+        }
+        //d->UpdateSprite();
+        Debug("rendering pos {} for entity {}", mng.pos_sprite_sheet, Debugging::entity_name(reg, ent));
+        // Debug("SPRITE SIZE {}", sheet.pixel_frame_size.as_vf2d());
+        // Debug("SPRITE POS {}", mng.sprite_scale);
+        tv->DrawPartialDecal(pos.as_vf2d(), d,
+                             mng.pos_sprite_sheet,
+                             sheet.pixel_frame_size.as_vf2d(),
+                             mng.sprite_scale);
+
     }
 
     ge->DrawString(10,10,"HELLO FROM 1", olc::VERY_DARK_RED, 2);
@@ -150,17 +169,17 @@ void SecondRenderer::execute(TacticalGame* ge) {
     auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_2.get());
 
-    for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal, Rendering::Layer::_second>().each())
-    {
-        auto d = ge->get_decal(decal.index);
-        d->UpdateSprite();
-        auto v2 = olc::vf2d(pos.x, pos.y);
-        tv->DrawPartialDecal(v2, d,
-                             olc::vf2d(100,100),
-                             olc::vf2d(10,10));
-    }
+    // for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal, Rendering::Layer::_second>().each())
+    // {
+    //     auto d = ge->get_decal(decal.index);
+    //     d->UpdateSprite();
+    //     auto v2 = olc::vf2d(pos.x, pos.y);
+    //     tv->DrawPartialDecal(v2, d,
+    //                          olc::vf2d(100,100),
+    //                          olc::vf2d(10,10));
+    // }
 
-    ge->DrawString(14,14,"HELLO FROM 2", olc::DARK_RED, 2);
+    // ge->DrawString(14,14,"HELLO FROM 2", olc::DARK_RED, 2);
 }
 
 
@@ -172,17 +191,17 @@ void ThirdRenderer::execute(TacticalGame* ge) {
 
     ge->SetDrawTarget(ge->layer_3.get());
 
-    for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal, Rendering::Layer::_third>().each())
-    {
-        auto d = ge->get_decal(decal.index);
-        d->UpdateSprite();
-        auto v2 = olc::vf2d(310, 100);
-        tv->DrawPartialDecal(v2, d,
-                             olc::vf2d(300, 100),
-                             olc::vf2d(100, 100));
-    }
+    // for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal, Rendering::Layer::_third>().each())
+    // {
+    //     auto d = ge->get_decal(decal.index);
+    //     d->UpdateSprite();
+    //     auto v2 = olc::vf2d(310, 100);
+    //     tv->DrawPartialDecal(v2, d,
+    //                          olc::vf2d(300, 100),
+    //                          olc::vf2d(100, 100));
+    // }
 
-    ge->DrawString(18,18,"HELLO FROM 3", olc::RED, 2);
+    // ge->DrawString(18,18,"HELLO FROM 3", olc::RED, 2);
 }
 
 

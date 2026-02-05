@@ -13,6 +13,9 @@
 #include "systems/rendering.hpp"
 #include "systems/animation.hpp"
 
+
+#include "utils/ecs.hpp"
+
 // TODO keep 2 lists of states for one
 // current_states one next states and
 // change at the end of the game update func
@@ -74,10 +77,6 @@ bool TacticalGame::OnUserDestroy() {
 
 bool TacticalGame::OnUserCreate()
 {
-    // layer_1 = std::make_unique<olc::Sprite>(GetScreenSize().x,GetScreenSize().y);
-    // layer_2 = std::make_unique<olc::Sprite>(GetScreenSize().x,GetScreenSize().y);
-    // layer_3 = std::make_unique<olc::Sprite>(GetScreenSize().x,GetScreenSize().y);
-
     // TODO maybe change these to be
     // stored in a list inside the GE ?
     Debug("Initializing game states");
@@ -126,29 +125,32 @@ bool TacticalGame::OnUserCreate()
     Debug("Adding system {}", m_system_managers[m_system_managers_amount]->get_name());
     m_system_managers_amount++;
 
-
-
-
     Debug("Loading sprite sheets");
-
-    // auto path_1 = "assets/Cute_Fantasy_Free/Player/Player.png";
-    // auto path_2 = "assets/Cute_Fantasy_Free/Enemies/Skeleton.png";
-    // auto path_3 = "assets/Cute_Fantasy_Free/Enemies/Slime_Green.png";
-    // Debug("LOADED SPRITE {}", load_decal(path_1, false, true));
-    // load_decal(path_2, false, true);
-    // load_decal(path_3, false, true);
 
     return true;
 }
 
 bool TacticalGame::OnUserUpdate(float dt)
 {
+    m_animation_tick = m_fElapsedTime > ANIMATION_TICK_TIME;
+    if(m_animation_tick) m_fElapsedTime = 0;
+    else m_fElapsedTime += dt;
+
     auto CURR_STATE = m_states.back();
 
-    // HACK shoud find a better way of testing state
-    // but also shouldnt really need it
-    if(GetKey(olc::Key::P).bReleased && CURR_STATE->get_name()!="InitState") {
-        push_state(PlayingState::InitState::Instance());
+    // HACK testing animation manager
+    if(GetKey(olc::Key::P).bReleased) // && CURR_STATE->get_name()!="InitState") {
+    {
+        //push_state(PlayingState::InitState::Instance());
+        for(auto [ent, mng] : m_reg.view<Rendering::Animation::AnimManager>().each()) {
+            Rendering::Spritesheet sheet;
+            tryget_component(m_reg, mng.sprite_sheet, sheet);
+            if(mng.index_curren_animation==2) mng.index_curren_animation=0;
+            else mng.index_curren_animation++;
+            mng.curr_animation = sheet.animations[mng.index_curren_animation];
+            mng.index_curren_frame = 0;
+            Info("ANIMATION INDEX {} dur is {}", mng.index_curren_animation, mng.curr_animation.frames[0].frame_duration);
+        }
     }
 
     if(CURR_STATE) {
@@ -162,5 +164,7 @@ bool TacticalGame::OnUserUpdate(float dt)
     for(int i = 0; i < m_system_managers_amount; ++i) {
         m_system_managers[i]->dispatch(this);
     }
+
+    m_animation_tick = false;
     return true;
 }

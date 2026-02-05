@@ -10,7 +10,6 @@ class System {
 };
 
 class SystemManager{
-  // GET_BASE(SystemManager)
   public:
     inline std::string_view get_name() const { return m_name; }
     SystemManager(const char* name) {

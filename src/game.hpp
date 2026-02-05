@@ -10,7 +10,7 @@
 #include "systems/system.hpp"
 
 constexpr auto MAX_SPRITE_SHEETS = 200;
-
+constexpr auto ANIMATION_TICK_TIME = 3;
 class TacticalGame : public olc::PixelGameEngine
 {
     public:
@@ -45,7 +45,7 @@ class TacticalGame : public olc::PixelGameEngine
 
         // void draw_effect_icon(const std::string&, int x, int y, olc::Pixel inner, olc::Pixel outer);
 
-        unsigned load_decal(const std::string& sprite_path, bool filter, bool clamp) {
+        int load_decal(const std::string& sprite_path, bool filter, bool clamp) {
             Debug("Loading {} to index {}", sprite_path, m_decals_amount);
             auto sprite = new olc::Sprite();
             if(sprite->LoadFromFile(sprite_path)) {
@@ -54,7 +54,7 @@ class TacticalGame : public olc::PixelGameEngine
                 return m_decals_amount++;
             }
             Error("Unable to load spritesheet {}", sprite_path);
-            return 0;
+            return -1;
         }
 
         void unload_decals() {
@@ -66,12 +66,32 @@ class TacticalGame : public olc::PixelGameEngine
             m_decals_amount = 0;
         }
 
-        olc::Decal* get_decal(unsigned index) {
+        olc::Decal* get_decal(int index) {
             if(index >= m_decals_amount) return nullptr;
             return m_decals[index].get();
         }
 
+        // Spritesheet load_spritesheet(const std::string& sprite_sheet_path,
+        //                           int pixel_frame_width,
+        //                           int pixel_frame_height) {
+        //     Debug("Loading Spritesheet {}", sprite_sheet_path);
+        //     if(auto i = load_decal(sprite_sheet_path, false, false); i >= 0) {
+        //         //return ;
+        //     }
+        //     Error("Unable to load spritesheet {}", sprite_sheet_path);
+        //     // return -1;
+        // }
 
+        // void unload_spritesheet() {
+        //     Debug("Unloading {} decals", m_decals_amount);
+
+        //     while(!m_decals.empty())
+        //         m_decals.pop_back();
+
+        //     m_decals_amount = 0;
+        // }
+
+        bool animation_tick() { return m_animation_tick; }
 
     public:
         void push_state(GameState* state);
@@ -96,8 +116,11 @@ class TacticalGame : public olc::PixelGameEngine
 
         unsigned m_decals_amount;
         std::deque<std::unique_ptr<olc::Decal>> m_decals;
+
+        bool m_animation_tick = false;
         //std::array<olc::Decal*, MAX_SYSTEM_AMOUNT> m_decals;
 
+        float m_fElapsedTime = 0;
 
     private: //DEBUGGING HELPER FUNCTIONS
 };
