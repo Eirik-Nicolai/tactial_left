@@ -75,7 +75,7 @@
 
 void PreRenderer::execute(TacticalGame* ge) {
     LOG_FUNC
-    ge->Clear(olc::BLACK);
+    // ge->Clear(olc::BLACK);
     // any other init rendering step, might not be needed
 }
 
@@ -84,40 +84,42 @@ void WireframeRenderer::execute(TacticalGame* ge) {
     auto& reg = ge->get_reg();
     auto tv = ge->get_tv();
 
-    // for(auto [ent, pos, size, wireframe] : reg.view<Pos, Rendering::Size, Rendering::Wireframe>().each()) {
-    //     auto tv = ge->get_tv();
-    //     switch (wireframe.type) {
-    //         case Rendering::Wireframe::TYPE::CIRCLE: {
-    //             tv->DrawCircle(pos.x, pos.y, size.h, wireframe.color);
-    //         } break;
-    //         case Rendering::Wireframe::TYPE::CIRCLE_FILL: {
-    //             tv->FillCircle(pos.x, pos.y, size.h, wireframe.color);
-    //         } break;
-    //         case Rendering::Wireframe::TYPE::SQUARE: {
-    //             tv->DrawRect(pos.x, pos.y, size.w, size.h, wireframe.color);
-    //         } break;
-    //         case Rendering::Wireframe::TYPE::SQUARE_FILL: {
-    //             tv->FillRect(pos.x, pos.y, size.w, size.h, wireframe.color);
-    //         } break;
-    //         case Rendering::Wireframe::TYPE::TRIANGLE: {
-    //             auto side_opposite = (int) (size.h/sqrt(3));
-    //             olc::vi2d pos1 = {pos.x, pos.y};
-    //             olc::vi2d pos2 = {pos.x+size.h - side_opposite, pos.y+size.h};
-    //             olc::vi2d pos3 = {pos.x+size.h + side_opposite, pos.y+size.h};
-    //             tv->DrawTriangle(pos1, pos2, pos3);
-    //         } break;
-    //         case Rendering::Wireframe::TYPE::TRIANGLE_FILL: {
-    //             auto side_opposite = (int) (size.h/sqrt(3));
-    //             olc::vi2d pos1 = {pos.x, pos.y};
-    //             olc::vi2d pos2 = {pos.x + side_opposite, pos.y+size.h};
-    //             olc::vi2d pos3 = {pos.x - side_opposite, pos.y+size.h};
-    //             tv->FillTriangle(pos1, pos2, pos3);
-    //         } break;
-    //         default:
-    //             Error("Entity does not have a valid type {}", (int)wireframe.type);
+    for(auto [ent, pos, size, wireframe] : reg.view<Pos, Size, Rendering::Wireframe>().each()) {
+        switch (wireframe.type) {
+            case Rendering::Wireframe::TYPE::CIRCLE: {
+                tv->DrawCircle(pos, size.h, wireframe.color);
+            } break;
+            case Rendering::Wireframe::TYPE::CIRCLE_FILL: {
+                tv->FillCircle(pos, size.h, wireframe.color);
+            } break;
+            case Rendering::Wireframe::TYPE::SQUARE: {
+                // HACK for debugging a*
+                tv->DrawRectDecal(pos+4, size-4, wireframe.color);
+                // tv->DrawRectDecal(pos, size, wireframe.color);
+            } break;
+            case Rendering::Wireframe::TYPE::SQUARE_FILL: {
+                tv->FillRectDecal(pos, size, wireframe.color);
+            } break;
+            case Rendering::Wireframe::TYPE::TRIANGLE: {
+                auto side_opposite = (int) (size.h/sqrt(3));
+                olc::vi2d pos2 = {static_cast<int>(pos.x+size.h - side_opposite),
+                                  static_cast<int>(pos.y+size.h)};
+                olc::vi2d pos3 = {static_cast<int>(pos.x+size.h + side_opposite),
+                                  static_cast<int>(pos.y+size.h)};
+                tv->DrawTriangle(pos, pos2, pos3);
+            } break;
+            case Rendering::Wireframe::TYPE::TRIANGLE_FILL: {
+                auto side_opposite = (int) (size.h/sqrt(3));
+                // olc::vi2d pos1 = {pos.x, pos.y};
+                olc::vi2d pos2 = {static_cast<int>(pos.x + side_opposite), static_cast<int>(pos.y+size.h)};
+                olc::vi2d pos3 = {static_cast<int>(pos.x - side_opposite), static_cast<int>(pos.y+size.h)};
+                tv->FillTriangle(pos, pos2, pos3);
+            } break;
+            default:
+                Error("Entity does not have a valid type {}", (int)wireframe.type);
 
-    //     };
-    // }
+        };
+    }
 }
 
 
@@ -148,9 +150,9 @@ void FirstRenderer::execute(TacticalGame* ge) {
         // if(ge->animation_tick()) Debug("rendering pos {} size {} for entity {}",
         //                                mng.pos_sprite_sheet, sheet.pixel_frame_size.as_vf2d(),
         //                                Debugging::entity_name(reg, ent));
-        tv->DrawPartialDecal(pos.as_vf2d(), d,
+        tv->DrawPartialDecal(pos, d,
                              mng.pos_sprite_sheet,
-                             sheet.pixel_frame_size.as_vf2d(),
+                             sheet.pixel_frame_size,
                              mng.sprite_scale);
 
     }

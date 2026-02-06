@@ -53,7 +53,7 @@ void CharacterAnimation::execute(TacticalGame* ge) {
                 // TODO THIS ISN"T BEING SET IDK WHY
                 // FIGURE OUT
                 auto source_pos = mng.curr_animation.frames[mng.index_curren_frame].frame_pos;
-                auto abs_sprite_pos = (source_pos.as_vf2d()*sheet.pixel_frame_size.as_vf2d());
+                auto abs_sprite_pos = ((olc::vf2d)source_pos*(olc::vf2d)sheet.pixel_frame_size);
                 rmng.pos_sprite_sheet = abs_sprite_pos;
                 // Debug("Animation pos {} for entity {}", rmng.pos_sprite_sheet,
                 //       Debugging::entity_name(reg, ent));

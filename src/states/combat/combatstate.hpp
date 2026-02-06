@@ -1,6 +1,10 @@
 #pragma once
 #include "game.hpp"
 #include "states/gamestate.hpp"
+#include "utils/complex_datatypes.hpp"
+
+constexpr auto tile_amt_x = 20;
+constexpr auto tile_amt_y = 18;
 
 namespace PlayingState {
 class CombatState : public GameState {
@@ -33,11 +37,15 @@ class CombatState : public GameState {
         void draw(TacticalGame* ge) override;
         void update(TacticalGame* ge) override; // ?
 
+        void solve_a_star();
 
     /// ------ PRIVATE LOGIC ------ ///
     private:
         float sElapsedTime; // useful for debugging
 
-        std::array<entt::entity, 60> combat_tiles; // 6 long by 10 wide
+        std::array<Node*, tile_amt_x*tile_amt_y> combat_tiles;
+        Node* node_start = nullptr;
+        Node* node_end = nullptr;
+
 };
 }

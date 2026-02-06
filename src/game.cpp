@@ -132,6 +132,9 @@ bool TacticalGame::OnUserCreate()
 
 bool TacticalGame::OnUserUpdate(float dt)
 {
+    // HACK for testing
+    Clear(olc::BLACK);
+
     m_animation_tick = m_fElapsedTime > ANIMATION_TICK_TIME;
     if(m_animation_tick) m_fElapsedTime = 0;
     else m_fElapsedTime += dt;
@@ -158,7 +161,7 @@ bool TacticalGame::OnUserUpdate(float dt)
         CURR_STATE->update(this);
     }
     for(auto &state : m_states) {
-        //state->draw(this);
+        state->draw(this);
     }
 
     for(int i = 0; i < m_system_managers_amount; ++i) {

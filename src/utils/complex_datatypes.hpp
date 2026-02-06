@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <list>
 #include <string_view>
 #include <utility>
 
@@ -25,3 +26,19 @@ class CheckerNode {
     CheckerNode<Type>* next_node;
     std::string_view name;
 };
+
+
+struct Node {
+  bool is_obstacle = false;
+  bool is_visited = false;
+  float global_goal;
+  float local_goal;
+  int x;
+  int y;
+  std::list<Node*> neighbours;
+  Node* parent;
+
+  unsigned weight;
+};
+
+// inline

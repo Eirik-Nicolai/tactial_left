@@ -245,12 +245,12 @@ void StarState::update(TacticalGame* ge) {
 
     auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();  // (ge->GetMousePos() - tv->GetTileOffset()) / tv->GetWorldScale();
     for(auto [ent, pos, size] : reg.view<Pos, Size>().each()) {
-        if(isInside(pos.x, pos.y, size.h, mouse_pos.x, mouse_pos.y))
-        {
-            if(!has<_hovered>(reg, ent)) reg.emplace<_hovered>(ent);
-        } else {
-            if(has<_hovered>(reg,ent)) reg.remove<_hovered>(ent);
-        }
+        // if(isInside(pos.x, pos.y, size.h, mouse_pos.x, mouse_pos.y))
+        // {
+        //     if(!has<_hovered>(reg, ent)) reg.emplace<_hovered>(ent);
+        // } else {
+        //     if(has<_hovered>(reg,ent)) reg.remove<_hovered>(ent);
+        // }
     }
 
     if(!ge->animation_tick()) return;

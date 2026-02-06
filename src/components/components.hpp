@@ -18,14 +18,36 @@ struct Component {
 struct Size{
   float h;
   float w;
-  olc::vf2d as_vf2d() { return olc::vf2d(h,w); }
-  olc::vf2d as_vi2d() { return olc::vi2d(h,w); }
+
+  Size operator+(Size const& rhs) { return Size{w+rhs.w,w+rhs.w}; };
+  template <typename RHS>
+  Size operator+(RHS const& rhs) { return Size{w+rhs,w+rhs}; };
+
+  Size operator-(Size const& rhs) { return Size{w-rhs.w,w-rhs.w}; };
+  template <typename RHS>
+  Size operator-(RHS const& rhs) { return Size{w-rhs,w-rhs}; };
+
+  // Size operator- { return olc::vf2d(h,w); };
+  // Size operator* { return olc::vf2d(h,w); };
+  // Size operator/ { return olc::vf2d(h,w); };
+
+  operator olc::vf2d() const { return olc::vf2d(h,w); };
+  operator olc::vi2d() const { return olc::vi2d(h,w); };
 };
 struct Pos{
-  int x;
-  int y;
-  olc::vf2d as_vf2d() { return olc::vf2d(x,y); }
-  olc::vf2d as_vi2d() { return olc::vi2d(x,y); }
+  float x;
+  float y;
+
+  Pos operator+(Pos const& rhs) { return Pos{x+rhs.x,y+rhs.y}; };
+  template <typename RHS>
+  Pos operator+(RHS const& rhs) { return Pos{x+rhs,y+rhs}; };
+
+  Pos operator-(Pos const& rhs) { return Pos{x-rhs.x,y-rhs.y}; };
+  template <typename RHS>
+  Pos operator-(RHS const& rhs) { return Pos{x-rhs,y-rhs}; };
+
+  operator olc::vf2d() const { return olc::vf2d(x,y); };
+  operator olc::vi2d() const { return olc::vi2d(x,y); };
 };
 
 // size and pos in screenspace not game space
@@ -34,14 +56,14 @@ namespace Screen{
   struct Size{
     float h;
     float w;
-    olc::vf2d as_vf2d() { return olc::vf2d(h,w); }
-    olc::vf2d as_vi2d() { return olc::vi2d(h,w); }
+  operator olc::vf2d() const { return olc::vf2d(h,w); };
+  operator olc::vi2d() const { return olc::vi2d(h,w); };
   };
   struct Pos{
     float x;
     float y;
-    olc::vf2d as_vf2d() { return olc::vf2d(x,y); }
-    olc::vf2d as_vi2d() { return olc::vi2d(x,y); }
+  operator olc::vf2d() const { return olc::vf2d(x,y); };
+  operator olc::vi2d() const { return olc::vi2d(x,y); };
   };
 }
 
@@ -55,11 +77,9 @@ namespace Rendering {
     struct _gui{};
     struct _wireframe{};
   };
-  // playing states (name pending, parent states ?) keep track of sprites which are
-  // loaded on enter and passed to decals
-  // which are sent to renderer system to render in correct layer
-  struct Background {
-    olc::Decal value;
+
+  namespace Terrain {
+
   };
 
   namespace Animation {
@@ -130,6 +150,12 @@ namespace Debugging {
   };
 };
 
+namespace FSM {
+  struct StateManager {
+
+  };
+};
+
 namespace World {
 };
 struct Orbiting {
@@ -138,12 +164,22 @@ struct Orbiting {
   float speed;
   float angle;
 };
-// TODO move to game logic namespace and file
-struct _hoverable{};
-struct _hovered{};
-struct _selectable{};
-struct _selected{};
-
+namespace Gameplay {
+  namespace Interaction {
+    struct _hoverable{};
+    struct _hovered{};
+    struct _selectable{};
+    struct _selected{};
+  };
+};
 struct _star{};
 struct _planet{};
 struct _moon{};
+
+
+namespace Combat{
+  namespace Terrain {
+    struct _path{};
+    struct _obstruction{};
+  };
+};
