@@ -4,7 +4,7 @@
 #include "utils/complex_datatypes.hpp"
 
 constexpr auto tile_amt_x = 20;
-constexpr auto tile_amt_y = 18;
+constexpr auto tile_amt_y = 9;
 
 namespace PlayingState {
 class CombatState : public GameState {

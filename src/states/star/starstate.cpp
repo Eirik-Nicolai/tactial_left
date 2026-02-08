@@ -21,7 +21,7 @@ class TestInput : public Input {
     public:
     std::string get_name() const final { return "Test Input StarState key P"; };
     void execute(TacticalGame *ge) final {
-        Error("Triggered input {}", get_name());
+        // Error("Triggered input {}", get_name());
     }
 };
 

@@ -82,7 +82,6 @@ void CombatState::enter(TacticalGame* ge) {
 
     for(auto x = 0; x < tile_amt_x; x ++)
         for(auto y = 0; y < tile_amt_y; y ++) {
-            Error("Adding for {} {} ", x, y);
             if(y>0)
                 combat_tiles[x + (tile_amt_x*y)]->neighbours.push_back(
                     combat_tiles[x + 0 + (tile_amt_x*(y - 1))]);
@@ -106,6 +105,10 @@ void CombatState::enter(TacticalGame* ge) {
 void CombatState::exit(TacticalGame* ge) {
     LOG_FUNC
 
+    for(auto i = 0; i < combat_tiles.size(); ++i) {
+        delete combat_tiles[i];
+        combat_tiles[i] = NULL;
+    }
 }
 
 void CombatState::handle_input(TacticalGame* ge) {
@@ -131,7 +134,6 @@ void CombatState::update(TacticalGame* ge) {
         }
     }
 
-
     auto sw = ge->ScreenWidth();
     auto sh = ge->ScreenHeight();
     auto w = (0.04);
@@ -155,7 +157,7 @@ void CombatState::update(TacticalGame* ge) {
                 combat_tiles[index_pos]->is_obstacle = true;
             }
 
-            solve_a_star();
+            //solve_a_star();
         }
         if(ge->GetMouse(MOUSE_RBUTTON).bReleased) {
             auto x_normalized = ((pos.x-offs_x)/rect_w);
@@ -164,7 +166,7 @@ void CombatState::update(TacticalGame* ge) {
             combat_tiles[index_pos]->is_obstacle = false;
             node_start = combat_tiles[index_pos];
 
-            solve_a_star();
+            //solve_a_star();
         }
 
         if(ge->GetMouse(MOUSE_MBUTTON).bReleased) {
@@ -176,14 +178,14 @@ void CombatState::update(TacticalGame* ge) {
             else
                 combat_tiles[index_pos]->weight+=30;
 
-            solve_a_star();
+            //solve_a_star();
         }
         if(!is_point_inside_rect(pos, size, mouse_pos)) {
             reg.remove<Gameplay::Interaction::_hovered>(ent);
         }
     }
 
-    //if(ge->animation_tick()) solve_a_star();
+    if(ge->animation_tick()) solve_a_star();
 }
 
 void CombatState::draw(TacticalGame* ge) {
@@ -205,6 +207,7 @@ void CombatState::draw(TacticalGame* ge) {
         wire.color = olc::DARK_GREY;
         wire.type = Rendering::Wireframe::TYPE::SQUARE;
     }
+
     //HACK debugging purposes
     auto sw = ge->ScreenWidth();
     auto sh = ge->ScreenHeight();
@@ -245,15 +248,15 @@ void CombatState::draw(TacticalGame* ge) {
 
         Node* n = node_end;
         while(n->parent) {
-            tv->DrawLine(n->x + rect_w/2, n->y + rect_h/2,
-                         n->parent->x + rect_w/2, n->parent->y + rect_h/2, olc::YELLOW);
+            tv->DrawLineDecal(olc::vf2d(n->x + rect_w/2, n->y + rect_h/2),
+                              olc::vf2d(n->parent->x + rect_w/2, n->parent->y + rect_h/2),
+                              olc::YELLOW);
             n = n->parent;
         }
     }
-
 }
 
-
+// TODO move to separate thread
 void CombatState::solve_a_star() {
     for(auto x = 0; x < tile_amt_x; x ++)
         for(auto y = 0; y < tile_amt_y; y ++) {
