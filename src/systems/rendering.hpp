@@ -18,61 +18,45 @@
 // };
 // };
 
-class Renderer : public System {
-    GET_NAME(System, Renderer)
+class RenderingSystem : public System {
+    GET_NAME(System, RenderingSystem)
     virtual void execute(TacticalGame* ge) override {};
 };
 
-class PreRenderer : public Renderer {
-    // TODO can we make this a macro to generate names of subclasses like this
+class PreRenderer : public RenderingSystem {
 
-    GET_NAME(Renderer, PreRenderer)
+    GET_NAME(RenderingSystem, PreRenderer)
     void execute(TacticalGame* ge) override;
 };
 
-class FirstRenderer : public Renderer {
-    // TODO can we make this a macro to generate names of subclasses like this
-    GET_NAME(Renderer, FirstRenderer)
+class BackgroundRenderer : public RenderingSystem {
+
+    GET_NAME(RenderingSystem, FirstRenderer)
     void execute(TacticalGame* ge) override;
 };
 
-class SecondRenderer : public Renderer {
-    // TODO can we make this a macro to generate names of subclasses like this
-    GET_NAME(Renderer, SecondRenderer)
+class MainRenderer : public RenderingSystem {
+
+    GET_NAME(RenderingSystem, SecondRenderer)
     void execute(TacticalGame* ge) override;
 };
 
-class ThirdRenderer : public Renderer {
-    // TODO can we make this a macro to generate names of subclasses like this
-    GET_NAME(Renderer, ThirdRenderer)
+class PostRenderer : public RenderingSystem {
+
+    GET_NAME(RenderingSystem, PostRenderer)
     void execute(TacticalGame* ge) override;
 };
 
-class PostRenderer : public Renderer {
-    // TODO can we make this a macro to generate names of subclasses like this
-    GET_NAME(Renderer, PostRenderer)
-    void execute(TacticalGame* ge) override;
-};
+class GUIRenderer : public RenderingSystem {
 
-class GUIRenderer : public Renderer {
-    // TODO can we make this a macro to generate names of subclasses like this
-    GET_NAME(Renderer, GUIRenderer)
+    GET_NAME(RenderingSystem, GUIRenderer)
     void execute(TacticalGame* ge) override;
 };
 
 
 // Debugging
-class WireframeRenderer : public Renderer {
-    // TODO can we make this a macro to generate names of subclasses like this
-    GET_NAME(Renderer, WireframeRenderer)
+class WireframeRenderer : public RenderingSystem {
+
+    GET_NAME(RenderingSystem, WireframeRenderer)
     void execute(TacticalGame* ge) override;
 };
-
-
-// class RenderingSystemManager : public SystemManager {
-//   public:
-//     GET_NAME(SystemManager, RenderingSystemManager)
-//     RenderingSystemManager();
-//     void add(std::unique_ptr<System> system) override;
-//     void dispatch(TacticalGame* ge) override;
-// };

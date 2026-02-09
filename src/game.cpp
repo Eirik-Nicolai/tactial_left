@@ -108,28 +108,27 @@ bool TacticalGame::OnUserCreate()
     // TODO add helper function
     auto rendering_manager = std::make_unique<SystemManager>("Rendering System Manager");
     rendering_manager->add(std::make_unique<PreRenderer>());
-    rendering_manager->add(std::make_unique<FirstRenderer>());
-    rendering_manager->add(std::make_unique<SecondRenderer>());
-    rendering_manager->add(std::make_unique<ThirdRenderer>());
-    rendering_manager->add(std::make_unique<GUIRenderer>());
+    rendering_manager->add(std::make_unique<BackgroundRenderer>());
+    rendering_manager->add(std::make_unique<MainRenderer>());
     rendering_manager->add(std::make_unique<WireframeRenderer>());
+    rendering_manager->add(std::make_unique<GUIRenderer>());
     m_system_managers[m_system_managers_amount] = std::move(rendering_manager);
-    Debug("Adding system {}", m_system_managers[m_system_managers_amount]->get_name());
-    m_system_managers_amount++;
+    Debug("Adding system {}", m_system_managers[m_system_managers_amount++]->get_name());
 
     auto animation_manager = std::make_unique<SystemManager>("Animation System Manager");
     animation_manager->add(std::make_unique<BGAnimation>());
     animation_manager->add(std::make_unique<CharacterAnimation>());
-    animation_manager->add(std::make_unique<GUIRenderer>());
+    animation_manager->add(std::make_unique<GUIAnimation>());
     m_system_managers[m_system_managers_amount] = std::move(animation_manager);
-    Debug("Adding system {}", m_system_managers[m_system_managers_amount]->get_name());
-    m_system_managers_amount++;
+    Debug("Adding system {}", m_system_managers[m_system_managers_amount++]->get_name());
 
     Debug("Loading sprite sheets");
 
     return true;
 }
 
+#include "components/rendering.hpp"
+#include "components/animation.hpp"
 bool TacticalGame::OnUserUpdate(float dt)
 {
     // HACK for testing
@@ -144,16 +143,16 @@ bool TacticalGame::OnUserUpdate(float dt)
     // HACK testing animation manager
     if(GetKey(olc::Key::P).bReleased) // && CURR_STATE->get_name()!="InitState") {
     {
-        //push_state(PlayingState::InitState::Instance());
-        for(auto [ent, mng] : m_reg.view<Rendering::Animation::AnimManager>().each()) {
-            Rendering::Spritesheet sheet;
-            tryget_component(m_reg, mng.sprite_sheet, sheet);
-            if(mng.index_curren_animation==2) mng.index_curren_animation=0;
-            else mng.index_curren_animation++;
-            mng.curr_animation = sheet.animations[mng.index_curren_animation];
-            mng.index_curren_frame = 0;
-            Info("ANIMATION INDEX {} dur is {}", mng.index_curren_animation, mng.curr_animation.frames[0].frame_duration);
-        }
+        // //push_state(PlayingState::InitState::Instance());
+        // for(auto [ent, mng] : m_reg.view<Animation::AnimManager>().each()) {
+        //     Rendering::Spritesheet sheet;
+        //     tryget_component(m_reg, mng.sprite_sheet, sheet);
+        //     if(mng.index_curren_animation==2) mng.index_curren_animation=0;
+        //     else mng.index_curren_animation++;
+        //     mng.curr_animation = sheet.animations[mng.index_curren_animation];
+        //     mng.index_curren_frame = 0;
+        //     Info("ANIMATION INDEX {} dur is {}", mng.index_curren_animation, mng.curr_animation.frames[0].frame_duration);
+        // }
     }
 
     if(CURR_STATE) {

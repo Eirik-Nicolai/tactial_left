@@ -5,24 +5,24 @@
 #include "utils/debugging.hpp"
 #include "systems/system.hpp"
 
-class Animation : public System {
-    GET_NAME(System, Animation)
+class AnimationSystem : public System {
+    GET_NAME(System, AnimationSystem)
     virtual void execute(TacticalGame* ge) override {};
 };
 
-class CharacterAnimation : public Animation {
-    GET_NAME(CharacterAnimation, Animation)
+class CharacterAnimation : public AnimationSystem {
+    GET_NAME(CharacterAnimation, AnimationSystem)
     void execute(TacticalGame* ge) override;
 };
 
 //idk if we need this
-class BGAnimation : public Animation {
-    GET_NAME(BGAnimation, Animation)
+class BGAnimation : public AnimationSystem {
+    GET_NAME(BGAnimation, AnimationSystem)
     void execute(TacticalGame* ge) override;
 };
 
-class GUIAnimation : public Animation {
-    GET_NAME(GUIAnimation, Animation)
+class GUIAnimation : public AnimationSystem {
+    GET_NAME(GUIAnimation, AnimationSystem)
     void execute(TacticalGame* ge) override;
 };
 

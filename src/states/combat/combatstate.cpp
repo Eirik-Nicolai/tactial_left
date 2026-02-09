@@ -3,12 +3,16 @@
 #include "states/load/loadstate.hpp"
 #include "states/star/starstate.hpp"
 
-#include "systems/rendering.hpp"
 #include "logger.hpp"
 
 #include "utils/ecs.hpp"
 #include "utils/geometry.hpp"
 #include "utils/complex_datatypes.hpp"
+
+#include "components/components.hpp"
+#include "components/combat.hpp"
+#include "components/interaction.hpp"
+#include "components/rendering.hpp"
 
 using namespace PlayingState;
 CombatState* CombatState::m_state;
@@ -52,7 +56,8 @@ void CombatState::enter(TacticalGame* ge) {
         for(auto y = 0; y < tile_amt_y; y ++) {
 
             auto tile = reg.create();
-            reg.emplace<Gameplay::Interaction::_hoverable>(tile);
+            reg.emplace<Interaction::_selectable>(tile, false);
+            reg.emplace<Interaction::_hoverable>(tile, false);
             reg.emplace<Combat::Terrain::_path>(tile);
 
             Pos p;
@@ -125,12 +130,10 @@ void CombatState::update(TacticalGame* ge) {
     auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();
 
     // this should be moved to a separate system
-    for(auto [ent, pos, size] :
-            reg.view<Pos, Size, Gameplay::Interaction::_hoverable>(
-                entt::exclude<Gameplay::Interaction::_hovered>
-            ).each()) {
+    for(auto [ent, pos, size, hoverable] :
+            reg.view<Pos, Size, Interaction::_hoverable>().each()) {
         if(is_point_inside_rect(pos, size, mouse_pos)) {
-            reg.emplace<Gameplay::Interaction::_hovered>(ent);
+            hoverable.is_hovered=true;
         }
     }
 
@@ -143,17 +146,18 @@ void CombatState::update(TacticalGame* ge) {
     auto offs_x = (sw/2) - (rect_w*tile_amt_x/2);
     auto offs_y = (sh/2) - (rect_h*tile_amt_y/2);
     // this should be moved to a separate system
-    for(auto [ent, pos, size] :
-            reg.view<Pos, Size, Gameplay::Interaction::_hovered>().each()) {
+    for(auto [ent, pos, size, selectable, hoverable] :
+            reg.view<Pos, Size, Interaction::_selectable,
+            Interaction::_hoverable>().each()) {
         if(ge->GetMouse(MOUSE_LBUTTON).bReleased) {
             auto x_normalized = ((pos.x-offs_x)/rect_w);
             auto y_normalized = ((pos.y-offs_y)/rect_h);
             auto index_pos = x_normalized + (tile_amt_x*y_normalized);
-            if(has<Gameplay::Interaction::_selected>(reg,ent)) {
-                reg.remove<Gameplay::Interaction::_selected>(ent);
+            if(selectable.is_selected) {
+                selectable.is_selected=false;
                 combat_tiles[index_pos]->is_obstacle = false;
             } else {
-                reg.emplace<Gameplay::Interaction::_selected>(ent);
+                selectable.is_selected=true;
                 combat_tiles[index_pos]->is_obstacle = true;
             }
 
@@ -181,7 +185,7 @@ void CombatState::update(TacticalGame* ge) {
             //solve_a_star();
         }
         if(!is_point_inside_rect(pos, size, mouse_pos)) {
-            reg.remove<Gameplay::Interaction::_hovered>(ent);
+            hoverable.is_hovered=false;
         }
     }
 
@@ -192,9 +196,9 @@ void CombatState::draw(TacticalGame* ge) {
     //LOG_FUNC
 
     auto& reg = ge->get_reg();
-    for(auto [ent, wire] :
-            reg.view<Rendering::Wireframe, Gameplay::Interaction::_hoverable>().each()) {
-        if(has<Gameplay::Interaction::_hovered>(reg, ent)) {
+    for(auto [ent, wire, hoverable] :
+            reg.view<Rendering::Wireframe, Interaction::_hoverable>().each()) {
+        if(hoverable.is_hovered) {
             wire.color = olc::RED;
             wire.type = Rendering::Wireframe::TYPE::SQUARE;
         } else {
@@ -202,8 +206,8 @@ void CombatState::draw(TacticalGame* ge) {
             wire.type = Rendering::Wireframe::TYPE::SQUARE;
         }
     }
-    for(auto [ent, wire] :
-            reg.view<Rendering::Wireframe, Gameplay::Interaction::_selected>().each()) {
+    for(auto [ent, wire, _] :
+            reg.view<Rendering::Wireframe, Interaction::_selectable>().each()) {
         wire.color = olc::DARK_GREY;
         wire.type = Rendering::Wireframe::TYPE::SQUARE;
     }

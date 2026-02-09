@@ -2,8 +2,7 @@
 #include "olc/olcPixelGameEngine.h"
 #include "olc/olcPGEX_TransformedView.h"
 #include <entt/entt.hpp>
-#include <queue>
-
+#include <expected>
 #include "states/gamestate.hpp"
 
 #include "logger.hpp"
@@ -45,7 +44,7 @@ class TacticalGame : public olc::PixelGameEngine
 
         // void draw_effect_icon(const std::string&, int x, int y, olc::Pixel inner, olc::Pixel outer);
 
-        int load_decal(const std::string& sprite_path, bool filter, bool clamp) {
+        std::expected<int, std::string> load_decal(const std::string& sprite_path, bool filter, bool clamp) {
             Debug("Loading {} to index {}", sprite_path, m_decals_amount);
             auto sprite = new olc::Sprite();
             if(sprite->LoadFromFile(sprite_path)) {
@@ -53,8 +52,7 @@ class TacticalGame : public olc::PixelGameEngine
                 m_decals.push_back(std::make_unique<olc::Decal>(sprite, filter, clamp));
                 return m_decals_amount++;
             }
-            Error("Unable to load spritesheet {}", sprite_path);
-            return -1;
+            return std::unexpected<std::string>("Unable to load sprite");
         }
 
         void unload_decals() {
@@ -101,9 +99,10 @@ class TacticalGame : public olc::PixelGameEngine
         entt::registry& get_reg() { return m_reg; }
         std::shared_ptr<olc::TileTransformedView> get_tv() { return tvp; }
 
-        std::unique_ptr<olc::Sprite> layer_1;
-        std::unique_ptr<olc::Sprite> layer_2;
-        std::unique_ptr<olc::Sprite> layer_3;
+        std::unique_ptr<olc::Sprite> layer_bg;
+        std::unique_ptr<olc::Sprite> layer_main;
+        std::unique_ptr<olc::Sprite> layer_wireframe;
+        std::unique_ptr<olc::Sprite> layer_gui;
 
     private:
         std::shared_ptr<olc::TileTransformedView> tvp;

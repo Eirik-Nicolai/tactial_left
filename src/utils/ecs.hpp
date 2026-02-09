@@ -60,16 +60,16 @@ component add(entt::registry& reg, entt::entity e, Args && ...args)
 
 
 
-#include "components/components.hpp"
+#include "components/debugging.hpp"
 namespace Debugging {
   inline std::string entity_name(entt::registry& reg, entt::entity& ent) {
-    Debugging::Debug d;
+    Debugging::DebugName d;
     auto res = tryget_component(reg, ent, d);
     if(!res) return "[NAMELESS ENTITY]";
     return d.name;
   }
   inline uint32_t entity_id(entt::registry& reg, entt::entity& ent) {
-    Debugging::Debug d;
+    Debugging::DebugName d;
     auto res = tryget_component(reg, ent, d);
     if(!res) return 0;
     return d.id;

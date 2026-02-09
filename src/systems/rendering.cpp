@@ -1,6 +1,7 @@
 #include "rendering.hpp"
 
-#include "components/components.hpp"
+#include "components/gui.hpp"
+#include "components/rendering.hpp"
 #include "utils/geometry.hpp"
 #include "states/star/starstate.hpp"
 #include "logger.hpp"
@@ -73,18 +74,22 @@
 // | update this
 // ---------------------------
 
-void PreRenderer::execute(TacticalGame* ge) {
-    LOG_FUNC
-    // ge->Clear(olc::BLACK);
-    // any other init rendering step, might not be needed
+using Rendering::Layer::_bg_far;
+
+void PreRenderer::execute(TacticalGame *ge) {
+  LOG_FUNC
+  ge->Clear(olc::BLACK);
+  // any other init rendering step, might not be needed
 }
 
 void WireframeRenderer::execute(TacticalGame* ge) {
     LOG_FUNC
     auto& reg = ge->get_reg();
     auto tv = ge->get_tv();
+    ge->SetDrawTarget(ge->layer_wireframe.get());
 
-    for(auto [ent, pos, size, wireframe] : reg.view<Pos, Size, Rendering::Wireframe>().each()) {
+    for(auto &&[ent, pos, size, wireframe] : reg.group<Pos, Size, Rendering::Wireframe>().each())
+    {
         switch (wireframe.type) {
             case Rendering::Wireframe::TYPE::CIRCLE: {
                 tv->DrawCircle(pos, size.h, wireframe.color);
@@ -123,52 +128,71 @@ void WireframeRenderer::execute(TacticalGame* ge) {
 }
 
 
-void FirstRenderer::execute(TacticalGame* ge) {
+void BackgroundRenderer::execute(TacticalGame* ge) {
     LOG_FUNC
 
     //if(!ge->animation_tick()) return;
     auto& reg = ge->get_reg();
     auto tv = ge->get_tv();
-    ge->SetDrawTarget(ge->layer_1.get());
+    ge->SetDrawTarget(ge->layer_bg.get());
 
-    for(auto &&[ent, pos, size, mng] : reg.view<Pos, Size,
-            Rendering::RenderingManager, Rendering::Layer::_first>().each())
-    {
-        Rendering::Spritesheet sheet;
-        if(!tryget_component(reg, mng.sprite_sheet, sheet)) {
-            Error("Error when attempting to get spritesheet");
-            continue;
-        }
-        auto d = ge->get_decal(mng.index_decal);
-        // if(ge->animation_tick()) Debug("Sprite sheet info {} {}", sheet.decal_index, sheet.animations_amt);
+    // for (auto &&[ent, pos, size, mng] :
+    //      reg.group<Pos, Size, Rendering::RenderingManager, _bg_far>().each()) {
+    //     Rendering::Spritesheet sheet;
+    //     if(!tryget_component(reg, mng.sprite_sheet, sheet)) {
+    //         Error("Error when attempting to get spritesheet");
+    //         continue;
+    //     }
+    //     auto d = ge->get_decal(mng.index_decal);
+    //     // if(ge->animation_tick()) Debug("Sprite sheet info {} {}", sheet.decal_index, sheet.animations_amt);
 
-        if(!d) {
-            Error("NO DECAL FOR {}", Debugging::entity_name(reg, ent));
-            throw std::runtime_error("nullptr");
-        }
-        //d->UpdateSprite();
-        // if(ge->animation_tick()) Debug("rendering pos {} size {} for entity {}",
-        //                                mng.pos_sprite_sheet, sheet.pixel_frame_size.as_vf2d(),
-        //                                Debugging::entity_name(reg, ent));
-        tv->DrawPartialDecal(pos, d,
-                             mng.pos_sprite_sheet,
-                             sheet.pixel_frame_size,
-                             mng.sprite_scale);
+    //     if(!d) {
+    //         Error("NO DECAL FOR {}", Debugging::entity_name(reg, ent));
+    //         throw std::runtime_error("nullptr");
+    //     }
+    //     //d->UpdateSprite();
+    //     // if(ge->animation_tick()) Debug("rendering pos {} size {} for entity {}",
+    //     //                                mng.pos_sprite_sheet, sheet.pixel_frame_size.as_vf2d(),
+    //     //                                Debugging::entity_name(reg, ent));
+    //     tv->DrawPartialDecal(pos, d,
+    //                          mng.pos_sprite_sheet,
+    //                          sheet.pixel_frame_size,
+    //                          mng.sprite_scale);
+    // }
 
-    }
+    // for(auto &&[ent, pos, size, mng] : reg.group<Pos, Size,
+    //         Rendering::RenderingManager, Rendering::Layer::_bg_near>().each())
+    // {
+    //     Rendering::Spritesheet sheet;
+    //     if(!tryget_component(reg, mng.sprite_sheet, sheet)) {
+    //         Error("Error when attempting to get spritesheet");
+    //         continue;
+    //     }
+    //     auto d = ge->get_decal(mng.index_decal);
+    //     // if(ge->animation_tick()) Debug("Sprite sheet info {} {}", sheet.decal_index, sheet.animations_amt);
+
+    //     if(!d) {
+    //         Error("NO DECAL FOR {}", Debugging::entity_name(reg, ent));
+    //         throw std::runtime_error("nullptr");
+    //     }
+    //     //d->UpdateSprite();
+    //     // if(ge->animation_tick()) Debug("rendering pos {} size {} for entity {}",
+    //     //                                mng.pos_sprite_sheet, sheet.pixel_frame_size.as_vf2d(),
+    //     //                                Debugging::entity_name(reg, ent));
+    //     tv->DrawPartialDecal(pos, d,
+    //                          mng.pos_sprite_sheet,
+    //                          sheet.pixel_frame_size,
+    //                          mng.sprite_scale);
+
+    // }
 
     ge->DrawString(10,10,"HELLO FROM 1", olc::VERY_DARK_RED, 2);
 }
-
-
-void SecondRenderer::execute(TacticalGame* ge) {
-    LOG_FUNC
-
+void render_furthest_layer(TacticalGame* ge) {
     auto& reg = ge->get_reg();
     auto tv = ge->get_tv();
-    ge->SetDrawTarget(ge->layer_2.get());
 
-    // for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal, Rendering::Layer::_second>().each())
+    // for(auto &&[ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Spritesheet, Rendering::Layer::_furthest>().each())
     // {
     //     auto d = ge->get_decal(decal.index);
     //     d->UpdateSprite();
@@ -178,31 +202,50 @@ void SecondRenderer::execute(TacticalGame* ge) {
     //                          olc::vf2d(10,10));
     // }
 
-    // ge->DrawString(14,14,"HELLO FROM 2", olc::DARK_RED, 2);
+    ge->DrawString(14,14,"HELLO FROM 2", olc::DARK_RED, 2);
 }
-
-
-void ThirdRenderer::execute(TacticalGame* ge) {
-    LOG_FUNC
-
+void render_middle_layer(TacticalGame* ge) {
     auto& reg = ge->get_reg();
     auto tv = ge->get_tv();
 
-    ge->SetDrawTarget(ge->layer_3.get());
-
-    // for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal, Rendering::Layer::_third>().each())
+    // for(auto &&[ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Spritesheet, Rendering::Layer::_middle>().each())
     // {
     //     auto d = ge->get_decal(decal.index);
     //     d->UpdateSprite();
-    //     auto v2 = olc::vf2d(310, 100);
+    //     auto v2 = olc::vf2d(pos.x, pos.y);
     //     tv->DrawPartialDecal(v2, d,
-    //                          olc::vf2d(300, 100),
-    //                          olc::vf2d(100, 100));
+    //                          olc::vf2d(100,100),
+    //                          olc::vf2d(10,10));
     // }
 
-    // ge->DrawString(18,18,"HELLO FROM 3", olc::RED, 2);
+    ge->DrawString(14,14,"HELLO FROM 2", olc::DARK_RED, 2);
+}
+void render_closest_layer(TacticalGame* ge) {
+    auto& reg = ge->get_reg();
+    auto tv = ge->get_tv();
+
+    // for(auto &&[ent, pos, size, decal] : reg.group<Pos, Size,
+    //         Rendering::Spritesheet, Rendering::Layer::_closest>().each())
+    // {
+    //     auto d = ge->get_decal(decal.index);
+    //     d->UpdateSprite();
+    //     auto v2 = olc::vf2d(pos.x, pos.y);
+    //     tv->DrawPartialDecal(v2, d,
+    //                          olc::vf2d(100,100),
+    //                          olc::vf2d(10,10));
+    // }
+
+    ge->DrawString(14,14,"HELLO FROM 2", olc::DARK_RED, 2);
 }
 
+void MainRenderer::execute(TacticalGame* ge) {
+    LOG_FUNC
+    ge->SetDrawTarget(ge->layer_main.get());
+
+    render_furthest_layer(ge);
+    render_middle_layer(ge);
+    render_closest_layer(ge);
+}
 
 void PostRenderer::execute(TacticalGame* ge) {
     LOG_FUNC
@@ -214,9 +257,10 @@ void GUIRenderer::execute(TacticalGame* ge) {
     LOG_FUNC
     auto& reg = ge->get_reg();
     auto tv = ge->get_tv();
+    ge->SetDrawTarget(ge->layer_gui.get());
 
-    // for(auto [ent, pos, size, wireframe] : reg.view<Pos, Rendering::Size, Rendering::Wireframe>().each())
+    // for(auto &&[ent, pos, size] : reg.view<Pos, Size, Rendering::GUI::_container>().each())
     // {
-    //     tv->DrawCircle(pos.x, pos.y, size.h, wireframe.color);
+    //     tv->DrawCircle(pos.x, pos.y, size.h);
     // }
 }
