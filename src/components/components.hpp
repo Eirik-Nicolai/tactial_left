@@ -16,16 +16,15 @@ struct Component {
   virtual std::string print() const = 0;
 };
 struct Size{
-  float h;
-  float w;
+  int w;
+  int h;
 
-  Size operator+(Size const& rhs) { w+=rhs.w;h+=rhs.h; return *this; };
+  Size operator+(Size const& rhs) { return Size{.w = w+rhs.w,.h = h+rhs.h}; };
   template <typename RHS>
-  Size operator+(RHS const& rhs) { w+=rhs;h+=rhs; return *this; };
-
-  Size operator-(Size const& rhs) { w-=rhs.w;h-=rhs.h; return *this; };
+  Size operator+(RHS const& rhs) { return Size{.w = w+rhs,.h = h+rhs}; };
+  Size operator-(Size const& rhs) { return Size{.w = w-rhs.w,.h = h-rhs.h}; };
   template <typename RHS>
-  Size operator-(RHS const& rhs) { w-=rhs;h-=rhs; return *this; };
+  Size operator-(RHS const& rhs) { return Size{.w = w-rhs,.h = h-rhs}; };
 
   // Size operator- { return olc::vf2d(h,w); };
   // Size operator* { return olc::vf2d(h,w); };
@@ -35,16 +34,24 @@ struct Size{
   operator olc::vi2d() const { return olc::vi2d(h,w); };
 };
 struct Pos{
-  float x;
-  float y;
+  int x;
+  int y;
 
-  Pos operator+(Pos const& rhs) { x+=rhs.x;y+=rhs.y; return *this; };
+  Pos operator+(Pos const& rhs) { return Pos{.x = x+rhs.x,.y = y+rhs.y}; };
   template <typename RHS>
-  Pos operator+(RHS const& rhs) { x+=rhs;y+=rhs; return *this; };
+  Pos operator+(RHS const& rhs) { return Pos{.x = x+rhs,.y = y+rhs}; };
+  Pos operator-(Pos const& rhs) { return Pos{.x = x-rhs.x,.y = y-rhs.y}; };
+  template <typename RHS>
+  Pos operator-(RHS const& rhs) { return Pos{.x = x-rhs,.y = y-rhs}; };
 
-  Pos operator-(Pos const& rhs) { x-=rhs.x;y-=rhs.y; return *this; };
-  template <typename RHS>
-  Pos operator-(RHS const& rhs) { x-=rhs;y-=rhs; return *this; };
+  // Pos operator+(Pos const& rhs) { x+=rhs.x;y+=rhs.y; return *this; };
+  // template <typename RHS>
+  // Pos operator+(RHS const& rhs) { x+=rhs;y+=rhs; return *this; };
+
+
+  // Pos operator-(Pos const& rhs) { x-=rhs.x;y-=rhs.y; return *this; };
+  // template <typename RHS>
+  // Pos operator-(RHS const& rhs) { x-=rhs;y-=rhs; return *this; };
 
   operator olc::vf2d() const { return olc::vf2d(x,y); };
   operator olc::vi2d() const { return olc::vi2d(x,y); };

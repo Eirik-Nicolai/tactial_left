@@ -5,8 +5,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_COMPILER "/usr/bin/g++")
+set(CMAKE_BUILD_TYPE Debug)
 
+set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 set(CMAKE_CXX_FLAGS "-O0 -Wno-deprecated-literal-operator")
 
 project(tactical_leftist)

@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <list>
+#include <memory>
 #include <string_view>
 #include <utility>
 
@@ -29,14 +30,28 @@ class CheckerNode {
 
 
 struct Node {
-  bool is_obstacle = false;
-  bool is_visited = false;
+  Node(int x_, int y_) : x(x_), y(y_) {
+    is_obstacle = false;
+    is_visited = false;
+    global_goal = false;
+    local_goal = false;
+    parent = nullptr;
+    weight = 0;
+    neighbour_count = 0;
+  }
+  void add_neighbour(std::shared_ptr<Node> neighbour) {
+    if(neighbour_count<neighbours.size())
+      neighbours[neighbour_count++] = neighbour;
+  }
+  bool is_obstacle;
+  bool is_visited;
   float global_goal;
   float local_goal;
   int x;
   int y;
-  std::list<Node*> neighbours;
-  Node* parent;
+  size_t neighbour_count;
+  std::array<std::shared_ptr<Node>, 8> neighbours;
+  std::shared_ptr<Node> parent;
 
   unsigned weight;
 };

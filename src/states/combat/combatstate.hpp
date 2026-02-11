@@ -43,9 +43,9 @@ class CombatState : public GameState {
     private:
         float sElapsedTime; // useful for debugging
 
-        std::array<Node*, tile_amt_x*tile_amt_y> combat_tiles;
-        Node* node_start = nullptr;
-        Node* node_end = nullptr;
+        std::array<std::shared_ptr<Node>, tile_amt_x*tile_amt_y> combat_tiles;
+        std::shared_ptr<Node> node_start = nullptr;
+        std::shared_ptr<Node> node_end = nullptr;
 
 };
 }

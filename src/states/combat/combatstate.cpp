@@ -52,8 +52,8 @@ void CombatState::enter(TacticalGame* ge) {
     auto offs_y = (sh/2) - (rect_h*tile_amt_y/2);
 
     Info("Node amt {}", combat_tiles.size());
-    for(auto x = 0; x < tile_amt_x; x ++)
-        for(auto y = 0; y < tile_amt_y; y ++) {
+    for(auto x = 0; x < tile_amt_x; x++)
+        for(auto y = 0; y < tile_amt_y; y++) {
 
             auto tile = reg.create();
             reg.emplace<Interaction::_selectable>(tile, false);
@@ -65,55 +65,38 @@ void CombatState::enter(TacticalGame* ge) {
             p.y=offs_y + (y*rect_h);
             reg.emplace<Pos>(tile, p);
             reg.emplace<Size>(tile, (float)rect_w, (float)rect_h);
+            combat_tiles[x + (tile_amt_x*y)] = std::make_shared<Node>(
+                p.x,
+                p.y
+            );
 
             Rendering::Wireframe wire;
             wire.color = olc::DARK_RED;
             wire.type = Rendering::Wireframe::TYPE::SQUARE;
             reg.emplace<Rendering::Wireframe>(tile, wire);
-
-            auto node = new Node{
-                .is_obstacle = false,
-                .is_visited = false,
-                .global_goal = INFINITY,
-                .local_goal = INFINITY,
-                .x = static_cast<int>(p.x),
-                .y = static_cast<int>(p.y),
-                .parent = nullptr,
-                .weight = 0
-            };
-            // TODO delete memory on each enter/exit
-            combat_tiles[x + (tile_amt_x*y)] = node;
         }
 
     for(auto x = 0; x < tile_amt_x; x ++)
         for(auto y = 0; y < tile_amt_y; y ++) {
             if(y>0)
-                combat_tiles[x + (tile_amt_x*y)]->neighbours.push_back(
-                    combat_tiles[x + 0 + (tile_amt_x*(y - 1))]);
+                combat_tiles[x + (tile_amt_x*y)]->add_neighbour(combat_tiles[x + 0 + (tile_amt_x*(y - 1))]);
             if(y<tile_amt_y-1)
-                combat_tiles[x + (tile_amt_x*y)]->neighbours.push_back(
-                    combat_tiles[x + 0 + (tile_amt_x*(y + 1))]);
+                combat_tiles[x + (tile_amt_x*y)]->add_neighbour(combat_tiles[x + 0 + (tile_amt_x*(y + 1))]);
             if(x>0)
-                combat_tiles[x + (tile_amt_x*y)]->neighbours.push_back(
-                    combat_tiles[x - 1 + (tile_amt_x*(y - 0))]);
+                combat_tiles[x + (tile_amt_x*y)]->add_neighbour(combat_tiles[x - 1 + (tile_amt_x*(y - 0))]);
             if(x<tile_amt_x-1)
-                combat_tiles[x + (tile_amt_x*y)]->neighbours.push_back(
-                    combat_tiles[x + 1 + (tile_amt_x*(y + 0))]);
+              combat_tiles[x + (tile_amt_x*y)]->add_neighbour(combat_tiles[x + 1 + (tile_amt_x*(y + 0))]);
         }
 
-    node_start = combat_tiles[0 + (tile_amt_x*0)];
+    node_start = combat_tiles[0];
 
-    node_end = combat_tiles[2 + (tile_amt_x*5)];
+    node_end = combat_tiles[3];
 
     solve_a_star();
 }
 void CombatState::exit(TacticalGame* ge) {
     LOG_FUNC
 
-    for(auto i = 0; i < combat_tiles.size(); ++i) {
-        delete combat_tiles[i];
-        combat_tiles[i] = NULL;
-    }
 }
 
 void CombatState::handle_input(TacticalGame* ge) {
@@ -149,10 +132,12 @@ void CombatState::update(TacticalGame* ge) {
     for(auto [ent, pos, size, selectable, hoverable] :
             reg.view<Pos, Size, Interaction::_selectable,
             Interaction::_hoverable>().each()) {
-        if(ge->GetMouse(MOUSE_LBUTTON).bReleased) {
+        if(ge->GetMouse(MOUSE_LBUTTON).bReleased&& hoverable.is_hovered) {
             auto x_normalized = ((pos.x-offs_x)/rect_w);
             auto y_normalized = ((pos.y-offs_y)/rect_h);
             auto index_pos = x_normalized + (tile_amt_x*y_normalized);
+            Error("px{} py{}", pos.x, pos.y);
+            Error("index{}", index_pos);
             if(selectable.is_selected) {
                 selectable.is_selected=false;
                 combat_tiles[index_pos]->is_obstacle = false;
@@ -161,9 +146,10 @@ void CombatState::update(TacticalGame* ge) {
                 combat_tiles[index_pos]->is_obstacle = true;
             }
 
-            //solve_a_star();
+            // solve_a_star();
         }
-        if(ge->GetMouse(MOUSE_RBUTTON).bReleased) {
+        if(ge->GetMouse(MOUSE_RBUTTON).bReleased && hoverable.is_hovered) {
+        
             auto x_normalized = ((pos.x-offs_x)/rect_w);
             auto y_normalized = ((pos.y-offs_y)/rect_h);
             auto index_pos = x_normalized + (tile_amt_x*y_normalized);
@@ -173,7 +159,7 @@ void CombatState::update(TacticalGame* ge) {
             //solve_a_star();
         }
 
-        if(ge->GetMouse(MOUSE_MBUTTON).bReleased) {
+        if(ge->GetMouse(MOUSE_MBUTTON).bReleased&& hoverable.is_hovered) {
             auto x_normalized = ((pos.x-offs_x)/rect_w);
             auto y_normalized = ((pos.y-offs_y)/rect_h);
             auto index_pos = x_normalized + (tile_amt_x*y_normalized);
@@ -233,14 +219,21 @@ void CombatState::draw(TacticalGame* ge) {
             if(curr_node->weight > 30) {
                 tv->FillRect(curr_node->x+4, curr_node->y+4, rect_w-4, rect_h-4, olc::MAGENTA);
             }
+            if(curr_node->is_obstacle) {
+                tv->FillRect(curr_node->x+4, curr_node->y+4, rect_w-4, rect_h-4, olc::WHITE);
+            }
         }
+  
     if(node_start)
         tv->FillRect(node_start->x+2, node_start->y+2, rect_w-2, rect_h-2, olc::BLUE);
+
+    // draw line for neighbour connections
     for(auto x = 0; x < tile_amt_x; x ++)
         for(auto y = 0; y < tile_amt_y; y ++) {
             //Error("Drawing for {} {} ", x, y);
             auto curr_node = combat_tiles[x + (tile_amt_x*y)];
-            for(auto neighbour : curr_node->neighbours) {
+            for(auto i = 0; i < curr_node->neighbour_count; ++i) {
+                auto neighbour = curr_node->neighbours[i];
                 tv->DrawLine(curr_node->x + rect_w/2, curr_node->y + rect_h/2,
                              neighbour->x + rect_w/2, neighbour->y + rect_h/2, olc::WHITE, 0x0f0f0f0f);
             }
@@ -250,7 +243,7 @@ void CombatState::draw(TacticalGame* ge) {
     if(node_end) {
         tv->FillRect(node_end->x+2, node_end->y+2, rect_w-2, rect_h-2, olc::GREEN);
 
-        Node* n = node_end;
+        auto n = node_end;
         while(n->parent) {
             tv->DrawLineDecal(olc::vf2d(n->x + rect_w/2, n->y + rect_h/2),
                               olc::vf2d(n->parent->x + rect_w/2, n->parent->y + rect_h/2),
@@ -271,25 +264,26 @@ void CombatState::solve_a_star() {
             combat_tiles[index]->parent = nullptr;
         }
 
-    auto distance = [](Node* a, Node* b)
+    auto distance = [](std::shared_ptr<Node> a, std::shared_ptr<Node> b)
     {
         return sqrtf((a->x - b->x)*(a->x - b->x) + (a->y - b->y)*(a->y - b->y));
     };
 
-    auto heuristic = [distance](Node* a, Node* b)
+    auto heuristic = [distance](std::shared_ptr<Node> a, std::shared_ptr<Node> b)
     {
         return distance(a,b) + (a->weight + b->weight)*(a->weight + b->weight);
     };
 
-    Node* node_current = node_start;
+    auto node_current = node_start;
     node_start->local_goal = 0.f;
     node_start->global_goal = heuristic(node_start, node_end);
-    std::list<Node*> not_tested_nodes;
+    // list for sort func
+    std::list<std::shared_ptr<Node>> not_tested_nodes;
     not_tested_nodes.push_back(node_start);
     while(!not_tested_nodes.empty())
     //while(!not_tested_nodes.empty() && node_current != node_end)
     {
-        not_tested_nodes.sort([](Node* lhs, Node* rhs){
+      not_tested_nodes.sort([](std::shared_ptr<Node> lhs, std::shared_ptr<Node> rhs){
             return lhs->global_goal < rhs->global_goal;
         });
 
@@ -301,7 +295,8 @@ void CombatState::solve_a_star() {
 
         node_current = not_tested_nodes.front();
         node_current->is_visited = true;
-        for(auto neighbour : node_current->neighbours) {
+        for(auto i = 0; i < node_current->neighbour_count; ++i) {
+            auto neighbour = node_current->neighbours[i];
             if(!neighbour->is_visited && !neighbour->is_obstacle)
                 not_tested_nodes.push_back(neighbour);
             float possible_local_goal = node_current->local_goal + distance(node_current, neighbour);

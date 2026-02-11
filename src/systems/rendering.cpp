@@ -74,11 +74,9 @@
 // | update this
 // ---------------------------
 
-using Rendering::Layer::_bg_far;
-
 void PreRenderer::execute(TacticalGame *ge) {
   LOG_FUNC
-  ge->Clear(olc::BLACK);
+  // ge->Clear(olc::BLACK);
   // any other init rendering step, might not be needed
 }
 
@@ -94,7 +92,7 @@ void WireframeRenderer::execute(TacticalGame* ge) {
             case Rendering::Wireframe::TYPE::CIRCLE: {
                 tv->DrawCircle(pos, size.h, wireframe.color);
             } break;
-            case Rendering::Wireframe::TYPE::CIRCLE_FILL: {
+            case Rendering::    Wireframe::TYPE::CIRCLE_FILL: {
                 tv->FillCircle(pos, size.h, wireframe.color);
             } break;
             case Rendering::Wireframe::TYPE::SQUARE: {
