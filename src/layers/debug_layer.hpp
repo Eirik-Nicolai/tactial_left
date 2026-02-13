@@ -8,14 +8,15 @@
 
 #include "engine/event.hpp"
 #include "engine/mouse_event.hpp"
-class DebugLayer : public Layer {
+class DebugLayer : public Layer
+{
   public:
     GET_NAME(Layer, MenuLayer)
 
     DebugLayer(TacticalGame *ge);
     virtual ~DebugLayer();
 
-    virtual void on_event(TacticalGame*, Event&) override;
+    virtual void on_event(TacticalGame *, Event &) override;
     virtual void update(TacticalGame *) override;
     virtual void draw(TacticalGame *) override;
 

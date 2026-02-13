@@ -4,7 +4,8 @@
 #include "engine/key_event.hpp"
 #include "utils/debugging.hpp"
 
-class MenuLayer : public Layer {
+class MenuLayer : public Layer
+{
   public:
     GET_NAME(Layer, MenuLayer)
 

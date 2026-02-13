@@ -22,7 +22,8 @@
 //         tv->DrawLine(rot_centre, pos.coordinates, olc::CYAN, 0xF0F0F0F0);
 //     }
 
-//     for(auto [ent, pos, wireframe, circular] : reg.view<Pos, Rendering::Wireframe, SizeCirc>().each())
+//     for(auto [ent, pos, wireframe, circular] : reg.view<Pos, Rendering::Wireframe,
+//     SizeCirc>().each())
 //     {
 //         tv->DrawCircle(pos.coordinates, circular.r, wireframe.color);
 //     }
@@ -73,63 +74,66 @@
 // | update this
 // ---------------------------
 
-void PreRenderer::execute(TacticalGame *ge) {
-  LOG_FUNC
-  // ge->Clear(olc::BLACK);
-  // any other init rendering step, might not be needed
+void PreRenderer::execute(TacticalGame *ge)
+{
+    LOG_FUNC
+    // ge->Clear(olc::BLACK);
+    // any other init rendering step, might not be needed
 }
 
-void WireframeRenderer::execute(TacticalGame* ge) {
+void WireframeRenderer::execute(TacticalGame *ge)
+{
     LOG_FUNC
-    auto& reg = ge->get_reg();
+    auto &reg = ge->get_reg();
     auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_wireframe.get());
 
-    for(auto &&[ent, pos, size, wireframe] : reg.group<Pos, Size, Rendering::Wireframe>().each())
-    {
+    for (auto &&[ent, pos, size, wireframe] :
+         reg.group<Pos, Size, Rendering::Wireframe>().each()) {
         switch (wireframe.type) {
-            case Rendering::Wireframe::TYPE::CIRCLE: {
-                tv->DrawCircle(pos, size.h, wireframe.color);
-            } break;
-            case Rendering::    Wireframe::TYPE::CIRCLE_FILL: {
-                tv->FillCircle(pos, size.h, wireframe.color);
-            } break;
-            case Rendering::Wireframe::TYPE::SQUARE: {
-                // HACK for debugging a*
-                tv->DrawRectDecal(pos+4, size-4, wireframe.color);
-                // tv->DrawRectDecal(pos, size, wireframe.color);
-            } break;
-            case Rendering::Wireframe::TYPE::SQUARE_FILL: {
-                tv->FillRectDecal(pos, size, wireframe.color);
-            } break;
-            case Rendering::Wireframe::TYPE::TRIANGLE: {
-                auto side_opposite = (int) (size.h/sqrt(3));
-                olc::vi2d pos2 = {static_cast<int>(pos.x+size.h - side_opposite),
-                                  static_cast<int>(pos.y+size.h)};
-                olc::vi2d pos3 = {static_cast<int>(pos.x+size.h + side_opposite),
-                                  static_cast<int>(pos.y+size.h)};
-                tv->DrawTriangle(pos, pos2, pos3);
-            } break;
-            case Rendering::Wireframe::TYPE::TRIANGLE_FILL: {
-                auto side_opposite = (int) (size.h/sqrt(3));
-                // olc::vi2d pos1 = {pos.x, pos.y};
-                olc::vi2d pos2 = {static_cast<int>(pos.x + side_opposite), static_cast<int>(pos.y+size.h)};
-                olc::vi2d pos3 = {static_cast<int>(pos.x - side_opposite), static_cast<int>(pos.y+size.h)};
-                tv->FillTriangle(pos, pos2, pos3);
-            } break;
-            default:
-                Error("Entity does not have a valid type {}", (int)wireframe.type);
-
+        case Rendering::Wireframe::TYPE::CIRCLE: {
+            tv->DrawCircle(pos, size.h, wireframe.color);
+        } break;
+        case Rendering::Wireframe::TYPE::CIRCLE_FILL: {
+            tv->FillCircle(pos, size.h, wireframe.color);
+        } break;
+        case Rendering::Wireframe::TYPE::SQUARE: {
+            // HACK for debugging a*
+            tv->DrawRectDecal(pos + 4, size - 4, wireframe.color);
+            // tv->DrawRectDecal(pos, size, wireframe.color);
+        } break;
+        case Rendering::Wireframe::TYPE::SQUARE_FILL: {
+            tv->FillRectDecal(pos, size, wireframe.color);
+        } break;
+        case Rendering::Wireframe::TYPE::TRIANGLE: {
+            auto side_opposite = (int)(size.h / sqrt(3));
+            olc::vi2d pos2 = {static_cast<int>(pos.x + size.h - side_opposite),
+                              static_cast<int>(pos.y + size.h)};
+            olc::vi2d pos3 = {static_cast<int>(pos.x + size.h + side_opposite),
+                              static_cast<int>(pos.y + size.h)};
+            tv->DrawTriangle(pos, pos2, pos3);
+        } break;
+        case Rendering::Wireframe::TYPE::TRIANGLE_FILL: {
+            auto side_opposite = (int)(size.h / sqrt(3));
+            // olc::vi2d pos1 = {pos.x, pos.y};
+            olc::vi2d pos2 = {static_cast<int>(pos.x + side_opposite),
+                              static_cast<int>(pos.y + size.h)};
+            olc::vi2d pos3 = {static_cast<int>(pos.x - side_opposite),
+                              static_cast<int>(pos.y + size.h)};
+            tv->FillTriangle(pos, pos2, pos3);
+        } break;
+        default:
+            Error("Entity does not have a valid type {}", (int)wireframe.type);
         };
     }
 }
 
-
-void BackgroundRenderer::execute(TacticalGame* ge) {
+void BackgroundRenderer::execute(TacticalGame *ge)
+{
     LOG_FUNC
 
-    //if(!ge->animation_tick()) return;
-    auto& reg = ge->get_reg();
+    // if(!ge->animation_tick()) return;
+    auto &reg = ge->get_reg();
     auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_bg.get());
 
@@ -141,7 +145,8 @@ void BackgroundRenderer::execute(TacticalGame* ge) {
     //         continue;
     //     }
     //     auto d = ge->get_decal(mng.index_decal);
-    //     // if(ge->animation_tick()) Debug("Sprite sheet info {} {}", sheet.decal_index, sheet.animations_amt);
+    //     // if(ge->animation_tick()) Debug("Sprite sheet info {} {}", sheet.decal_index,
+    //     sheet.animations_amt);
 
     //     if(!d) {
     //         Error("NO DECAL FOR {}", Debugging::entity_name(reg, ent));
@@ -149,7 +154,8 @@ void BackgroundRenderer::execute(TacticalGame* ge) {
     //     }
     //     //d->UpdateSprite();
     //     // if(ge->animation_tick()) Debug("rendering pos {} size {} for entity {}",
-    //     //                                mng.pos_sprite_sheet, sheet.pixel_frame_size.as_vf2d(),
+    //     //                                mng.pos_sprite_sheet,
+    //     sheet.pixel_frame_size.as_vf2d(),
     //     //                                Debugging::entity_name(reg, ent));
     //     tv->DrawPartialDecal(pos, d,
     //                          mng.pos_sprite_sheet,
@@ -166,7 +172,8 @@ void BackgroundRenderer::execute(TacticalGame* ge) {
     //         continue;
     //     }
     //     auto d = ge->get_decal(mng.index_decal);
-    //     // if(ge->animation_tick()) Debug("Sprite sheet info {} {}", sheet.decal_index, sheet.animations_amt);
+    //     // if(ge->animation_tick()) Debug("Sprite sheet info {} {}", sheet.decal_index,
+    //     sheet.animations_amt);
 
     //     if(!d) {
     //         Error("NO DECAL FOR {}", Debugging::entity_name(reg, ent));
@@ -174,7 +181,8 @@ void BackgroundRenderer::execute(TacticalGame* ge) {
     //     }
     //     //d->UpdateSprite();
     //     // if(ge->animation_tick()) Debug("rendering pos {} size {} for entity {}",
-    //     //                                mng.pos_sprite_sheet, sheet.pixel_frame_size.as_vf2d(),
+    //     //                                mng.pos_sprite_sheet,
+    //     sheet.pixel_frame_size.as_vf2d(),
     //     //                                Debugging::entity_name(reg, ent));
     //     tv->DrawPartialDecal(pos, d,
     //                          mng.pos_sprite_sheet,
@@ -183,13 +191,15 @@ void BackgroundRenderer::execute(TacticalGame* ge) {
 
     // }
 
-    ge->DrawString(10,10,"HELLO FROM 1", olc::VERY_DARK_RED, 2);
+    ge->DrawString(10, 10, "HELLO FROM 1", olc::VERY_DARK_RED, 2);
 }
-void render_furthest_layer(TacticalGame* ge) {
-    auto& reg = ge->get_reg();
+void render_furthest_layer(TacticalGame *ge)
+{
+    auto &reg = ge->get_reg();
     auto tv = ge->get_tv();
 
-    // for(auto &&[ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Spritesheet, Rendering::Layer::_furthest>().each())
+    // for(auto &&[ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Spritesheet,
+    // Rendering::Layer::_furthest>().each())
     // {
     //     auto d = ge->get_decal(decal.index);
     //     d->UpdateSprite();
@@ -199,13 +209,15 @@ void render_furthest_layer(TacticalGame* ge) {
     //                          olc::vf2d(10,10));
     // }
 
-    ge->DrawString(14,14,"HELLO FROM 2", olc::DARK_RED, 2);
+    ge->DrawString(14, 14, "HELLO FROM 2", olc::DARK_RED, 2);
 }
-void render_middle_layer(TacticalGame* ge) {
-    auto& reg = ge->get_reg();
+void render_middle_layer(TacticalGame *ge)
+{
+    auto &reg = ge->get_reg();
     auto tv = ge->get_tv();
 
-    // for(auto &&[ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Spritesheet, Rendering::Layer::_middle>().each())
+    // for(auto &&[ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Spritesheet,
+    // Rendering::Layer::_middle>().each())
     // {
     //     auto d = ge->get_decal(decal.index);
     //     d->UpdateSprite();
@@ -215,10 +227,11 @@ void render_middle_layer(TacticalGame* ge) {
     //                          olc::vf2d(10,10));
     // }
 
-    ge->DrawString(14,14,"HELLO FROM 2", olc::DARK_RED, 2);
+    ge->DrawString(14, 14, "HELLO FROM 2", olc::DARK_RED, 2);
 }
-void render_closest_layer(TacticalGame* ge) {
-    auto& reg = ge->get_reg();
+void render_closest_layer(TacticalGame *ge)
+{
+    auto &reg = ge->get_reg();
     auto tv = ge->get_tv();
 
     // for(auto &&[ent, pos, size, decal] : reg.group<Pos, Size,
@@ -232,10 +245,11 @@ void render_closest_layer(TacticalGame* ge) {
     //                          olc::vf2d(10,10));
     // }
 
-    ge->DrawString(14,14,"HELLO FROM 2", olc::DARK_RED, 2);
+    ge->DrawString(14, 14, "HELLO FROM 2", olc::DARK_RED, 2);
 }
 
-void MainRenderer::execute(TacticalGame* ge) {
+void MainRenderer::execute(TacticalGame *ge)
+{
     LOG_FUNC
     ge->SetDrawTarget(ge->layer_main.get());
 
@@ -244,19 +258,17 @@ void MainRenderer::execute(TacticalGame* ge) {
     render_closest_layer(ge);
 }
 
-void PostRenderer::execute(TacticalGame* ge) {
+void PostRenderer::execute(TacticalGame *ge) { LOG_FUNC }
+
+void GUIRenderer::execute(TacticalGame *ge)
+{
     LOG_FUNC
-
-}
-
-
-void GUIRenderer::execute(TacticalGame* ge) {
-    LOG_FUNC
-    auto& reg = ge->get_reg();
+    auto &reg = ge->get_reg();
     auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_gui.get());
 
-    // for(auto &&[ent, pos, size] : reg.view<Pos, Size, Rendering::GUI::_container>().each())
+    // for(auto &&[ent, pos, size] : reg.view<Pos, Size,
+    // Rendering::GUI::_container>().each())
     // {
     //     tv->DrawCircle(pos.x, pos.y, size.h);
     // }

@@ -4,7 +4,8 @@
 
 #include "utils/debugging.hpp"
 class TacticalGame;
-class InputHandler {
+class InputHandler
+{
   public:
     GET_BASE(InputHandler)
     InputHandler();
@@ -13,7 +14,7 @@ class InputHandler {
 
     void register_input(INPUT_TYPE type, std::shared_ptr<Input> inp);
 
-    std::shared_ptr<Input> get_input(TacticalGame* ge);
+    std::shared_ptr<Input> get_input(TacticalGame *ge);
 
   private:
     std::array<std::shared_ptr<Input>, 40> m_registered_inputs;

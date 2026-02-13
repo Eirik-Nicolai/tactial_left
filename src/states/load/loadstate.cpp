@@ -13,7 +13,7 @@
 #define LOADING_ELEMENTS 2
 
 using namespace TransitionState;
-LoadState* LoadState::m_state;
+LoadState *LoadState::m_state;
 
 unsigned bounded_rand(unsigned upper_range = 2)
 {
@@ -22,34 +22,36 @@ unsigned bounded_rand(unsigned upper_range = 2)
             return r;
 }
 
-void sleep_for(int seconds) {
+void sleep_for(int seconds)
+{
     std::this_thread::sleep_for(std::chrono::seconds(seconds));
 }
 
-void do_work(std::vector<int>& assets) {
+void do_work(std::vector<int> &assets)
+{
     sleep_for(bounded_rand());
-    for(auto i = 0; i < LOADING_ELEMENTS; ++i) {
-        //Trace("Adding element");
+    for (auto i = 0; i < LOADING_ELEMENTS; ++i) {
+        // Trace("Adding element");
         assets.emplace_back(i);
         sleep_for(bounded_rand());
     }
-    //Debug("Finished thread");
+    // Debug("Finished thread");
 }
 
-void LoadState::init(TacticalGame* ge) {
+void LoadState::init(TacticalGame *ge)
+{
     LOG_FUNC
-    olc::Sprite* s;
+    olc::Sprite *s;
 
     olc::Decal d = olc::Decal(s);
 
     ge->SetDrawTarget(1);
 }
 
-void LoadState::cleanup(TacticalGame* ge) {
-    LOG_FUNC
-}
+void LoadState::cleanup(TacticalGame *ge) { LOG_FUNC }
 
-void LoadState::enter(TacticalGame* ge) {
+void LoadState::enter(TacticalGame *ge)
+{
     LOG_FUNC
     sElapsedTime = 0;
     m_assets.clear();
@@ -61,20 +63,20 @@ void LoadState::enter(TacticalGame* ge) {
     // auto& reg = ge->get_reg();
     // auto sun = reg.create();
     // reg.emplace<Pos>(sun, 0.f, 0.f);
-    // reg.emplace<Rendering::Wireframe>(sun, Rendering::Wireframe::TYPE::CIRCLE_FILL, olc::DARK_RED);
-    // reg.emplace<Size>(sun, 60.f, 0.f);
+    // reg.emplace<Rendering::Wireframe>(sun, Rendering::Wireframe::TYPE::CIRCLE_FILL,
+    // olc::DARK_RED); reg.emplace<Size>(sun, 60.f, 0.f);
 
     // auto earth = reg.create();
     // reg.emplace<Pos>(earth, 50.f, 50.f );
-    // reg.emplace<Rendering::Wireframe>(earth, Rendering::Wireframe::TYPE::TRIANGLE_FILL, olc::DARK_BLUE);
-    // reg.emplace<Size>(earth, 30.f, 0.f);
+    // reg.emplace<Rendering::Wireframe>(earth, Rendering::Wireframe::TYPE::TRIANGLE_FILL,
+    // olc::DARK_BLUE); reg.emplace<Size>(earth, 30.f, 0.f);
     // // reg.emplace<_selectable>(earth);
     // // reg.emplace<_hoverable>(earth);
 
     // auto moon = reg.create();
     // reg.emplace<Pos>(moon, 100.f, 100.f );
-    // reg.emplace<Rendering::Wireframe>(moon,Rendering::Wireframe::TYPE::SQUARE, olc::WHITE);
-    // reg.emplace<Size>(moon, 10.f, 10.f);
+    // reg.emplace<Rendering::Wireframe>(moon,Rendering::Wireframe::TYPE::SQUARE,
+    // olc::WHITE); reg.emplace<Size>(moon, 10.f, 10.f);
     // // reg.emplace<_selectable>(moon);
     // // reg.emplace<_hoverable>(moon);
 
@@ -161,63 +163,57 @@ void LoadState::enter(TacticalGame* ge) {
 
     // auto path_2 = "assets/Cute_Fantasy_Free/Enemies/Skeleton.png";
     // auto skeleton_decal_index = ge->load_decal(path_2, false, true);
-    // reg.emplace<Rendering::Decal>(earth, skeleton_decal_index, Screen::Size{400,400}, Screen::Pos{40,40});
-    // reg.emplace<Rendering::Layer::_second>(earth);
-    // Debug("LOADED SPRITE {}", skeleton_decal_index);
+    // reg.emplace<Rendering::Decal>(earth, skeleton_decal_index, Screen::Size{400,400},
+    // Screen::Pos{40,40}); reg.emplace<Rendering::Layer::_second>(earth); Debug("LOADED
+    // SPRITE {}", skeleton_decal_index);
 
     // auto path_3 = "assets/Cute_Fantasy_Free/Enemies/Slime_Green.png";
     // auto slime_decal_index = ge->load_decal(path_3, false, true);
-    // reg.emplace<Rendering::Decal>(sun, slime_decal_index, Screen::Size{400,400}, Screen::Pos{40,40});
-    // reg.emplace<Rendering::Layer::_third>(sun);
-    // Debug("LOADED SPRITE {}", slime_decal_index);
-
+    // reg.emplace<Rendering::Decal>(sun, slime_decal_index, Screen::Size{400,400},
+    // Screen::Pos{40,40}); reg.emplace<Rendering::Layer::_third>(sun); Debug("LOADED
+    // SPRITE {}", slime_decal_index);
 }
-void LoadState::exit(TacticalGame* ge) {
-    LOG_FUNC
-}
+void LoadState::exit(TacticalGame *ge) { LOG_FUNC }
 
-void LoadState::pause(TacticalGame* ge) {
-    LOG_FUNC
+void LoadState::pause(TacticalGame *ge) { LOG_FUNC }
+void LoadState::resume(TacticalGame *ge) { LOG_FUNC }
+void LoadState::handle_input(TacticalGame *ge)
+{
+    // LOG_FUNC
 
-}
-void LoadState::resume(TacticalGame* ge) {
-    LOG_FUNC
-
-}
-void LoadState::handle_input(TacticalGame* ge) {
-    //LOG_FUNC
-
-    if(ge->GetMouse(MOUSE_LBUTTON).bReleased) {
-        //TRACE_LOG_TEXT("Loading, please wait")
+    if (ge->GetMouse(MOUSE_LBUTTON).bReleased) {
+        // TRACE_LOG_TEXT("Loading, please wait")
     }
 }
-void LoadState::update(TacticalGame* ge) {
-    //TRACE_LOG_TEXT_NOL(sElapsedTime)
+void LoadState::update(TacticalGame *ge)
+{
+    // TRACE_LOG_TEXT_NOL(sElapsedTime)
 
     sElapsedTime += ge->GetElapsedTime();
     // if(m_assets.size() >= LOADING_ELEMENTS) {
     // }
 
-    if(sElapsedTime > 1) { // 3 second wait to simulate loading
+    if (sElapsedTime > 1) { // 3 second wait to simulate loading
         // ge->change_state(PlayingState::CombatState::Instance());
     }
 }
 
-void LoadState::draw(TacticalGame* ge) {
-    //LOG_FUNC
+void LoadState::draw(TacticalGame *ge)
+{
+    // LOG_FUNC
 
-    if(m_assets.size() >= LOADING_ELEMENTS) {
-        ge->DrawString(400, 300, "DONE",olc::RED, 3);
+    if (m_assets.size() >= LOADING_ELEMENTS) {
+        ge->DrawString(400, 300, "DONE", olc::RED, 3);
     } else {
-        ge->DrawString(400, 300, "LOADING, PLEASE WAIT...",olc::RED, 3);
+        ge->DrawString(400, 300, "LOADING, PLEASE WAIT...", olc::RED, 3);
     }
 
     int width = 1200;
-    float factor = (m_assets.size()/5.f);
+    float factor = (m_assets.size() / 5.f);
 
-    ge->FillRect(200, 500, (width*factor), 50, olc::RED);
+    ge->FillRect(200, 500, (width * factor), 50, olc::RED);
     ge->DrawRect(200, 500, width, 50);
 
-    ge->DrawString({20,30}, std::to_string(factor));
-    ge->DrawString({20,50}, std::to_string(m_assets.size()));
+    ge->DrawString({20, 30}, std::to_string(factor));
+    ge->DrawString({20, 50}, std::to_string(m_assets.size()));
 }

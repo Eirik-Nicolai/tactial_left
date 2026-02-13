@@ -18,45 +18,51 @@
 // };
 // };
 
-class RenderingSystem : public System {
+class RenderingSystem : public System
+{
     GET_NAME(System, RenderingSystem)
-    virtual void execute(TacticalGame* ge) override {};
+    virtual void execute(TacticalGame *ge) override {};
 };
 
-class PreRenderer : public RenderingSystem {
+class PreRenderer : public RenderingSystem
+{
 
     GET_NAME(RenderingSystem, PreRenderer)
-    void execute(TacticalGame* ge) override;
+    void execute(TacticalGame *ge) override;
 };
 
-class BackgroundRenderer : public RenderingSystem {
+class BackgroundRenderer : public RenderingSystem
+{
 
     GET_NAME(RenderingSystem, FirstRenderer)
-    void execute(TacticalGame* ge) override;
+    void execute(TacticalGame *ge) override;
 };
 
-class MainRenderer : public RenderingSystem {
+class MainRenderer : public RenderingSystem
+{
 
     GET_NAME(RenderingSystem, SecondRenderer)
-    void execute(TacticalGame* ge) override;
+    void execute(TacticalGame *ge) override;
 };
 
-class PostRenderer : public RenderingSystem {
+class PostRenderer : public RenderingSystem
+{
 
     GET_NAME(RenderingSystem, PostRenderer)
-    void execute(TacticalGame* ge) override;
+    void execute(TacticalGame *ge) override;
 };
 
-class GUIRenderer : public RenderingSystem {
+class GUIRenderer : public RenderingSystem
+{
 
     GET_NAME(RenderingSystem, GUIRenderer)
-    void execute(TacticalGame* ge) override;
+    void execute(TacticalGame *ge) override;
 };
 
-
 // Debugging
-class WireframeRenderer : public RenderingSystem {
+class WireframeRenderer : public RenderingSystem
+{
 
     GET_NAME(RenderingSystem, WireframeRenderer)
-    void execute(TacticalGame* ge) override;
+    void execute(TacticalGame *ge) override;
 };

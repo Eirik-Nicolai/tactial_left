@@ -5,8 +5,9 @@
 
 #include "states/gamestate.hpp"
 
-class GameLayer : public Layer {
-public:
+class GameLayer : public Layer
+{
+  public:
     GET_NAME(Layer, GameLayer)
 
     GameLayer(TacticalGame *);
@@ -26,4 +27,3 @@ public:
 
     std::vector<std::unique_ptr<GameState>> m_current_states;
 };
-    

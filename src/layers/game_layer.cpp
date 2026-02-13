@@ -30,5 +30,11 @@ void GameLayer::draw(TacticalGame *ge)
 bool GameLayer::key_released(TacticalGame *, KeyReleasedEvent &event) { return true; }
 bool GameLayer::key_pressed(TacticalGame *, KeyPressedEvent &event) { return true; }
 
-bool GameLayer::mouse_button_released(TacticalGame *, MouseButtonReleasedEvent &event) { return true; }
-bool GameLayer::mouse_button_pressed(TacticalGame *, MouseButtonPressedEvent &event) { return true; }
+bool GameLayer::mouse_button_released(TacticalGame *, MouseButtonReleasedEvent &event)
+{
+    return true;
+}
+bool GameLayer::mouse_button_pressed(TacticalGame *, MouseButtonPressedEvent &event)
+{
+    return true;
+}

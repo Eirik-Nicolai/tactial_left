@@ -34,20 +34,19 @@
 // };
 
 // using namespace spdlog::level;
-#define PRINT_FUNC(x)                                                    \
-    std::cout << "[" << get_name() << "::" << __func__ << "()]" << std::endl; \
+#define PRINT_FUNC(x)                                                                    \
+    std::cout << "[" << get_name() << "::" << __func__ << "()]" << std::endl;            \
     // if(Logger::Get()->level() <= x) {                                     \
     // }
 
-#define LOG(_1, _2, ...) \
-    std::cout << "["<<_1<<"]"<<get_name()<<" - "<<_2<<std::endl;
-    //Logger::Get()->log(_1, _2, ##__VA_ARGS__)
+#define LOG(_1, _2, ...)                                                                 \
+    std::cout << "[" << _1 << "]" << get_name() << " - " << _2 << std::endl;
+// Logger::Get()->log(_1, _2, ##__VA_ARGS__)
 
-#define Error(_1, ...) LOG("err",  _1)
-#define Warn(_1, ...)  LOG("warn", _1)
-#define Info(_1, ...)  LOG("info", _1)
-#define Debug(_1, ...) LOG("debug",_1)
-#define Trace(_1, ...) LOG("trace",_1)
-
+#define Error(_1, ...) LOG("err", _1)
+#define Warn(_1, ...) LOG("warn", _1)
+#define Info(_1, ...) LOG("info", _1)
+#define Debug(_1, ...) LOG("debug", _1)
+#define Trace(_1, ...) LOG("trace", _1)
 
 #define LOG_FUNC PRINT_FUNC(spdlog::level::trace)

@@ -3,12 +3,14 @@
 #include "components/animation.hpp"
 #include "components/rendering.hpp"
 
-void GUIAnimation::execute(TacticalGame* ge) {
+void GUIAnimation::execute(TacticalGame *ge)
+{
     LOG_FUNC
 
-    if(!ge->animation_tick()) return;
+    if (!ge->animation_tick())
+        return;
 
-    auto& reg = ge->get_reg();
+    auto &reg = ge->get_reg();
 
     // for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal,
     //         Rendering::Layer::_first>().each())
@@ -17,9 +19,11 @@ void GUIAnimation::execute(TacticalGame* ge) {
     // }
 }
 
-void CharacterAnimation::execute(TacticalGame* ge) {
+void CharacterAnimation::execute(TacticalGame *ge)
+{
     LOG_FUNC
-    if(!ge->animation_tick()) return;
+    if (!ge->animation_tick())
+        return;
 
     // auto& reg = ge->get_reg();
     // for(auto [ent, mng] : reg.view<Animation::AnimManager>().each())
@@ -38,8 +42,8 @@ void CharacterAnimation::execute(TacticalGame* ge) {
     //     // Debug("Source pos is {} {}", source_pos.x, source_pos.y);
     //     if(mng.curr_animation.frame_animation_length-1 > mng.index_curren_frame)
     //     {
-    //         // Debug("Moving frame for animation : {}, indx: {}", mng.curr_animation.name, mng.index_curren_frame);
-    //         mng.frames_elapsed=0;
+    //         // Debug("Moving frame for animation : {}, indx: {}",
+    //         mng.curr_animation.name, mng.index_curren_frame); mng.frames_elapsed=0;
     //         mng.index_curren_frame++;
 
     //         Rendering::Spritesheet sheet;
@@ -53,8 +57,10 @@ void CharacterAnimation::execute(TacticalGame* ge) {
     //         for(auto [ent, rmng] : reg.view<Rendering::RenderingManager>().each()) {
     //             // TODO THIS ISN"T BEING SET IDK WHY
     //             // FIGURE OUT
-    //             auto source_pos = mng.curr_animation.frames[mng.index_curren_frame].frame_pos;
-    //             auto abs_sprite_pos = ((olc::vf2d)source_pos*(olc::vf2d)sheet.pixel_frame_size);
+    //             auto source_pos =
+    //             mng.curr_animation.frames[mng.index_curren_frame].frame_pos; auto
+    //             abs_sprite_pos =
+    //             ((olc::vf2d)source_pos*(olc::vf2d)sheet.pixel_frame_size);
     //             rmng.pos_sprite_sheet = abs_sprite_pos;
     //             // Debug("Animation pos {} for entity {}", rmng.pos_sprite_sheet,
     //             //       Debugging::entity_name(reg, ent));
@@ -72,13 +78,16 @@ void CharacterAnimation::execute(TacticalGame* ge) {
     // }
 }
 
-void BGAnimation::execute(TacticalGame* ge) {
+void BGAnimation::execute(TacticalGame *ge)
+{
     LOG_FUNC
 
-    if(!ge->animation_tick()) return;
-    auto& reg = ge->get_reg();
+    if (!ge->animation_tick())
+        return;
+    auto &reg = ge->get_reg();
 
-    // for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal, Rendering::Layer::_second>().each())
+    // for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal,
+    // Rendering::Layer::_second>().each())
     // {
 
     // }

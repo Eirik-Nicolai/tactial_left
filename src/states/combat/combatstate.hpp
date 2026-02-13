@@ -7,41 +7,43 @@
 
 constexpr auto tile_amt_x = 20;
 constexpr auto tile_amt_y = 9;
-namespace PlayingState {
-class CombatState : public GameState {
+namespace PlayingState
+{
+class CombatState : public GameState
+{
     GET_NAME(GameState, Combatstate)
-    
+
     /// --------- STATE LOGIC --------- ///
-    public:
-        CombatState();
-        ~CombatState();
+  public:
+    CombatState();
+    ~CombatState();
 
-        void enter(TacticalGame* ge) override;
-        void exit(TacticalGame* ge) override;
+    void enter(TacticalGame *ge) override;
+    void exit(TacticalGame *ge) override;
 
-        void handle_input(TacticalGame* ge, Event &) override;
+    void handle_input(TacticalGame *ge, Event &) override;
 
-        void pause(TacticalGame* ge) override;
-        void resume(TacticalGame* ge) override;
+    void pause(TacticalGame *ge) override;
+    void resume(TacticalGame *ge) override;
 
-        void draw(TacticalGame* ge) override;
-        void update(TacticalGame* ge) override; // ?
+    void draw(TacticalGame *ge) override;
+    void update(TacticalGame *ge) override; // ?
 
-        // void on_event(TacticalGame* ge, Event& event) override; // ?
+    // void on_event(TacticalGame* ge, Event& event) override; // ?
 
-        void solve_a_star();
+    void solve_a_star();
 
     /// ------ PRIVATE LOGIC ------ ///
-    private:
-        float sElapsedTime; // useful for debugging
+  private:
+    float sElapsedTime; // useful for debugging
 
-        std::array<std::shared_ptr<Node>, tile_amt_x*tile_amt_y> combat_tiles;
-        std::shared_ptr<Node> node_start = nullptr;
-        std::shared_ptr<Node> node_end = nullptr;
+    std::array<std::shared_ptr<Node>, tile_amt_x * tile_amt_y> combat_tiles;
+    std::shared_ptr<Node> node_start = nullptr;
+    std::shared_ptr<Node> node_end = nullptr;
 
     bool mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event);
     bool mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event);
 
     bool is_panning = false;
 };
-}
+} // namespace PlayingState

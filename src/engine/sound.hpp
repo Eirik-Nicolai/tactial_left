@@ -5,7 +5,8 @@
 
 #include "utils/debugging.hpp"
 
-class SoundEngine {
+class SoundEngine
+{
 
   public:
     GET_BASE(SoundEngine)
