@@ -13,58 +13,70 @@
 
 using namespace PlayingState;
 
-class TestInput : public Input {
+class TestInput : public Input
+{
   public:
     std::string get_name() const final { return "Test Input StarState key P"; };
-    void execute(TacticalGame *ge) final {
+    void execute(TacticalGame *ge) final
+    {
         // Error("Triggered input {}", get_name());
     }
 };
 
-class PanInputStart : public Input {
+class PanInputStart : public Input
+{
   public:
     std::string get_name() const final { return "InputPanningStart"; };
-    void execute(TacticalGame *ge) final {
+    void execute(TacticalGame *ge) final
+    {
         auto tv = ge->get_tv();
         auto pos_mouse = ge->GetMousePos();
         ge->get_tv()->StartPan(pos_mouse);
     }
 };
 
-class ScrollUpInput : public Input {
+class ScrollUpInput : public Input
+{
   public:
     std::string get_name() const final { return "ScrollUpInputStart"; };
-    void execute(TacticalGame *ge) final {
+    void execute(TacticalGame *ge) final
+    {
         auto tv = ge->get_tv();
         auto pos_mouse = ge->GetMousePos();
         tv->ZoomAtScreenPos(0.5f, pos_mouse);
     }
 };
 
-class ScrollDownInput : public Input {
+class ScrollDownInput : public Input
+{
   public:
     std::string get_name() const final { return "ScrollDownInputStart"; };
-    void execute(TacticalGame *ge) final {
+    void execute(TacticalGame *ge) final
+    {
         auto tv = ge->get_tv();
         auto pos_mouse = ge->GetMousePos();
         tv->ZoomAtScreenPos(2.f, pos_mouse);
     }
 };
 
-class PanInputEnd : public Input {
+class PanInputEnd : public Input
+{
   public:
     std::string get_name() const final { return "InputPanningEnd"; };
-    void execute(TacticalGame *ge) final {
+    void execute(TacticalGame *ge) final
+    {
         auto tv = ge->get_tv();
         auto pos_mouse = ge->GetMousePos();
         ge->get_tv()->EndPan(pos_mouse);
     }
 };
 
-class PanInputUpdate : public Input {
+class PanInputUpdate : public Input
+{
   public:
     std::string get_name() const final { return "InputPanningUpdate"; };
-    void execute(TacticalGame *ge) final {
+    void execute(TacticalGame *ge) final
+    {
         auto tv = ge->get_tv();
         auto pos_mouse = ge->GetMousePos();
         ge->get_tv()->UpdatePan(pos_mouse);
@@ -78,7 +90,7 @@ bool CombatState::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEve
         auto tv = ge->get_tv();
         auto pos_mouse = ge->GetMousePos();
         ge->get_tv()->EndPan(pos_mouse);
-        
+
         is_panning = false;
         return true;
     }
@@ -105,7 +117,9 @@ bool CombatState::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent
     auto offs_x = (sw / 2) - (rect_w * tile_amt_x / 2);
     auto offs_y = (sh / 2) - (rect_h * tile_amt_y / 2);
     auto &reg = ge->get_reg();
-    for (auto [ent, pos, size, selectable, hoverable] : reg.view<Pos, Size, Interaction::_selectable, Interaction::_hoverable>().each()) {
+    for (auto [ent, pos, size, selectable, hoverable] :
+         reg.view<Pos, Size, Interaction::_selectable, Interaction::_hoverable>()
+             .each()) {
         if (event.get_button() == MouseButtonEvent::MouseButton::LeftMouseButton) {
             if (hoverable.is_hovered) {
                 auto x_normalized = ((pos.x - offs_x) / rect_w);
@@ -135,7 +149,8 @@ bool CombatState::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent
     return true;
 }
 
-CombatState::CombatState() {
+CombatState::CombatState()
+{
     LOG_FUNC
     handler = std::make_unique<InputHandler>();
 }
@@ -144,7 +159,8 @@ CombatState::~CombatState() { LOG_FUNC }
 void CombatState::pause(TacticalGame *ge) { LOG_FUNC }
 void CombatState::resume(TacticalGame *ge) { LOG_FUNC }
 
-void CombatState::enter(TacticalGame *ge) {
+void CombatState::enter(TacticalGame *ge)
+{
     LOG_FUNC
 
     Debug("Entering combat state");
@@ -185,13 +201,17 @@ void CombatState::enter(TacticalGame *ge) {
     for (auto x = 0; x < tile_amt_x; x++)
         for (auto y = 0; y < tile_amt_y; y++) {
             if (y > 0)
-                combat_tiles[x + (tile_amt_x * y)]->add_neighbour(combat_tiles[x + 0 + (tile_amt_x * (y - 1))]);
+                combat_tiles[x + (tile_amt_x * y)]->add_neighbour(
+                    combat_tiles[x + 0 + (tile_amt_x * (y - 1))]);
             if (y < tile_amt_y - 1)
-                combat_tiles[x + (tile_amt_x * y)]->add_neighbour(combat_tiles[x + 0 + (tile_amt_x * (y + 1))]);
+                combat_tiles[x + (tile_amt_x * y)]->add_neighbour(
+                    combat_tiles[x + 0 + (tile_amt_x * (y + 1))]);
             if (x > 0)
-                combat_tiles[x + (tile_amt_x * y)]->add_neighbour(combat_tiles[x - 1 + (tile_amt_x * (y - 0))]);
+                combat_tiles[x + (tile_amt_x * y)]->add_neighbour(
+                    combat_tiles[x - 1 + (tile_amt_x * (y - 0))]);
             if (x < tile_amt_x - 1)
-                combat_tiles[x + (tile_amt_x * y)]->add_neighbour(combat_tiles[x + 1 + (tile_amt_x * (y + 0))]);
+                combat_tiles[x + (tile_amt_x * y)]->add_neighbour(
+                    combat_tiles[x + 1 + (tile_amt_x * (y + 0))]);
         }
 
     node_start = combat_tiles[0];
@@ -208,23 +228,29 @@ void CombatState::handle_input(TacticalGame *ge, Event &event)
     //  HACK FOR PANNING
     EventDispatcher dispatcher(ge, event);
     dispatcher.Dispatch<MouseButtonPressedEvent>(
-        [this](TacticalGame *ge, MouseButtonPressedEvent &e) { return mouse_button_pressed(ge, e); });
+        [this](TacticalGame *ge, MouseButtonPressedEvent &e) {
+            return mouse_button_pressed(ge, e);
+        });
     dispatcher.Dispatch<MouseButtonReleasedEvent>(
-        [this](TacticalGame *ge, MouseButtonReleasedEvent &e) { return mouse_button_released(ge, e); });
+        [this](TacticalGame *ge, MouseButtonReleasedEvent &e) {
+            return mouse_button_released(ge, e);
+        });
 }
 
-void CombatState::update(TacticalGame *ge) {
+void CombatState::update(TacticalGame *ge)
+{
     // LOG_FUN
     auto &reg = ge->get_reg();
     auto tv = ge->get_tv();
     auto pos_mouse = ge->GetMousePos();
 
-    if(is_panning) {
+    if (is_panning) {
         ge->get_tv()->UpdatePan(pos_mouse);
     }
     // this should be moved to a separate system
     auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();
-    for (auto [ent, pos, size, hoverable] : reg.view<Pos, Size, Interaction::_hoverable>().each()) {
+    for (auto [ent, pos, size, hoverable] :
+         reg.view<Pos, Size, Interaction::_hoverable>().each()) {
         hoverable.is_hovered = is_point_inside_rect(pos, size, mouse_pos);
     }
 
@@ -232,11 +258,13 @@ void CombatState::update(TacticalGame *ge) {
         solve_a_star();
 }
 
-void CombatState::draw(TacticalGame *ge) {
+void CombatState::draw(TacticalGame *ge)
+{
     // LOG_FUNC
 
     auto &reg = ge->get_reg();
-    for (auto [ent, wire, hoverable] : reg.view<Rendering::Wireframe, Interaction::_hoverable>().each()) {
+    for (auto [ent, wire, hoverable] :
+         reg.view<Rendering::Wireframe, Interaction::_hoverable>().each()) {
         if (hoverable.is_hovered) {
             wire.color = olc::RED;
             wire.type = Rendering::Wireframe::TYPE::SQUARE;
@@ -245,7 +273,8 @@ void CombatState::draw(TacticalGame *ge) {
             wire.type = Rendering::Wireframe::TYPE::SQUARE;
         }
     }
-    for (auto [ent, wire, _] : reg.view<Rendering::Wireframe, Interaction::_selectable>().each()) {
+    for (auto [ent, wire, _] :
+         reg.view<Rendering::Wireframe, Interaction::_selectable>().each()) {
         wire.color = olc::DARK_GREY;
         wire.type = Rendering::Wireframe::TYPE::SQUARE;
     }
@@ -264,21 +293,26 @@ void CombatState::draw(TacticalGame *ge) {
             auto curr_node = combat_tiles[x + (tile_amt_x * y)];
 
             if (curr_node->is_visited) {
-                tv->FillRect(curr_node->x + 4, curr_node->y + 4, rect_w - 4, rect_h - 4, olc::VERY_DARK_RED);
+                tv->FillRect(curr_node->x + 4, curr_node->y + 4, rect_w - 4, rect_h - 4,
+                             olc::VERY_DARK_RED);
             }
             if (curr_node->weight > 0) {
-                tv->FillRect(curr_node->x + 4, curr_node->y + 4, rect_w - 4, rect_h - 4, olc::DARK_MAGENTA);
+                tv->FillRect(curr_node->x + 4, curr_node->y + 4, rect_w - 4, rect_h - 4,
+                             olc::DARK_MAGENTA);
             }
             if (curr_node->weight > 30) {
-                tv->FillRect(curr_node->x + 4, curr_node->y + 4, rect_w - 4, rect_h - 4, olc::MAGENTA);
+                tv->FillRect(curr_node->x + 4, curr_node->y + 4, rect_w - 4, rect_h - 4,
+                             olc::MAGENTA);
             }
             if (curr_node->is_obstacle) {
-                tv->FillRect(curr_node->x + 4, curr_node->y + 4, rect_w - 4, rect_h - 4, olc::WHITE);
+                tv->FillRect(curr_node->x + 4, curr_node->y + 4, rect_w - 4, rect_h - 4,
+                             olc::WHITE);
             }
         }
 
     if (node_start)
-        tv->FillRect(node_start->x + 2, node_start->y + 2, rect_w - 2, rect_h - 2, olc::BLUE);
+        tv->FillRect(node_start->x + 2, node_start->y + 2, rect_w - 2, rect_h - 2,
+                     olc::BLUE);
 
     // draw line for neighbour connections
     for (auto x = 0; x < tile_amt_x; x++)
@@ -287,26 +321,31 @@ void CombatState::draw(TacticalGame *ge) {
             auto curr_node = combat_tiles[x + (tile_amt_x * y)];
             for (auto i = 0; i < curr_node->neighbour_count; ++i) {
                 auto neighbour = curr_node->neighbours[i];
-                tv->DrawLine(curr_node->x + rect_w / 2, curr_node->y + rect_h / 2, neighbour->x + rect_w / 2,
-                             neighbour->y + rect_h / 2, olc::WHITE, 0x0f0f0f0f);
+                tv->DrawLine(curr_node->x + rect_w / 2, curr_node->y + rect_h / 2,
+                             neighbour->x + rect_w / 2, neighbour->y + rect_h / 2,
+                             olc::WHITE, 0x0f0f0f0f);
             }
         }
 
     // draw path
     if (node_end) {
-        tv->FillRect(node_end->x + 2, node_end->y + 2, rect_w - 2, rect_h - 2, olc::GREEN);
+        tv->FillRect(node_end->x + 2, node_end->y + 2, rect_w - 2, rect_h - 2,
+                     olc::GREEN);
 
         auto n = node_end;
         while (n->parent) {
-            tv->DrawLineDecal(olc::vf2d(n->x + rect_w / 2, n->y + rect_h / 2),
-                              olc::vf2d(n->parent->x + rect_w / 2, n->parent->y + rect_h / 2), olc::YELLOW);
+            tv->DrawLineDecal(
+                olc::vf2d(n->x + rect_w / 2, n->y + rect_h / 2),
+                olc::vf2d(n->parent->x + rect_w / 2, n->parent->y + rect_h / 2),
+                olc::YELLOW);
             n = n->parent;
         }
     }
 }
 
 // TODO move to separate thread
-void CombatState::solve_a_star() {
+void CombatState::solve_a_star()
+{
     for (auto x = 0; x < tile_amt_x; x++)
         for (auto y = 0; y < tile_amt_y; y++) {
             auto index = x + (tile_amt_x * y);
@@ -333,8 +372,9 @@ void CombatState::solve_a_star() {
     while (!not_tested_nodes.empty())
     // while(!not_tested_nodes.empty() && node_current != node_end)
     {
-        not_tested_nodes.sort(
-            [](std::shared_ptr<Node> lhs, std::shared_ptr<Node> rhs) { return lhs->global_goal < rhs->global_goal; });
+        not_tested_nodes.sort([](std::shared_ptr<Node> lhs, std::shared_ptr<Node> rhs) {
+            return lhs->global_goal < rhs->global_goal;
+        });
 
         while (!not_tested_nodes.empty() && not_tested_nodes.front()->is_visited)
             not_tested_nodes.pop_front();
@@ -348,13 +388,15 @@ void CombatState::solve_a_star() {
             auto neighbour = node_current->neighbours[i];
             if (!neighbour->is_visited && !neighbour->is_obstacle)
                 not_tested_nodes.push_back(neighbour);
-            float possible_local_goal = node_current->local_goal + distance(node_current, neighbour);
+            float possible_local_goal =
+                node_current->local_goal + distance(node_current, neighbour);
 
             if (possible_local_goal < neighbour->local_goal) {
                 neighbour->parent = node_current;
                 neighbour->local_goal = possible_local_goal;
 
-                neighbour->global_goal = neighbour->local_goal + heuristic(neighbour, node_end);
+                neighbour->global_goal =
+                    neighbour->local_goal + heuristic(neighbour, node_end);
             }
         }
     }

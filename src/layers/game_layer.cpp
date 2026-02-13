@@ -12,7 +12,6 @@ GameLayer::~GameLayer() {}
 
 void GameLayer::on_event(TacticalGame *ge, Event &event)
 {
-    EventDispatcher dispatcher(ge, event);
     m_current_states.back()->handle_input(ge, event);
 }
 
