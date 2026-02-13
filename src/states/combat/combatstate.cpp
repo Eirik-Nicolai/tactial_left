@@ -12,10 +12,9 @@
 #include "components/rendering.hpp"
 
 using namespace PlayingState;
-// CombatState* CombatState::m_state;
 
 class TestInput : public Input {
-    public:
+  public:
     std::string get_name() const final { return "Test Input StarState key P"; };
     void execute(TacticalGame *ge) final {
         // Error("Triggered input {}", get_name());
@@ -23,7 +22,7 @@ class TestInput : public Input {
 };
 
 class PanInputStart : public Input {
-    public:
+  public:
     std::string get_name() const final { return "InputPanningStart"; };
     void execute(TacticalGame *ge) final {
         auto tv = ge->get_tv();
@@ -33,7 +32,7 @@ class PanInputStart : public Input {
 };
 
 class ScrollUpInput : public Input {
-    public:
+  public:
     std::string get_name() const final { return "ScrollUpInputStart"; };
     void execute(TacticalGame *ge) final {
         auto tv = ge->get_tv();
@@ -43,7 +42,7 @@ class ScrollUpInput : public Input {
 };
 
 class ScrollDownInput : public Input {
-    public:
+  public:
     std::string get_name() const final { return "ScrollDownInputStart"; };
     void execute(TacticalGame *ge) final {
         auto tv = ge->get_tv();
@@ -53,7 +52,7 @@ class ScrollDownInput : public Input {
 };
 
 class PanInputEnd : public Input {
-    public:
+  public:
     std::string get_name() const final { return "InputPanningEnd"; };
     void execute(TacticalGame *ge) final {
         auto tv = ge->get_tv();
@@ -63,7 +62,7 @@ class PanInputEnd : public Input {
 };
 
 class PanInputUpdate : public Input {
-    public:
+  public:
     std::string get_name() const final { return "InputPanningUpdate"; };
     void execute(TacticalGame *ge) final {
         auto tv = ge->get_tv();
@@ -72,64 +71,98 @@ class PanInputUpdate : public Input {
     }
 };
 
+bool CombatState::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event)
+{
+    auto get_name = []() { return "Combat - mouse_button_released()"; };
+    if (event.get_button() == MouseButtonEvent::MouseButton::MiddleMouseButton) {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        ge->get_tv()->EndPan(pos_mouse);
+        
+        is_panning = false;
+        return true;
+    }
+
+    return false;
+}
+bool CombatState::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event)
+{
+    auto get_name = []() { return "Combat - mouse_button_pressed()"; };
+    if (event.get_button() == MouseButtonEvent::MouseButton::MiddleMouseButton) {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        ge->get_tv()->StartPan(pos_mouse);
+
+        is_panning = true;
+        return true;
+    }
+    Debug("Mouse " << event) auto sw = ge->ScreenWidth();
+    auto sh = ge->ScreenHeight();
+    auto w = (0.04);
+    auto h = (0.05);
+    auto rect_w = sw * w;
+    auto rect_h = sh * h;
+    auto offs_x = (sw / 2) - (rect_w * tile_amt_x / 2);
+    auto offs_y = (sh / 2) - (rect_h * tile_amt_y / 2);
+    auto &reg = ge->get_reg();
+    for (auto [ent, pos, size, selectable, hoverable] : reg.view<Pos, Size, Interaction::_selectable, Interaction::_hoverable>().each()) {
+        if (event.get_button() == MouseButtonEvent::MouseButton::LeftMouseButton) {
+            if (hoverable.is_hovered) {
+                auto x_normalized = ((pos.x - offs_x) / rect_w);
+                auto y_normalized = ((pos.y - offs_y) / rect_h);
+                auto index_pos = x_normalized + (tile_amt_x * y_normalized);
+                if (selectable.is_selected) {
+                    selectable.is_selected = false;
+                    combat_tiles[index_pos]->is_obstacle = false;
+                } else {
+                    selectable.is_selected = true;
+                    combat_tiles[index_pos]->is_obstacle = true;
+                }
+                return true;
+            }
+        }
+        if (event.get_button() == MouseButtonEvent::MouseButton::RightMouseButton) {
+            if (hoverable.is_hovered) {
+                auto x_normalized = ((pos.x - offs_x) / rect_w);
+                auto y_normalized = ((pos.y - offs_y) / rect_h);
+                auto index_pos = x_normalized + (tile_amt_x * y_normalized);
+                combat_tiles[index_pos]->is_obstacle = false;
+                node_start = combat_tiles[index_pos];
+                return true;
+            }
+        }
+    }
+    return true;
+}
 
 CombatState::CombatState() {
     LOG_FUNC
     handler = std::make_unique<InputHandler>();
-
-    handler->register_input(INPUT_TYPE::middle_mouse_PRESSED,
-                            std::make_shared<InputDebugWrapper>(
-                                std::make_shared<PanInputStart>()));
-    handler->register_input(INPUT_TYPE::middle_mouse_RELEASED,
-                            std::make_shared<InputDebugWrapper>(
-                                std::make_shared<PanInputEnd>()));
-    handler->register_input(INPUT_TYPE::middle_mouse_HELD,
-                            std::make_shared<InputDebugWrapper>(
-                                std::make_shared<PanInputUpdate>()));
-
-    handler->register_input(INPUT_TYPE::middle_mouse_SCROLLDOWN,
-                            std::make_shared<InputDebugWrapper>(
-                                std::make_shared<ScrollUpInput>()));
-
-    handler->register_input(INPUT_TYPE::middle_mouse_SCROLLUP,
-                            std::make_shared<InputDebugWrapper>(
-                                std::make_shared<ScrollDownInput>()));
-
-    handler->register_input(INPUT_TYPE::left_mouse_PRESSED,
-                            std::make_shared<TestInput>());
 }
-CombatState::~CombatState() {
-    LOG_FUNC
-}
+CombatState::~CombatState() { LOG_FUNC }
 
-void CombatState::pause(TacticalGame* ge) {
-    LOG_FUNC
+void CombatState::pause(TacticalGame *ge) { LOG_FUNC }
+void CombatState::resume(TacticalGame *ge) { LOG_FUNC }
 
-}
-void CombatState::resume(TacticalGame* ge) {
-    LOG_FUNC
-
-}
-
-void CombatState::enter(TacticalGame* ge) {
+void CombatState::enter(TacticalGame *ge) {
     LOG_FUNC
 
     Debug("Entering combat state");
-    auto& reg = ge->get_reg();
+    auto &reg = ge->get_reg();
     auto tv = ge->get_tv();
 
     auto sw = ge->ScreenWidth();
     auto sh = ge->ScreenHeight();
     auto w = (0.04);
     auto h = (0.05);
-    auto rect_w = sw*w;
-    auto rect_h = sh*h;
-    auto offs_x = (sw/2) - (rect_w*tile_amt_x/2);
-    auto offs_y = (sh/2) - (rect_h*tile_amt_y/2);
+    auto rect_w = sw * w;
+    auto rect_h = sh * h;
+    auto offs_x = (sw / 2) - (rect_w * tile_amt_x / 2);
+    auto offs_y = (sh / 2) - (rect_h * tile_amt_y / 2);
 
     Info("Node amt {}", combat_tiles.size());
-    for(auto x = 0; x < tile_amt_x; x++)
-        for(auto y = 0; y < tile_amt_y; y++) {
+    for (auto x = 0; x < tile_amt_x; x++)
+        for (auto y = 0; y < tile_amt_y; y++) {
 
             auto tile = reg.create();
             reg.emplace<Interaction::_selectable>(tile, false);
@@ -137,14 +170,11 @@ void CombatState::enter(TacticalGame* ge) {
             reg.emplace<Combat::Terrain::_path>(tile);
 
             Pos p;
-            p.x=offs_x + (x*rect_w);
-            p.y=offs_y + (y*rect_h);
+            p.x = offs_x + (x * rect_w);
+            p.y = offs_y + (y * rect_h);
             reg.emplace<Pos>(tile, p);
             reg.emplace<Size>(tile, (float)rect_w, (float)rect_h);
-            combat_tiles[x + (tile_amt_x*y)] = std::make_shared<Node>(
-                p.x,
-                p.y
-            );
+            combat_tiles[x + (tile_amt_x * y)] = std::make_shared<Node>(p.x, p.y);
 
             Rendering::Wireframe wire;
             wire.color = olc::DARK_RED;
@@ -152,16 +182,16 @@ void CombatState::enter(TacticalGame* ge) {
             reg.emplace<Rendering::Wireframe>(tile, wire);
         }
 
-    for(auto x = 0; x < tile_amt_x; x ++)
-        for(auto y = 0; y < tile_amt_y; y ++) {
-            if(y>0)
-                combat_tiles[x + (tile_amt_x*y)]->add_neighbour(combat_tiles[x + 0 + (tile_amt_x*(y - 1))]);
-            if(y<tile_amt_y-1)
-                combat_tiles[x + (tile_amt_x*y)]->add_neighbour(combat_tiles[x + 0 + (tile_amt_x*(y + 1))]);
-            if(x>0)
-                combat_tiles[x + (tile_amt_x*y)]->add_neighbour(combat_tiles[x - 1 + (tile_amt_x*(y - 0))]);
-            if(x<tile_amt_x-1)
-              combat_tiles[x + (tile_amt_x*y)]->add_neighbour(combat_tiles[x + 1 + (tile_amt_x*(y + 0))]);
+    for (auto x = 0; x < tile_amt_x; x++)
+        for (auto y = 0; y < tile_amt_y; y++) {
+            if (y > 0)
+                combat_tiles[x + (tile_amt_x * y)]->add_neighbour(combat_tiles[x + 0 + (tile_amt_x * (y - 1))]);
+            if (y < tile_amt_y - 1)
+                combat_tiles[x + (tile_amt_x * y)]->add_neighbour(combat_tiles[x + 0 + (tile_amt_x * (y + 1))]);
+            if (x > 0)
+                combat_tiles[x + (tile_amt_x * y)]->add_neighbour(combat_tiles[x - 1 + (tile_amt_x * (y - 0))]);
+            if (x < tile_amt_x - 1)
+                combat_tiles[x + (tile_amt_x * y)]->add_neighbour(combat_tiles[x + 1 + (tile_amt_x * (y + 0))]);
         }
 
     node_start = combat_tiles[0];
@@ -170,95 +200,44 @@ void CombatState::enter(TacticalGame* ge) {
 
     solve_a_star();
 }
-void CombatState::exit(TacticalGame* ge) {
-    LOG_FUNC
+void CombatState::exit(TacticalGame *ge) { LOG_FUNC }
 
+void CombatState::handle_input(TacticalGame *ge, Event &event)
+{
+    // LOG_FUNC
+    //  HACK FOR PANNING
+    EventDispatcher dispatcher(ge, event);
+    dispatcher.Dispatch<MouseButtonPressedEvent>(
+        [this](TacticalGame *ge, MouseButtonPressedEvent &e) { return mouse_button_pressed(ge, e); });
+    dispatcher.Dispatch<MouseButtonReleasedEvent>(
+        [this](TacticalGame *ge, MouseButtonReleasedEvent &e) { return mouse_button_released(ge, e); });
 }
 
-void CombatState::handle_input(TacticalGame* ge) {
-    //LOG_FUNC
-    // HACK FOR PANNING
-    auto input = handler->get_input(ge);
-    input->execute(ge);
-}
-void CombatState::update(TacticalGame* ge) {
-    //LOG_FUN
-    auto& reg = ge->get_reg();
+void CombatState::update(TacticalGame *ge) {
+    // LOG_FUN
+    auto &reg = ge->get_reg();
     auto tv = ge->get_tv();
     auto pos_mouse = ge->GetMousePos();
-    auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();
 
+    if(is_panning) {
+        ge->get_tv()->UpdatePan(pos_mouse);
+    }
     // this should be moved to a separate system
-    for(auto [ent, pos, size, hoverable] :
-            reg.view<Pos, Size, Interaction::_hoverable>().each()) {
-        if(is_point_inside_rect(pos, size, mouse_pos)) {
-            hoverable.is_hovered=true;
-        }
+    auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();
+    for (auto [ent, pos, size, hoverable] : reg.view<Pos, Size, Interaction::_hoverable>().each()) {
+        hoverable.is_hovered = is_point_inside_rect(pos, size, mouse_pos);
     }
 
-    auto sw = ge->ScreenWidth();
-    auto sh = ge->ScreenHeight();
-    auto w = (0.04);
-    auto h = (0.05);
-    auto rect_w = sw*w;
-    auto rect_h = sh*h;
-    auto offs_x = (sw/2) - (rect_w*tile_amt_x/2);
-    auto offs_y = (sh/2) - (rect_h*tile_amt_y/2);
-    // // this should be moved to a separate system
-    // for(auto [ent, pos, size, selectable, hoverable] :
-    //         reg.view<Pos, Size, Interaction::_selectable,
-    //         Interaction::_hoverable>().each()) {
-    //     if(ge->GetMouse(MOUSE_LBUTTON).bReleased&& hoverable.is_hovered) {
-    //         auto x_normalized = ((pos.x-offs_x)/rect_w);
-    //         auto y_normalized = ((pos.y-offs_y)/rect_h);
-    //         auto index_pos = x_normalized + (tile_amt_x*y_normalized);
-    //         if(selectable.is_selected) {
-    //             selectable.is_selected=false;
-    //             combat_tiles[index_pos]->is_obstacle = false;
-    //         } else {
-    //             selectable.is_selected=true;
-    //             combat_tiles[index_pos]->is_obstacle = true;
-    //         }
-
-    //         // solve_a_star();
-    //     }
-    //     if(ge->GetMouse(MOUSE_RBUTTON).bReleased && hoverable.is_hovered) {
-        
-    //         auto x_normalized = ((pos.x-offs_x)/rect_w);
-    //         auto y_normalized = ((pos.y-offs_y)/rect_h);
-    //         auto index_pos = x_normalized + (tile_amt_x*y_normalized);
-    //         combat_tiles[index_pos]->is_obstacle = false;
-    //         node_start = combat_tiles[index_pos];
-
-    //         //solve_a_star();
-    //     }
-
-    //     if(ge->GetMouse(MOUSE_MBUTTON).bReleased&& hoverable.is_hovered) {
-    //         auto x_normalized = ((pos.x-offs_x)/rect_w);
-    //         auto y_normalized = ((pos.y-offs_y)/rect_h);
-    //         auto index_pos = x_normalized + (tile_amt_x*y_normalized);
-    //         if(combat_tiles[index_pos]->weight > 60)
-    //             combat_tiles[index_pos]->weight = 0;
-    //         else
-    //             combat_tiles[index_pos]->weight+=30;
-
-    //         //solve_a_star();
-    //     }
-    //     if(!is_point_inside_rect(pos, size, mouse_pos)) {
-    //         hoverable.is_hovered=false;
-    //     }
-    // }
-
-    if(ge->animation_tick()) solve_a_star();
+    if (ge->animation_tick())
+        solve_a_star();
 }
 
-void CombatState::draw(TacticalGame* ge) {
-    //LOG_FUNC
+void CombatState::draw(TacticalGame *ge) {
+    // LOG_FUNC
 
-    auto& reg = ge->get_reg();
-    for(auto [ent, wire, hoverable] :
-            reg.view<Rendering::Wireframe, Interaction::_hoverable>().each()) {
-        if(hoverable.is_hovered) {
+    auto &reg = ge->get_reg();
+    for (auto [ent, wire, hoverable] : reg.view<Rendering::Wireframe, Interaction::_hoverable>().each()) {
+        if (hoverable.is_hovered) {
             wire.color = olc::RED;
             wire.type = Rendering::Wireframe::TYPE::SQUARE;
         } else {
@@ -266,63 +245,61 @@ void CombatState::draw(TacticalGame* ge) {
             wire.type = Rendering::Wireframe::TYPE::SQUARE;
         }
     }
-    for(auto [ent, wire, _] :
-            reg.view<Rendering::Wireframe, Interaction::_selectable>().each()) {
+    for (auto [ent, wire, _] : reg.view<Rendering::Wireframe, Interaction::_selectable>().each()) {
         wire.color = olc::DARK_GREY;
         wire.type = Rendering::Wireframe::TYPE::SQUARE;
     }
 
-    //HACK debugging purposes
+    // HACK debugging purposes
     auto sw = ge->ScreenWidth();
     auto sh = ge->ScreenHeight();
     auto w = (0.04);
     auto h = (0.05);
-    auto rect_w = sw*w;
-    auto rect_h = sh*h;
+    auto rect_w = sw * w;
+    auto rect_h = sh * h;
     auto tv = ge->get_tv();
 
-    for(auto x = 0; x < tile_amt_x; x ++)
-        for(auto y = 0; y < tile_amt_y; y ++) {
-            auto curr_node = combat_tiles[x + (tile_amt_x*y)];
-            
-            if(curr_node->is_visited) {
-                tv->FillRect(curr_node->x+4, curr_node->y+4, rect_w-4, rect_h-4, olc::VERY_DARK_RED);
+    for (auto x = 0; x < tile_amt_x; x++)
+        for (auto y = 0; y < tile_amt_y; y++) {
+            auto curr_node = combat_tiles[x + (tile_amt_x * y)];
+
+            if (curr_node->is_visited) {
+                tv->FillRect(curr_node->x + 4, curr_node->y + 4, rect_w - 4, rect_h - 4, olc::VERY_DARK_RED);
             }
-            if(curr_node->weight > 0) {
-                tv->FillRect(curr_node->x+4, curr_node->y+4, rect_w-4, rect_h-4, olc::DARK_MAGENTA);
+            if (curr_node->weight > 0) {
+                tv->FillRect(curr_node->x + 4, curr_node->y + 4, rect_w - 4, rect_h - 4, olc::DARK_MAGENTA);
             }
-            if(curr_node->weight > 30) {
-                tv->FillRect(curr_node->x+4, curr_node->y+4, rect_w-4, rect_h-4, olc::MAGENTA);
+            if (curr_node->weight > 30) {
+                tv->FillRect(curr_node->x + 4, curr_node->y + 4, rect_w - 4, rect_h - 4, olc::MAGENTA);
             }
-            if(curr_node->is_obstacle) {
-                tv->FillRect(curr_node->x+4, curr_node->y+4, rect_w-4, rect_h-4, olc::WHITE);
+            if (curr_node->is_obstacle) {
+                tv->FillRect(curr_node->x + 4, curr_node->y + 4, rect_w - 4, rect_h - 4, olc::WHITE);
             }
         }
-  
-    if(node_start)
-        tv->FillRect(node_start->x+2, node_start->y+2, rect_w-2, rect_h-2, olc::BLUE);
+
+    if (node_start)
+        tv->FillRect(node_start->x + 2, node_start->y + 2, rect_w - 2, rect_h - 2, olc::BLUE);
 
     // draw line for neighbour connections
-    for(auto x = 0; x < tile_amt_x; x ++)
-        for(auto y = 0; y < tile_amt_y; y ++) {
-            //Error("Drawing for {} {} ", x, y);
-            auto curr_node = combat_tiles[x + (tile_amt_x*y)];
-            for(auto i = 0; i < curr_node->neighbour_count; ++i) {
+    for (auto x = 0; x < tile_amt_x; x++)
+        for (auto y = 0; y < tile_amt_y; y++) {
+            // Error("Drawing for {} {} ", x, y);
+            auto curr_node = combat_tiles[x + (tile_amt_x * y)];
+            for (auto i = 0; i < curr_node->neighbour_count; ++i) {
                 auto neighbour = curr_node->neighbours[i];
-                tv->DrawLine(curr_node->x + rect_w/2, curr_node->y + rect_h/2,
-                             neighbour->x + rect_w/2, neighbour->y + rect_h/2, olc::WHITE, 0x0f0f0f0f);
+                tv->DrawLine(curr_node->x + rect_w / 2, curr_node->y + rect_h / 2, neighbour->x + rect_w / 2,
+                             neighbour->y + rect_h / 2, olc::WHITE, 0x0f0f0f0f);
             }
         }
 
     // draw path
-    if(node_end) {
-        tv->FillRect(node_end->x+2, node_end->y+2, rect_w-2, rect_h-2, olc::GREEN);
+    if (node_end) {
+        tv->FillRect(node_end->x + 2, node_end->y + 2, rect_w - 2, rect_h - 2, olc::GREEN);
 
         auto n = node_end;
-        while(n->parent) {
-            tv->DrawLineDecal(olc::vf2d(n->x + rect_w/2, n->y + rect_h/2),
-                              olc::vf2d(n->parent->x + rect_w/2, n->parent->y + rect_h/2),
-                              olc::YELLOW);
+        while (n->parent) {
+            tv->DrawLineDecal(olc::vf2d(n->x + rect_w / 2, n->y + rect_h / 2),
+                              olc::vf2d(n->parent->x + rect_w / 2, n->parent->y + rect_h / 2), olc::YELLOW);
             n = n->parent;
         }
     }
@@ -330,23 +307,21 @@ void CombatState::draw(TacticalGame* ge) {
 
 // TODO move to separate thread
 void CombatState::solve_a_star() {
-    for(auto x = 0; x < tile_amt_x; x ++)
-        for(auto y = 0; y < tile_amt_y; y ++) {
-            auto index = x + (tile_amt_x*y);
+    for (auto x = 0; x < tile_amt_x; x++)
+        for (auto y = 0; y < tile_amt_y; y++) {
+            auto index = x + (tile_amt_x * y);
             combat_tiles[index]->is_visited = false;
             combat_tiles[index]->global_goal = INFINITY;
             combat_tiles[index]->local_goal = INFINITY;
             combat_tiles[index]->parent = nullptr;
         }
 
-    auto distance = [](std::shared_ptr<Node> a, std::shared_ptr<Node> b)
-    {
-        return sqrtf((a->x - b->x)*(a->x - b->x) + (a->y - b->y)*(a->y - b->y));
+    auto distance = [](std::shared_ptr<Node> a, std::shared_ptr<Node> b) {
+        return sqrtf((a->x - b->x) * (a->x - b->x) + (a->y - b->y) * (a->y - b->y));
     };
 
-    auto heuristic = [distance](std::shared_ptr<Node> a, std::shared_ptr<Node> b)
-    {
-        return distance(a,b) + (a->weight + b->weight)*(a->weight + b->weight);
+    auto heuristic = [distance](std::shared_ptr<Node> a, std::shared_ptr<Node> b) {
+        return distance(a, b) + (a->weight + b->weight) * (a->weight + b->weight);
     };
 
     auto node_current = node_start;
@@ -355,34 +330,32 @@ void CombatState::solve_a_star() {
     // list for sort func
     std::list<std::shared_ptr<Node>> not_tested_nodes;
     not_tested_nodes.push_back(node_start);
-    while(!not_tested_nodes.empty())
-    //while(!not_tested_nodes.empty() && node_current != node_end)
+    while (!not_tested_nodes.empty())
+    // while(!not_tested_nodes.empty() && node_current != node_end)
     {
-      not_tested_nodes.sort([](std::shared_ptr<Node> lhs, std::shared_ptr<Node> rhs){
-            return lhs->global_goal < rhs->global_goal;
-        });
+        not_tested_nodes.sort(
+            [](std::shared_ptr<Node> lhs, std::shared_ptr<Node> rhs) { return lhs->global_goal < rhs->global_goal; });
 
-        while(!not_tested_nodes.empty() && not_tested_nodes.front()->is_visited)
+        while (!not_tested_nodes.empty() && not_tested_nodes.front()->is_visited)
             not_tested_nodes.pop_front();
 
-        if(not_tested_nodes.empty())
+        if (not_tested_nodes.empty())
             break;
 
         node_current = not_tested_nodes.front();
         node_current->is_visited = true;
-        for(auto i = 0; i < node_current->neighbour_count; ++i) {
+        for (auto i = 0; i < node_current->neighbour_count; ++i) {
             auto neighbour = node_current->neighbours[i];
-            if(!neighbour->is_visited && !neighbour->is_obstacle)
+            if (!neighbour->is_visited && !neighbour->is_obstacle)
                 not_tested_nodes.push_back(neighbour);
             float possible_local_goal = node_current->local_goal + distance(node_current, neighbour);
 
-            if(possible_local_goal < neighbour->local_goal) {
+            if (possible_local_goal < neighbour->local_goal) {
                 neighbour->parent = node_current;
                 neighbour->local_goal = possible_local_goal;
 
                 neighbour->global_goal = neighbour->local_goal + heuristic(neighbour, node_end);
             }
         }
-
     }
 }

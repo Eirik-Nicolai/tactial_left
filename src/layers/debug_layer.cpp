@@ -1,3 +1,4 @@
+#include "utils/geometry.hpp"
 #define OLC_PGEX_FUI
 #include "debug_layer.hpp"
 
@@ -59,22 +60,54 @@ DebugLayer::~DebugLayer() {
 void DebugLayer::update(TacticalGame *ge) {
 
     m_ui_manager.run();
+
+    // if()
 }
 
 
 void DebugLayer::draw(TacticalGame *) {}
+
+void DebugLayer::on_event(TacticalGame *ge, Event &e)
+{
+    EventDispatcher dispatcher(ge, e);
+    dispatcher.Dispatch<MouseButtonReleasedEvent>(
+        [this](TacticalGame *ge, MouseButtonReleasedEvent &e) {
+            return mouse_button_released(ge, e);
+        });
+
+    dispatcher.Dispatch<MouseButtonPressedEvent>(
+        [this](TacticalGame *ge, MouseButtonPressedEvent &e) {
+            return mouse_button_pressed(ge, e);
+        });
+}
 // bool DebugLayer::key_released(TacticalGame *, KeyReleasedEvent &event) {
-  
+
 // }
 // bool DebugLayer::key_pressed(TacticalGame *, KeyPressedEvent &event) {
-  
+
 // }
 
-// bool DebugLayer::mouse_button_released(TacticalGame *,
-//                                       MouseButtonReleasedEvent &event) {
-  
-// }
-// bool DebugLayer::mouse_button_pressed(TacticalGame *,
-//                                      MouseButtonPressedEvent &event) {
-  
-// }
+bool DebugLayer::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event)
+{
+    auto window_pos = m_ui_manager.find_window("groupbox")->get_position();
+    auto window_size = m_ui_manager.find_window("groupbox")->get_window_space();
+    auto mouse = ge->GetMousePos();
+    if (is_point_inside_rect(window_pos.x, window_pos.y, window_size.x, window_size.y,
+                             mouse.x, mouse.y)) {
+        Info("Released debug");
+        return false;
+    }
+    return false;
+}
+bool DebugLayer::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event)
+{
+    auto window_pos = m_ui_manager.find_window("groupbox")->get_position();
+    auto window_size = m_ui_manager.find_window("groupbox")->get_window_space();
+    auto mouse = ge->GetMousePos();
+    if (is_point_inside_rect(window_pos.x, window_pos.y, window_size.x, window_size.y,
+                             mouse.x, mouse.y)) {
+        Info("pressed debug");
+        return true;
+    }
+    return false;
+}

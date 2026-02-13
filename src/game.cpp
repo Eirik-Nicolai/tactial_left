@@ -166,7 +166,8 @@ bool TacticalGame::OnUserUpdate(float dt)
 
     handle_inputs(this);
     
-    for (auto &layer : std::views::reverse(m_layers)) {
+    //for (auto &layer : std::views::reverse(m_layers)) {
+    for (auto &layer : m_layers) {
         layer->update(this);
         layer->draw(this);
     }

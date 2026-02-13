@@ -45,13 +45,13 @@ private:
 
 class MouseButtonEvent : public Event {
 
+public:
   enum class MouseButton : uint8_t {
     LeftMouseButton = 0,
     RightMouseButton,
     MiddleMouseButton,
   };
 
-public:
   inline MouseButton get_button() const { return m_button; }
 
 protected:

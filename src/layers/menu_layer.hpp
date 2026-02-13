@@ -4,12 +4,11 @@
 #include "engine/key_event.hpp"
 #include "utils/debugging.hpp"
 
-
 class MenuLayer : public Layer {
-public:
+  public:
     GET_NAME(Layer, MenuLayer)
 
-    MenuLayer(TacticalGame* ge);
+    MenuLayer(TacticalGame *ge);
     virtual ~MenuLayer();
 
     virtual void on_event(TacticalGame *, Event &event) override;

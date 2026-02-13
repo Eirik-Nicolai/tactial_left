@@ -4,23 +4,13 @@
 #include "utils/complex_datatypes.hpp"
 #include "engine/event.hpp"
 #include "engine/mouse_event.hpp"
+
 constexpr auto tile_amt_x = 20;
 constexpr auto tile_amt_y = 9;
-
 namespace PlayingState {
 class CombatState : public GameState {
-    // /// ------ SINGLETON LOGIC ------ ///
-    // public:
-    //     static CombatState* Instance() {
-    //         if(!m_state)
-    //             m_state = new CombatState();
-    //         return m_state;
-    //     }
-    // private:
-    //     static CombatState* m_state;
-
-    
     GET_NAME(GameState, Combatstate)
+    
     /// --------- STATE LOGIC --------- ///
     public:
         CombatState();
@@ -29,7 +19,7 @@ class CombatState : public GameState {
         void enter(TacticalGame* ge) override;
         void exit(TacticalGame* ge) override;
 
-        void handle_input(TacticalGame* ge) override;
+        void handle_input(TacticalGame* ge, Event &) override;
 
         void pause(TacticalGame* ge) override;
         void resume(TacticalGame* ge) override;
@@ -49,5 +39,9 @@ class CombatState : public GameState {
         std::shared_ptr<Node> node_start = nullptr;
         std::shared_ptr<Node> node_end = nullptr;
 
+    bool mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event);
+    bool mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event);
+
+    bool is_panning = false;
 };
 }
