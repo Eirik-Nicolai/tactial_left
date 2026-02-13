@@ -5,81 +5,59 @@
 #include <memory_resource>
 #include <string>
 
+enum class EventType {
+  NoneEvent = 0,
+  // WindowClose, // to be implemented
+  // WindowResize,// to be implemented
+  KeyPressed,
+  KeyReleased,
+  MouseButtonPressed,
+  MouseButtonReleased,
+  MouseMoved,
+  MouseScrolled,
+
+  // Audio
+  // Music
+};
+
+#define EVENT_CLASS_TYPE(type)                                                 \
+  static EventType get_static_type() { return EventType::type; }                 \
+  virtual EventType get_type() const override { return get_static_type(); }  \
+  virtual const char *get_name() const override { return #type; }
+
 class Event {
-  public:
-    Event(std::string_view type_) : name(type_) {
-      type = std::hash<std::string_view>{}(type_);
-    }
-
-    virtual ~Event() = default;
-    virtual std::string_view get_name() const { return name; }
-    virtual std::uint32_t get_type() const { return type; };
-
-    bool isHandled { false };
-
-  private:
-    std::string_view name;
-    uint32_t type;
+public:
+  bool consumed = false;
+  virtual ~Event() {}
+  virtual EventType get_type() const = 0;
+  virtual const char *get_name() const = 0;
+  virtual std::string to_string() const { return get_name(); }
+private:
 };
 
-class Observer
-{
-  friend class Subject;
-
-  public:
-    Observer(): next_(nullptr) {}
-    virtual ~Observer() {}
-    virtual void on_notify(const entt::registry& reg, const Event& event) = 0;
-
-  private:
-    Observer* next_;
+class NoneEvent : public Event {
+  NoneEvent() = default;
+  EVENT_CLASS_TYPE(NoneEvent)
 };
 
+class TacticalGame;
+class EventDispatcher {
+    template <typename T> using EventFn = std::function<bool(TacticalGame* ge, T &)>;
 
-class Subject
-{
-  public:
-    Subject(): head_(nullptr) {}
+public:
+    EventDispatcher(TacticalGame* ge,Event &event) : m_ge(ge), m_event(event) {}
 
-    inline void add_observer(Observer* observer)
-    {
-      observer->next_ = head_;
-      head_ = observer;
+  template <typename T> bool Dispatch(EventFn<T> func) {
+    // let the different gamestates dispatch a method to handle the event
+    // that they want to use
+    if (m_event.get_type() == T::get_static_type() && !m_event.consumed) {
+        m_event.consumed = func(m_ge,*(T *)&m_event);
+      return true;
     }
+    return false;
+  }
 
-    void removeObserver(Event &event, Observer* observer)
-    {
-        if (head_ == observer)
-        {
-          head_ = observer->next_;
-          observer->next_ = NULL;
-          return;
-        }
-
-        Observer* current = head_;
-        while (current != NULL)
-        {
-          if (current->next_ == observer)
-          {
-            current->next_ = observer->next_;
-            observer->next_ = NULL;
-            return;
-          }
-
-          current = current->next_;
-        }
-    }
-
-    void notify(const entt::registry& reg, const Event& event)
-    {
-        Observer* observer = head_;
-        while (observer != NULL)
-        {
-          observer->on_notify(reg, event);
-          observer = observer->next_;
-        }
-    }
-
-  private:
-    Observer* head_;
+private:
+  TacticalGame *m_ge;
+  Event &m_event;
 };

@@ -8,7 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_COMPILER "/usr/bin/g++")
-set(CMAKE_CXX_FLAGS "-O0 -Wno-deprecated-literal-operator")
+set(CMAKE_CXX_FLAGS "-O0 -Wno-deprecated-literal-operator -Wno-multichar -Wno-deprecated -Wno-narrowing")
 
 project(tactical_leftist)
 
@@ -18,14 +18,17 @@ set(SRC_MAIN
     src/logger.cpp
 )
 
+set(SRC_LAYERS
+    src/layers/debug_layer.cpp
+    src/layers/menu_layer.cpp
+    src/layers/game_layer.cpp
+)
+
 set(SRC_STATES
-    src/states/star/starstate.cpp
-
-    src/states/init/initstate.cpp
-
+    # src/states/star/starstate.cpp
+    # src/states/init/initstate.cpp
+    # src/states/load/loadstate.cpp
     src/states/combat/combatstate.cpp
-
-    src/states/load/loadstate.cpp
 )
 
 set(SRC_ENGINE
@@ -40,6 +43,7 @@ set(SRC_SYSTEMS
 
 set(SRC_GAME
     ${SRC_MAIN}
+    ${SRC_LAYERS}
     ${SRC_STATES}
     ${SRC_ENGINE}
     ${SRC_SYSTEMS}

@@ -2,9 +2,11 @@
 #include "logger.hpp"
 #include "input.hpp"
 
+#include "utils/debugging.hpp"
 class TacticalGame;
 class InputHandler {
   public:
+    GET_BASE(InputHandler)
     InputHandler();
 
     void unregister_input(INPUT_TYPE type);

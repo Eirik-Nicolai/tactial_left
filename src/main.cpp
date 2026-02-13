@@ -49,8 +49,8 @@ auto main(int argc, char *argv[]) -> int {
 
         auto level = conf.at("log_level").as_str();
         std::cout << "Level is " << level << std::endl;
-        Logger::Get()->set_log_level(
-            static_cast<spdlog::level::level_enum>(conf_level(level)));
+        // Logger::Get()->set_log_level(
+        //     static_cast<spdlog::level::level_enum>(conf_level(level)));
 
 
         Height     = conf.at("screenheight").as_int();

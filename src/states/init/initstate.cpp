@@ -30,7 +30,7 @@ void InitState::handle_input(TacticalGame* ge) {
     //LOG_FUNC
 
     if(ge->GetMouse(MOUSE_LBUTTON).bReleased){
-        ge->pop_state();
+        // ge->pop_state();
     }
 }
 void InitState::update(TacticalGame* ge) {

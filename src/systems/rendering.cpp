@@ -3,7 +3,6 @@
 #include "components/gui.hpp"
 #include "components/rendering.hpp"
 #include "utils/geometry.hpp"
-#include "states/star/starstate.hpp"
 #include "logger.hpp"
 
 #include "utils/ecs.hpp"

@@ -300,11 +300,11 @@ void StarStateSelected::handle_input(TacticalGame* ge) {
     //LOG_FUNC
     if(ge->GetMouse(MOUSE_MBUTTON).bReleased) {
         pointofinterest = entt::null;
-        ge->pop_state();
+        // xge->pop_state();
     }
     if(ge->GetMouse(MOUSE_LBUTTON).bReleased) {
         pointofinterest = entt::null;
-        ge->change_state(TransitionState::LoadState::Instance());
+        // ge->change_state(TransitionState::LoadState::Instance());
     }
 }
 void StarStateSelected::update(TacticalGame* ge) {

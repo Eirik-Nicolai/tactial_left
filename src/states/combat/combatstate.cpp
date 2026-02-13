@@ -1,8 +1,5 @@
 #include "combatstate.hpp"
 
-#include "states/load/loadstate.hpp"
-#include "states/star/starstate.hpp"
-
 #include "logger.hpp"
 
 #include "utils/ecs.hpp"
@@ -15,15 +12,94 @@
 #include "components/rendering.hpp"
 
 using namespace PlayingState;
-CombatState* CombatState::m_state;
+// CombatState* CombatState::m_state;
 
-void CombatState::init(TacticalGame* ge) {
+class TestInput : public Input {
+    public:
+    std::string get_name() const final { return "Test Input StarState key P"; };
+    void execute(TacticalGame *ge) final {
+        // Error("Triggered input {}", get_name());
+    }
+};
+
+class PanInputStart : public Input {
+    public:
+    std::string get_name() const final { return "InputPanningStart"; };
+    void execute(TacticalGame *ge) final {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        ge->get_tv()->StartPan(pos_mouse);
+    }
+};
+
+class ScrollUpInput : public Input {
+    public:
+    std::string get_name() const final { return "ScrollUpInputStart"; };
+    void execute(TacticalGame *ge) final {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        tv->ZoomAtScreenPos(0.5f, pos_mouse);
+    }
+};
+
+class ScrollDownInput : public Input {
+    public:
+    std::string get_name() const final { return "ScrollDownInputStart"; };
+    void execute(TacticalGame *ge) final {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        tv->ZoomAtScreenPos(2.f, pos_mouse);
+    }
+};
+
+class PanInputEnd : public Input {
+    public:
+    std::string get_name() const final { return "InputPanningEnd"; };
+    void execute(TacticalGame *ge) final {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        ge->get_tv()->EndPan(pos_mouse);
+    }
+};
+
+class PanInputUpdate : public Input {
+    public:
+    std::string get_name() const final { return "InputPanningUpdate"; };
+    void execute(TacticalGame *ge) final {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        ge->get_tv()->UpdatePan(pos_mouse);
+    }
+};
+
+
+CombatState::CombatState() {
     LOG_FUNC
+    handler = std::make_unique<InputHandler>();
 
+    handler->register_input(INPUT_TYPE::middle_mouse_PRESSED,
+                            std::make_shared<InputDebugWrapper>(
+                                std::make_shared<PanInputStart>()));
+    handler->register_input(INPUT_TYPE::middle_mouse_RELEASED,
+                            std::make_shared<InputDebugWrapper>(
+                                std::make_shared<PanInputEnd>()));
+    handler->register_input(INPUT_TYPE::middle_mouse_HELD,
+                            std::make_shared<InputDebugWrapper>(
+                                std::make_shared<PanInputUpdate>()));
+
+    handler->register_input(INPUT_TYPE::middle_mouse_SCROLLDOWN,
+                            std::make_shared<InputDebugWrapper>(
+                                std::make_shared<ScrollUpInput>()));
+
+    handler->register_input(INPUT_TYPE::middle_mouse_SCROLLUP,
+                            std::make_shared<InputDebugWrapper>(
+                                std::make_shared<ScrollDownInput>()));
+
+    handler->register_input(INPUT_TYPE::left_mouse_PRESSED,
+                            std::make_shared<TestInput>());
 }
-void CombatState::cleanup(TacticalGame* ge) {
+CombatState::~CombatState() {
     LOG_FUNC
-
 }
 
 void CombatState::pause(TacticalGame* ge) {
@@ -101,9 +177,9 @@ void CombatState::exit(TacticalGame* ge) {
 
 void CombatState::handle_input(TacticalGame* ge) {
     //LOG_FUNC
-
     // HACK FOR PANNING
-    PlayingState::StarState::Instance()->handle_input(ge);
+    auto input = handler->get_input(ge);
+    input->execute(ge);
 }
 void CombatState::update(TacticalGame* ge) {
     //LOG_FUN
@@ -128,52 +204,50 @@ void CombatState::update(TacticalGame* ge) {
     auto rect_h = sh*h;
     auto offs_x = (sw/2) - (rect_w*tile_amt_x/2);
     auto offs_y = (sh/2) - (rect_h*tile_amt_y/2);
-    // this should be moved to a separate system
-    for(auto [ent, pos, size, selectable, hoverable] :
-            reg.view<Pos, Size, Interaction::_selectable,
-            Interaction::_hoverable>().each()) {
-        if(ge->GetMouse(MOUSE_LBUTTON).bReleased&& hoverable.is_hovered) {
-            auto x_normalized = ((pos.x-offs_x)/rect_w);
-            auto y_normalized = ((pos.y-offs_y)/rect_h);
-            auto index_pos = x_normalized + (tile_amt_x*y_normalized);
-            Error("px{} py{}", pos.x, pos.y);
-            Error("index{}", index_pos);
-            if(selectable.is_selected) {
-                selectable.is_selected=false;
-                combat_tiles[index_pos]->is_obstacle = false;
-            } else {
-                selectable.is_selected=true;
-                combat_tiles[index_pos]->is_obstacle = true;
-            }
+    // // this should be moved to a separate system
+    // for(auto [ent, pos, size, selectable, hoverable] :
+    //         reg.view<Pos, Size, Interaction::_selectable,
+    //         Interaction::_hoverable>().each()) {
+    //     if(ge->GetMouse(MOUSE_LBUTTON).bReleased&& hoverable.is_hovered) {
+    //         auto x_normalized = ((pos.x-offs_x)/rect_w);
+    //         auto y_normalized = ((pos.y-offs_y)/rect_h);
+    //         auto index_pos = x_normalized + (tile_amt_x*y_normalized);
+    //         if(selectable.is_selected) {
+    //             selectable.is_selected=false;
+    //             combat_tiles[index_pos]->is_obstacle = false;
+    //         } else {
+    //             selectable.is_selected=true;
+    //             combat_tiles[index_pos]->is_obstacle = true;
+    //         }
 
-            // solve_a_star();
-        }
-        if(ge->GetMouse(MOUSE_RBUTTON).bReleased && hoverable.is_hovered) {
+    //         // solve_a_star();
+    //     }
+    //     if(ge->GetMouse(MOUSE_RBUTTON).bReleased && hoverable.is_hovered) {
         
-            auto x_normalized = ((pos.x-offs_x)/rect_w);
-            auto y_normalized = ((pos.y-offs_y)/rect_h);
-            auto index_pos = x_normalized + (tile_amt_x*y_normalized);
-            combat_tiles[index_pos]->is_obstacle = false;
-            node_start = combat_tiles[index_pos];
+    //         auto x_normalized = ((pos.x-offs_x)/rect_w);
+    //         auto y_normalized = ((pos.y-offs_y)/rect_h);
+    //         auto index_pos = x_normalized + (tile_amt_x*y_normalized);
+    //         combat_tiles[index_pos]->is_obstacle = false;
+    //         node_start = combat_tiles[index_pos];
 
-            //solve_a_star();
-        }
+    //         //solve_a_star();
+    //     }
 
-        if(ge->GetMouse(MOUSE_MBUTTON).bReleased&& hoverable.is_hovered) {
-            auto x_normalized = ((pos.x-offs_x)/rect_w);
-            auto y_normalized = ((pos.y-offs_y)/rect_h);
-            auto index_pos = x_normalized + (tile_amt_x*y_normalized);
-            if(combat_tiles[index_pos]->weight > 60)
-                combat_tiles[index_pos]->weight = 0;
-            else
-                combat_tiles[index_pos]->weight+=30;
+    //     if(ge->GetMouse(MOUSE_MBUTTON).bReleased&& hoverable.is_hovered) {
+    //         auto x_normalized = ((pos.x-offs_x)/rect_w);
+    //         auto y_normalized = ((pos.y-offs_y)/rect_h);
+    //         auto index_pos = x_normalized + (tile_amt_x*y_normalized);
+    //         if(combat_tiles[index_pos]->weight > 60)
+    //             combat_tiles[index_pos]->weight = 0;
+    //         else
+    //             combat_tiles[index_pos]->weight+=30;
 
-            //solve_a_star();
-        }
-        if(!is_point_inside_rect(pos, size, mouse_pos)) {
-            hoverable.is_hovered=false;
-        }
-    }
+    //         //solve_a_star();
+    //     }
+    //     if(!is_point_inside_rect(pos, size, mouse_pos)) {
+    //         hoverable.is_hovered=false;
+    //     }
+    // }
 
     if(ge->animation_tick()) solve_a_star();
 }
@@ -210,6 +284,7 @@ void CombatState::draw(TacticalGame* ge) {
     for(auto x = 0; x < tile_amt_x; x ++)
         for(auto y = 0; y < tile_amt_y; y ++) {
             auto curr_node = combat_tiles[x + (tile_amt_x*y)];
+            
             if(curr_node->is_visited) {
                 tv->FillRect(curr_node->x+4, curr_node->y+4, rect_w-4, rect_h-4, olc::VERY_DARK_RED);
             }

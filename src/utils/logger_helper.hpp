@@ -3,7 +3,6 @@
 #include <spdlog/fmt/bundled/format.h>
 #include "components/components.hpp"
 #include "utils/debugging.hpp"
-
 // template <typename T>
 // concept HasName = requires { T::get_name; };
 

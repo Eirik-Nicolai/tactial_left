@@ -1,6 +1,8 @@
 #pragma once
 #include "game.hpp"
 #include "utils/debugging.hpp"
+
+class TacticalGame;
 constexpr auto MAX_SYSTEM_AMOUNT = 20;
 class System {
   GET_BASE(System)
@@ -8,7 +10,7 @@ class System {
   public:
     virtual void execute(TacticalGame* ge) = 0;
 };
-
+ 
 class SystemManager{
   public:
     inline std::string_view get_name() const { return m_name; }

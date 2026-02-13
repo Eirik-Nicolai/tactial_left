@@ -2,29 +2,29 @@
 #include "game.hpp"
 #include "states/gamestate.hpp"
 #include "utils/complex_datatypes.hpp"
-
+#include "engine/event.hpp"
+#include "engine/mouse_event.hpp"
 constexpr auto tile_amt_x = 20;
 constexpr auto tile_amt_y = 9;
 
 namespace PlayingState {
 class CombatState : public GameState {
-    /// ------ SINGLETON LOGIC ------ ///
-    public:
-        static CombatState* Instance() {
-            if(!m_state)
-                m_state = new CombatState();
-            return m_state;
-        }
-    private:
-        static CombatState* m_state;
+    // /// ------ SINGLETON LOGIC ------ ///
+    // public:
+    //     static CombatState* Instance() {
+    //         if(!m_state)
+    //             m_state = new CombatState();
+    //         return m_state;
+    //     }
+    // private:
+    //     static CombatState* m_state;
 
-
+    
     GET_NAME(GameState, Combatstate)
     /// --------- STATE LOGIC --------- ///
     public:
-
-        void init(TacticalGame* ge) override;
-        void cleanup(TacticalGame* ge) override;
+        CombatState();
+        ~CombatState();
 
         void enter(TacticalGame* ge) override;
         void exit(TacticalGame* ge) override;
@@ -36,6 +36,8 @@ class CombatState : public GameState {
 
         void draw(TacticalGame* ge) override;
         void update(TacticalGame* ge) override; // ?
+
+        // void on_event(TacticalGame* ge, Event& event) override; // ?
 
         void solve_a_star();
 

@@ -29,11 +29,11 @@ void sleep_for(int seconds) {
 void do_work(std::vector<int>& assets) {
     sleep_for(bounded_rand());
     for(auto i = 0; i < LOADING_ELEMENTS; ++i) {
-        Trace("Adding element");
+        //Trace("Adding element");
         assets.emplace_back(i);
         sleep_for(bounded_rand());
     }
-    Debug("Finished thread");
+    //Debug("Finished thread");
 }
 
 void LoadState::init(TacticalGame* ge) {
@@ -199,7 +199,7 @@ void LoadState::update(TacticalGame* ge) {
     // }
 
     if(sElapsedTime > 1) { // 3 second wait to simulate loading
-        ge->change_state(PlayingState::CombatState::Instance());
+        // ge->change_state(PlayingState::CombatState::Instance());
     }
 }
 
