@@ -1,6 +1,4 @@
-#include "logger.hpp"
-
-// Logger* Logger::m_state;
+#include "logger_level.hpp"
 
 // void Logger::set_log_level(spdlog::level::level_enum log_level) {
 

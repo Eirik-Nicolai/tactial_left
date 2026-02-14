@@ -1,52 +1,45 @@
 #pragma once
+#include "logger_level.hpp"
 
 // #include "spdlog/spdlog.h"
 
-// TODO change to self method to allow custom formatting of f. ex. components
-// or find an example of the fucking formatter for spdlog
-//
-
-// class Logger {
-//     /// ------ SINGLETON LOGIC ------ ///
-//     public:
-//         static Logger* Get() {
-//             if(!m_state)
-//                 m_state = new Logger();
-//             return m_state;
-//         }
-//     private:
-//         static Logger* m_state;
-//         Logger() {}
-
-//     public:
-//         void set_log_level(spdlog::level::level_enum log_level);
-//         bool level() { return m_logger->level(); }
-
-//         template <typename ... Args>
-//         void log(spdlog::level::level_enum level,
-//                  spdlog::format_string_t<Args...> fmt, Args && ...args) {
-//             m_logger->log(level, fmt, std::forward<Args>(args) ...);
-//         }
-
-//     private:
-//         std::shared_ptr<spdlog::logger> m_logger;
-//         std::string m_format;
-// };
+// TODO change to separate thread ostring operator overload
 
 // using namespace spdlog::level;
 #define PRINT_FUNC(x)                                                                    \
-    std::cout << "[" << get_name() << "::" << __func__ << "()]" << std::endl;            \
-    // if(Logger::Get()->level() <= x) {                                     \
-    // }
+    if (Logger::get().loglevel() > Logger::LogLevel::DEBUG) {                            \
+    } else                                                                               \
+        std::cout << "[" << get_name() << "::" << __func__ << "()]" << std::endl;
 
 #define LOG(_1, _2, ...)                                                                 \
-    std::cout << "[" << _1 << "]" << get_name() << " - " << _2 << std::endl;
+    std::cout<<std::boolalpha << _1 << " (" << get_name() << ") - " << _2 << std::endl;
 // Logger::Get()->log(_1, _2, ##__VA_ARGS__)
 
-#define Error(_1, ...) LOG("err", _1)
-#define Warn(_1, ...) LOG("warn", _1)
-#define Info(_1, ...) LOG("info", _1)
-#define Debug(_1, ...) LOG("debug", _1)
-#define Trace(_1, ...) LOG("trace", _1)
+#define LOG_ERR()        "[\033[31mERR\033[0m]  "
+#define LOG_WARN(_1)     "[\033[33mWARN\033[0m] "
+#define LOG_INFO(_1)     "[\033[32mINFO\033[0m] "
+#define LOG_DEBUG(_1)    "[\033[35mDEBUG\033[0m]"
+#define LOG_TRACE(_1)    "[\033[37mTRACE\033[0m]"
 
-#define LOG_FUNC PRINT_FUNC(spdlog::level::trace)
+#define Error(_1, ...)                                                                   \
+    if (Logger::get().loglevel() > Logger::LogLevel::ERROR) {                            \
+    } else                                                                               \
+        LOG(LOG_ERR(), _1)
+#define Warn(_1, ...)                                                                    \
+    if (Logger::get().loglevel() > Logger::LogLevel::ERROR) {                            \
+    } else                                                                               \
+        LOG(LOG_WARN(), _1)
+#define Info(_1, ...)                                                                     \
+    if (Logger::get().loglevel() > Logger::LogLevel::INFO) {                            \
+    } else                                                                               \
+        LOG(LOG_INFO(), _1)
+#define Debug(_1, ...)                                                                    \
+    if (Logger::get().loglevel() > Logger::LogLevel::DEBUG) {                            \
+    } else                                                                               \
+        LOG(LOG_DEBUG(), _1)
+#define Trace(_1, ...)                                                                    \
+    if (Logger::get().loglevel() > Logger::LogLevel::TRACE) {                            \
+    } else                                                                               \
+        LOG(LOG_TRACE(), _1)
+
+#define LOG_FUNC PRINT_FUNC()

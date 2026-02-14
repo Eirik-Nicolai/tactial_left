@@ -72,6 +72,7 @@ void DebugLayer::draw(TacticalGame *) {}
 
 void DebugLayer::on_event(TacticalGame *ge, Event &e)
 {
+    Error("This is an error");
     EventDispatcher dispatcher(ge, e);
     dispatcher.Dispatch<MouseButtonReleasedEvent>(
         [this](TacticalGame *ge, MouseButtonReleasedEvent &e) {

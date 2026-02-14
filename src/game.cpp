@@ -34,6 +34,14 @@ bool TacticalGame::OnUserDestroy() { return true; }
 
 bool TacticalGame::OnUserCreate()
 {
+    Warn("Loglevel is " << magic_enum::enum_name(Logger::get().loglevel()));
+    
+    Error("This is an error");
+    Warn("This is a warning");
+    Info("This is an info");
+    Debug("This is a debug");
+    Trace("This is a trace");
+
     Debug("Setting up camera");
     tvp = std::make_shared<olc::TileTransformedView>(
         olc::vi2d(ScreenWidth(), ScreenHeight()), olc::vi2d(1, 1));
