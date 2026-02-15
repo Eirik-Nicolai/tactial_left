@@ -28,6 +28,7 @@ TacticalGame::TacticalGame()
     sAppName = "TACTICAL LEFTIST";
 
     m_system_managers_amount = 0;
+    m_decals_amount = 0;
 }
 
 bool TacticalGame::OnUserDestroy() { return true; }
@@ -65,23 +66,22 @@ bool TacticalGame::OnUserCreate()
     rendering_manager->add(std::make_unique<MainRenderer>());
     rendering_manager->add(std::make_unique<WireframeRenderer>());
     rendering_manager->add(std::make_unique<GUIRenderer>());
-    // m_system_managers[m_system_managers_amount] = std::move(rendering_manager);
-    // Debug("Adding system {}",
-    // m_system_managers[m_system_managers_amount++]->get_name());
+    m_system_managers[m_system_managers_amount] = std::move(rendering_manager);
+    Debug("Adding system " << m_system_managers[m_system_managers_amount++]->get_name());
 
     auto animation_manager = std::make_unique<SystemManager>("Animation System Manager");
     animation_manager->add(std::make_unique<BGAnimation>());
     animation_manager->add(std::make_unique<CharacterAnimation>());
     animation_manager->add(std::make_unique<GUIAnimation>());
-    // m_system_managers[m_system_managers_amount] = std::move(animation_manager);
-    // Debug("Adding system {}",
-    // m_system_managers[m_system_managers_amount++]->get_name());
+    m_system_managers[m_system_managers_amount] = std::move(animation_manager);
+    Debug("Adding system " << m_system_managers[m_system_managers_amount++]->get_name());
 
     Debug("Loading sprite sheets");
 
     return true;
 }
 
+#include "components/animation.hpp"
 void handle_inputs(TacticalGame *ge);
 bool TacticalGame::OnUserUpdate(float dt)
 {
@@ -93,21 +93,20 @@ bool TacticalGame::OnUserUpdate(float dt)
         m_fElapsedTime = 0;
     else
         m_fElapsedTime += dt;
-
     // HACK testing animation manager
     if (GetKey(olc::Key::P).bReleased) // && CURR_STATE->get_name()!="InitState") {
     {
-        // //push_state(PlayingState::InitState::Instance());
-        // for(auto [ent, mng] : m_reg.view<Animation::AnimManager>().each()) {
-        //     Rendering::Spritesheet sheet;
-        //     tryget_component(m_reg, mng.sprite_sheet, sheet);
-        //     if(mng.index_curren_animation==2) mng.index_curren_animation=0;
-        //     else mng.index_curren_animation++;
-        //     mng.curr_animation = sheet.animations[mng.index_curren_animation];
-        //     mng.index_curren_frame = 0;
-        //     Info("ANIMATION INDEX {} dur is {}", mng.index_curren_animation,
-        //     mng.curr_animation.frames[0].frame_duration);
-        // }
+        for (auto [ent, mng, list] :
+             m_reg.view<Animation::AnimManager, Animation::AnimationList>().each()) {
+            if (mng.index_curren_animation == 2)
+                mng.index_curren_animation = 0;
+            else
+                mng.index_curren_animation++;
+            mng.curr_animation = list.animations[mng.index_curren_animation];
+            mng.index_curren_frame = 0;
+            Info("ANIMATION INDEX {} dur is {}", mng.index_curren_animation,
+                 mng.curr_animation.frames[0].frame_duration);
+        }
     }
 
     handle_inputs(this);

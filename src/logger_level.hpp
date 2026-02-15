@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <magic_enum.hpp>
+
+// TODO change to separate thread ostring operator overload
 class Logger
 {
   public:

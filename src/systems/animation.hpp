@@ -13,19 +13,19 @@ class AnimationSystem : public System
 
 class CharacterAnimation : public AnimationSystem
 {
-    GET_NAME(CharacterAnimation, AnimationSystem)
+    GET_NAME(AnimationSystem, CharacterAnimation)
     void execute(TacticalGame *ge) override;
 };
 
 // idk if we need this
 class BGAnimation : public AnimationSystem
 {
-    GET_NAME(BGAnimation, AnimationSystem)
+    GET_NAME(AnimationSystem, BGAnimation)
     void execute(TacticalGame *ge) override;
 };
 
 class GUIAnimation : public AnimationSystem
 {
-    GET_NAME(GUIAnimation, AnimationSystem)
+    GET_NAME(AnimationSystem, GUIAnimation)
     void execute(TacticalGame *ge) override;
 };

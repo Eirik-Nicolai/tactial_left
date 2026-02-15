@@ -21,7 +21,7 @@ void MenuLayer::on_event(TacticalGame *ge, Event &event)
 }
 
 void MenuLayer::update(TacticalGame *ge) {}
-void MenuLayer::draw(TacticalGame *ge) { ge->FillRect({100, 100}, {300, 300}); }
+void MenuLayer::draw(TacticalGame *ge) { } //ge->FillRect({100, 100}, {300, 300}); }
 
 bool MenuLayer::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event)
 {

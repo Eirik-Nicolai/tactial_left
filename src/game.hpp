@@ -1,4 +1,5 @@
 #pragma once
+#include "components/debugging.hpp"
 #include "olc/olcPixelGameEngine.h"
 #include "olc/olcPGEX_TransformedView.h"
 #include <entt/entt.hpp>
@@ -29,9 +30,11 @@ class TacticalGame : public olc::PixelGameEngine
                                                bool filter, bool clamp)
     {
         Debug("Loading {} to index {}", sprite_path, m_decals_amount);
+        // TODO check mem leak and better way of loading/unloading sprites
         auto sprite = new olc::Sprite();
         if (sprite->LoadFromFile(sprite_path)) {
-            m_decals[m_decals_amount] =
+            Debug("Adding to " << m_decals_amount);
+            m_decals[m_decals_amount] = 
                 std::make_shared<olc::Decal>(sprite, filter, clamp);
             return m_decals_amount++;
         }

@@ -21,7 +21,7 @@ struct SpriteSheetAnimation {
 };
 
 struct AnimationList {
-    unsigned animations_amt;
+    unsigned animations_amt = 0;
     std::array<Animation::SpriteSheetAnimation, 40> animations;
 };
 

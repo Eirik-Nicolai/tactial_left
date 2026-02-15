@@ -63,7 +63,7 @@ DebugLayer::~DebugLayer() {}
 void DebugLayer::update(TacticalGame *ge)
 {
 
-    m_ui_manager.run();
+    //m_ui_manager.run();
 
     // if()
 }

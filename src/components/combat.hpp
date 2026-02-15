@@ -1,4 +1,5 @@
-#ifndef COMBAT_H_
-#define COMBAT_H_
+#pragma once
 
-#endif // COMBAT_H_
+struct Ability {
+    
+};

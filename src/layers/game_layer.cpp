@@ -17,13 +17,13 @@ void GameLayer::on_event(TacticalGame *ge, Event &event)
 
 void GameLayer::update(TacticalGame *ge)
 {
-    for (auto &state : std::views::reverse(m_current_states)) {
+    for (auto &state : m_current_states) {
         state->update(ge);
     }
 }
 void GameLayer::draw(TacticalGame *ge)
 {
-    for (auto &state : std::views::reverse(m_current_states)) {
+    for (auto &state : m_current_states) {
         state->draw(ge);
     }
 }

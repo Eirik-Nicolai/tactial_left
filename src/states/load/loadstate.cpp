@@ -1,9 +1,12 @@
 #include "loadstate.hpp"
 
-#include "states/init/initstate.hpp"
-#include "states/star/starstate.hpp"
+// #include "states/init/initstate.hpp"
+// #include "states/star/starstate.hpp"
 #include "states/combat/combatstate.hpp"
-
+#include "components/animation.hpp"
+#include "components/interaction.hpp"
+#include "components/debugging.hpp"
+#include "components/rendering.hpp"
 #include "components/components.hpp"
 #include "logger.hpp"
 
@@ -60,8 +63,8 @@ void LoadState::enter(TacticalGame *ge)
     // m_tLoader = std::thread(do_work, std::ref(m_assets));
     // m_tLoader.detach();
 
-    // auto& reg = ge->get_reg();
-    // auto sun = reg.create();
+    auto& reg = ge->get_reg();
+    auto sun = reg.create();
     // reg.emplace<Pos>(sun, 0.f, 0.f);
     // reg.emplace<Rendering::Wireframe>(sun, Rendering::Wireframe::TYPE::CIRCLE_FILL,
     // olc::DARK_RED); reg.emplace<Size>(sun, 60.f, 0.f);
@@ -84,12 +87,27 @@ void LoadState::enter(TacticalGame *ge)
     // reg.emplace<Debugging::Debug>(earth, "SPRITE SHEET");
     // reg.emplace<Debugging::Debug>(moon, "PLAYER");
 
-    // auto path_1 = "assets/Cute_Fantasy_Free/Player/Player.png";
-    // auto spritesheet_player = reg.create();
-    // auto player_decal_index = ge->load_decal(path_1, false, true);
-    // Debug("LOADED SPRITE {}", player_decal_index);
+    auto path_1 = "assets/Cute_Fantasy_Free/Player/Player.png";
+    auto player = reg.create();
+    auto player_decal_index = ge->load_decal(path_1, false, true);
+    Debug("LOADED SPRITE {}", player_decal_index);
 
-    // reg.emplace<Debugging::Debug>(spritesheet_player, "SPRITE SHEET");
+    reg.emplace<Debugging::DebugName>(player, "PLAYER ENTITY");
+    reg.emplace<Pos>(player, 50.f, 50.f );
+    // reg.emplace<Rendering::Wireframe>(earth, Rendering::Wireframe::TYPE::TRIANGLE_FILL, olc::DARK_BLUE); reg.emplace<Size>(earth, 30.f, 0.f);
+    reg.emplace<Interaction::_selectable>(player);
+    reg.emplace<Interaction::_hoverable>(player);
+
+    Debug("creating rendering manager");
+    reg.emplace<Rendering::Spritesheet>(player,player_decal_index, 33);
+    
+    Rendering::RenderingManager rendering_manager;
+    // rendering_manager.sprite_sheet = player;
+    rendering_manager.pos_sprite_sheet = {0.f, 0.f};
+    rendering_manager.sprite_scale = {1.f, 1.f};
+    reg.emplace<Rendering::RenderingManager>(player, rendering_manager);
+
+    reg.emplace<Rendering::Layer::_closest>(player);
 
     // Debug("creating anim idle");
     // Rendering::Animation::SpriteSheetAnimation idle_animation;
@@ -132,7 +150,7 @@ void LoadState::enter(TacticalGame *ge)
     // sprite_sheet.animations[sprite_sheet.animations_amt++] = idle_animation;
     // sprite_sheet.animations[sprite_sheet.animations_amt++] = walking_east;
     // sprite_sheet.animations[sprite_sheet.animations_amt++] = dead;
-    // reg.emplace<Rendering::Spritesheet>(spritesheet_player, sprite_sheet);
+    // reg.emplace<Rendering::Spritesheet>(player, sprite_sheet);
 
     // Debug("creating anim manager");
     // Rendering::Animation::AnimManager mng;
@@ -141,25 +159,12 @@ void LoadState::enter(TacticalGame *ge)
     // mng.index_curren_frame = 0;
     // mng.name = "ANIM MANAGER";
     // mng.frames_elapsed = 0;
-    // mng.sprite_sheet = spritesheet_player;
+    // mng.sprite_sheet = player;
     // reg.emplace<Rendering::Animation::AnimManager>(moon, mng);
 
-    // Debug("creating rendering manager");
-    // Rendering::RenderingManager rendering_manager;
-    // rendering_manager.sprite_sheet = spritesheet_player;
-    // rendering_manager.pos_sprite_sheet = {0.f, 0.f};
-    // rendering_manager.sprite_scale = {1.f, 1.f};
-    // rendering_manager.index_decal = player_decal_index;
-    // reg.emplace<Rendering::RenderingManager>(moon, rendering_manager);
-
-    // Debug("Rendering manager info {} {} {}", rendering_manager.index_decal,
-    //       rendering_manager.pos_sprite_sheet,
-    //       rendering_manager.sprite_scale);
-
-    // reg.emplace<Rendering::Layer::_first>(moon);
-
-    // reg.emplace<Orbiting>(earth, sun, 500.f, 0.1f);
-    // reg.emplace<Orbiting>(moon, earth, 50.f, -0.5f);
+    Debug("Rendering manager info {} {} {}", rendering_manager.index_decal,
+          rendering_manager.pos_sprite_sheet,
+          rendering_manager.sprite_scale);
 
     // auto path_2 = "assets/Cute_Fantasy_Free/Enemies/Skeleton.png";
     // auto skeleton_decal_index = ge->load_decal(path_2, false, true);

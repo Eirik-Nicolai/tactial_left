@@ -7,7 +7,7 @@
 #include "utils/complex_datatypes.hpp"
 
 #include "components/components.hpp"
-#include "components/combat.hpp"
+#include "components/animation.hpp"
 #include "components/interaction.hpp"
 #include "components/rendering.hpp"
 
@@ -215,10 +215,85 @@ void CombatState::enter(TacticalGame *ge)
         }
 
     node_start = combat_tiles[0];
+    node_end = combat_tiles[5];
 
-    node_end = combat_tiles[3];
+    auto path_1 = "assets/Cute_Fantasy_Free/Player/Player.png";
+    auto player = reg.create();
+    auto player_decal_index = ge->load_decal(path_1, false, true);
+    if(!player_decal_index){
+        Error("Loading decal returned " << player_decal_index.error());
+        throw std::runtime_error("");
+    }
+    
+    Debug("LOADED SPRITE " << player_decal_index.value());
 
-    solve_a_star();
+    reg.emplace<Debugging::DebugName>(player, "PLAYER ENTITY");
+    reg.emplace<Pos>(player, 50.f, 50.f);
+    reg.emplace<Size>(player, 300.f, 300.f);
+    reg.emplace<Interaction::_selectable>(player);
+    reg.emplace<Interaction::_hoverable>(player);
+
+    Debug("creating rendering manager");
+    reg.emplace<Rendering::Spritesheet>(player, player_decal_index.value(), Size(32,32));
+
+    Rendering::RenderingManager rendering_manager;
+    // rendering_manager.sprite_sheet = player;
+    rendering_manager.pos_sprite_sheet = {0.f, 0.f};
+    rendering_manager.sprite_scale = {1.f, 1.f};
+    reg.emplace<Rendering::RenderingManager>(player, rendering_manager);
+
+    reg.emplace<Rendering::Layer::_closest>(player);
+
+    Debug("creating anim idle");
+    Animation::SpriteSheetAnimation idle_animation;
+    idle_animation.name = "idle";
+    idle_animation.frames[0] = Animation::AnimationFrame{Pos{0,0}, 5};
+    idle_animation.frames[1] = Animation::AnimationFrame{Pos{1,0}, 5};
+    idle_animation.frames[2] = Animation::AnimationFrame{Pos{2,0}, 5};
+    idle_animation.frames[3] = Animation::AnimationFrame{Pos{3,0}, 5};
+    idle_animation.frames[4] = Animation::AnimationFrame{Pos{4,0}, 5};
+    idle_animation.frames[5] = Animation::AnimationFrame{Pos{5,0}, 20};
+    idle_animation.is_looping = true;
+    idle_animation.frame_animation_length = 6;
+
+    Debug("creating anim walking");
+    Animation::SpriteSheetAnimation walking_east;
+    walking_east.name = "walking_east";
+    walking_east.frames[0] = Animation::AnimationFrame{Pos{0,4}, 4};
+    walking_east.frames[1] = Animation::AnimationFrame{Pos{1,4}, 4};
+    walking_east.frames[2] = Animation::AnimationFrame{Pos{2,4}, 4};
+    walking_east.frames[3] = Animation::AnimationFrame{Pos{3,4}, 4};
+    walking_east.frames[4] = Animation::AnimationFrame{Pos{4,4}, 4};
+    walking_east.frames[5] = Animation::AnimationFrame{Pos{5,4}, 4};
+    walking_east.is_looping = true;
+    walking_east.frame_animation_length = 6;
+
+    Debug("creating anim dead");
+    Animation::SpriteSheetAnimation dead;
+    dead.name = "dead";
+    dead.frames[0] = Animation::AnimationFrame{Pos{0,9}, 10};
+    dead.frames[1] = Animation::AnimationFrame{Pos{1,9}, 10};
+    dead.frames[2] = Animation::AnimationFrame{Pos{2,9}, 10};
+    dead.frames[3] = Animation::AnimationFrame{Pos{3,9}, 10};
+    dead.is_looping = false;
+    dead.frame_animation_length = 4;
+
+    Debug("Created sprite sheet with animation {}", idle_animation.name);
+    Animation::AnimationList list;
+    list.animations[list.animations_amt++] = idle_animation;
+    list.animations[list.animations_amt++] = walking_east;
+    list.animations[list.animations_amt++] = dead;
+    reg.emplace<Animation::AnimationList>(player, list);
+
+    Debug("creating anim manager");
+    Animation::AnimManager mng;
+    mng.curr_animation = idle_animation;
+    mng.index_curren_animation = 0;
+    mng.index_curren_frame = 0;
+    mng.name = "Player Anim Manager";
+    mng.frames_elapsed = 0;
+    reg.emplace<Animation::AnimManager>(player, mng);
+
 }
 void CombatState::exit(TacticalGame *ge) { LOG_FUNC }
 

@@ -38,7 +38,7 @@ struct Spritesheet {
 };
 
 struct RenderingManager {
-    entt::entity sprite_sheet;
+    // entt::entity sprite_sheet;
     olc::vf2d pos_sprite_sheet;
     olc::vf2d sprite_scale;
 };
