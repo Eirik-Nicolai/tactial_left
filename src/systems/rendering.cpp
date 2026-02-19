@@ -46,7 +46,7 @@ void PreRenderer::execute(TacticalGame *ge)
 
 void WireframeRenderer::execute(TacticalGame *ge)
 {
-    auto &reg = ge->get_reg();
+    auto reg = ge->registry();
     auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_wireframe.get());
 
@@ -93,7 +93,7 @@ void WireframeRenderer::execute(TacticalGame *ge)
 void BackgroundRenderer::execute(TacticalGame *ge)
 {
     // if(!ge->animation_tick()) return;
-    auto &reg = ge->get_reg();
+    auto reg = ge->registry();
     auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_bg.get());
 
@@ -155,10 +155,10 @@ void BackgroundRenderer::execute(TacticalGame *ge)
 }
 void render_furthest_layer(TacticalGame *ge)
 {
-    auto &reg = ge->get_reg();
+    auto reg = ge->registry();
     auto tv = ge->get_tv();
 
-    // for(auto &&[ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Spritesheet,
+    // for(auto &&[ent, pos, size, decal] : reg->get().view<Pos, Size, Rendering::Spritesheet,
     // Rendering::Layer::_furthest>().each())
     // {
     //     auto d = ge->get_decal(decal.index);
@@ -173,10 +173,10 @@ void render_furthest_layer(TacticalGame *ge)
 }
 void render_middle_layer(TacticalGame *ge)
 {
-    auto &reg = ge->get_reg();
+    auto reg = ge->registry();
     auto tv = ge->get_tv();
 
-    // for(auto &&[ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Spritesheet,
+    // for(auto &&[ent, pos, size, decal] : reg->get().view<Pos, Size, Rendering::Spritesheet,
     // Rendering::Layer::_middle>().each())
     // {
     //     auto d = ge->get_decal(decal.index);
@@ -192,16 +192,21 @@ void render_middle_layer(TacticalGame *ge)
 void render_closest_layer(TacticalGame *ge)
 {
     auto get_name = [](){return "render_closest_layer"; };
-    auto &reg = ge->get_reg();
+    auto reg = ge->registry();
     auto tv = ge->get_tv();
 
     for (auto &&[ent, pos, size, sheet, mng] :
-         reg.group<Pos, Size, Rendering::Spritesheet, Rendering::RenderingManager,
+         reg->get().view<Pos, Size, Rendering::Spritesheet, Rendering::RenderingManager,
                    Rendering::Layer::_closest>()
              .each()) {
         auto d = ge->get_decal(sheet.decal_index);
         // d->UpdateSprite(); idk if this is needed
-        tv->DrawPartialDecal(pos, d.get(), mng.pos_sprite_sheet, sheet.pixel_frame_size, {3.f,3.f});
+        if (ge->animation_tick()) {
+            Trace("Entity(" << reg->entity_name(ent) << ") "
+                            << "pos_sprite_sheet:" << mng.pos_sprite_sheet);
+        }
+        tv->DrawPartialDecal(pos, d.get(), mng.pos_sprite_sheet, sheet.pixel_frame_size,
+                             {3.f, 3.f});
     }
 
     ge->DrawString(14, 14, "HELLO FROM 2", olc::DARK_RED, 2);
@@ -220,11 +225,11 @@ void PostRenderer::execute(TacticalGame *ge) { LOG_FUNC }
 
 void GUIRenderer::execute(TacticalGame *ge)
 {
-    auto &reg = ge->get_reg();
+    auto reg = ge->registry();
     auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_gui.get());
 
-    // for(auto &&[ent, pos, size] : reg.view<Pos, Size,
+    // for(auto &&[ent, pos, size] : reg->get().view<Pos, Size,
     // Rendering::GUI::_container>().each())
     // {
     //     tv->DrawCircle(pos.x, pos.y, size.h);

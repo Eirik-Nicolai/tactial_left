@@ -116,9 +116,9 @@ bool CombatState::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent
     auto rect_h = sh * h;
     auto offs_x = (sw / 2) - (rect_w * tile_amt_x / 2);
     auto offs_y = (sh / 2) - (rect_h * tile_amt_y / 2);
-    auto &reg = ge->get_reg();
+    auto reg = ge->registry();
     for (auto [ent, pos, size, selectable, hoverable] :
-         reg.view<Pos, Size, Interaction::_selectable, Interaction::_hoverable>()
+         reg->get().view<Pos, Size, Interaction::_selectable, Interaction::_hoverable>()
              .each()) {
         if (event.get_button() == MouseButtonEvent::MouseButton::LeftMouseButton) {
             if (hoverable.is_hovered) {
@@ -164,7 +164,7 @@ void CombatState::enter(TacticalGame *ge)
     LOG_FUNC
 
     Debug("Entering combat state");
-    auto &reg = ge->get_reg();
+    auto reg = ge->registry();
     auto tv = ge->get_tv();
 
     auto sw = ge->ScreenWidth();
@@ -180,22 +180,22 @@ void CombatState::enter(TacticalGame *ge)
     for (auto x = 0; x < tile_amt_x; x++)
         for (auto y = 0; y < tile_amt_y; y++) {
 
-            auto tile = reg.create();
-            reg.emplace<Interaction::_selectable>(tile, false);
-            reg.emplace<Interaction::_hoverable>(tile, false);
-            reg.emplace<Combat::Terrain::_path>(tile);
+            auto tile = reg->create_entity("Combat tile");
+            reg->add_component<Interaction::_selectable>(tile, false);
+            reg->add_component<Interaction::_hoverable>(tile, false);
+            reg->add_tag<Combat::Terrain::_path>(tile);
 
             Pos p;
             p.x = offs_x + (x * rect_w);
             p.y = offs_y + (y * rect_h);
-            reg.emplace<Pos>(tile, p);
-            reg.emplace<Size>(tile, (float)rect_w, (float)rect_h);
+            reg->add_component<Pos>(tile, p);
+            reg->add_component<Size>(tile, (float)rect_w, (float)rect_h);
             combat_tiles[x + (tile_amt_x * y)] = std::make_shared<Node>(p.x, p.y);
 
             Rendering::Wireframe wire;
             wire.color = olc::DARK_RED;
             wire.type = Rendering::Wireframe::TYPE::SQUARE;
-            reg.emplace<Rendering::Wireframe>(tile, wire);
+            reg->add_component<Rendering::Wireframe>(tile, wire);
         }
 
     for (auto x = 0; x < tile_amt_x; x++)
@@ -218,7 +218,7 @@ void CombatState::enter(TacticalGame *ge)
     node_end = combat_tiles[5];
 
     auto path_1 = "assets/Cute_Fantasy_Free/Player/Player.png";
-    auto player = reg.create();
+    auto player = reg->create_entity("Player");
     auto player_decal_index = ge->load_decal(path_1, false, true);
     if(!player_decal_index){
         Error("Loading decal returned " << player_decal_index.error());
@@ -227,22 +227,21 @@ void CombatState::enter(TacticalGame *ge)
     
     Debug("LOADED SPRITE " << player_decal_index.value());
 
-    reg.emplace<Debugging::DebugName>(player, "PLAYER ENTITY");
-    reg.emplace<Pos>(player, 50.f, 50.f);
-    reg.emplace<Size>(player, 300.f, 300.f);
-    reg.emplace<Interaction::_selectable>(player);
-    reg.emplace<Interaction::_hoverable>(player);
+    reg->add_component<Pos>(player, 50.f, 50.f);
+    reg->add_component<Size>(player, 300.f, 300.f);
+    reg->add_component<Interaction::_selectable>(player);
+    reg->add_component<Interaction::_hoverable>(player);
 
     Debug("creating rendering manager");
-    reg.emplace<Rendering::Spritesheet>(player, player_decal_index.value(), Size(32,32));
+    reg->add_component<Rendering::Spritesheet>(player, player_decal_index.value(), Size(32,32));
 
     Rendering::RenderingManager rendering_manager;
     // rendering_manager.sprite_sheet = player;
     rendering_manager.pos_sprite_sheet = {0.f, 0.f};
     rendering_manager.sprite_scale = {1.f, 1.f};
-    reg.emplace<Rendering::RenderingManager>(player, rendering_manager);
+    reg->add_component<Rendering::RenderingManager>(player, rendering_manager);
 
-    reg.emplace<Rendering::Layer::_closest>(player);
+    reg->add_tag<Rendering::Layer::_closest>(player);
 
     Debug("creating anim idle");
     Animation::SpriteSheetAnimation idle_animation;
@@ -283,7 +282,7 @@ void CombatState::enter(TacticalGame *ge)
     list.animations[list.animations_amt++] = idle_animation;
     list.animations[list.animations_amt++] = walking_east;
     list.animations[list.animations_amt++] = dead;
-    reg.emplace<Animation::AnimationList>(player, list);
+    reg->add_component<Animation::AnimationList>(player, list);
 
     Debug("creating anim manager");
     Animation::AnimManager mng;
@@ -292,7 +291,7 @@ void CombatState::enter(TacticalGame *ge)
     mng.index_curren_frame = 0;
     mng.name = "Player Anim Manager";
     mng.frames_elapsed = 0;
-    reg.emplace<Animation::AnimManager>(player, mng);
+    reg->add_component<Animation::AnimManager>(player, mng);
 
 }
 void CombatState::exit(TacticalGame *ge) { LOG_FUNC }
@@ -315,7 +314,7 @@ void CombatState::handle_input(TacticalGame *ge, Event &event)
 void CombatState::update(TacticalGame *ge)
 {
     // LOG_FUN
-    auto &reg = ge->get_reg();
+    auto reg = ge->registry();
     auto tv = ge->get_tv();
     auto pos_mouse = ge->GetMousePos();
 
@@ -324,8 +323,8 @@ void CombatState::update(TacticalGame *ge)
     }
     // this should be moved to a separate system
     auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();
-    for (auto [ent, pos, size, hoverable] :
-         reg.view<Pos, Size, Interaction::_hoverable>().each()) {
+    for (auto &&[ent, pos, size, hoverable] :
+         reg->get().view<Pos, Size, Interaction::_hoverable>().each()) {
         hoverable.is_hovered = is_point_inside_rect(pos, size, mouse_pos);
     }
 
@@ -337,9 +336,9 @@ void CombatState::draw(TacticalGame *ge)
 {
     // LOG_FUNC
 
-    auto &reg = ge->get_reg();
-    for (auto [ent, wire, hoverable] :
-         reg.view<Rendering::Wireframe, Interaction::_hoverable>().each()) {
+    auto reg = ge->registry();
+    for (auto &&[ent, wire, hoverable] :
+         reg->get().view<Rendering::Wireframe, Interaction::_hoverable>().each()) {
         if (hoverable.is_hovered) {
             wire.color = olc::RED;
             wire.type = Rendering::Wireframe::TYPE::SQUARE;
@@ -348,8 +347,8 @@ void CombatState::draw(TacticalGame *ge)
             wire.type = Rendering::Wireframe::TYPE::SQUARE;
         }
     }
-    for (auto [ent, wire, _] :
-         reg.view<Rendering::Wireframe, Interaction::_selectable>().each()) {
+    for (auto &&[ent, wire, _] :
+         reg->get().view<Rendering::Wireframe, Interaction::_selectable>().each()) {
         wire.color = olc::DARK_GREY;
         wire.type = Rendering::Wireframe::TYPE::SQUARE;
     }

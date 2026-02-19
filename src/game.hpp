@@ -1,13 +1,13 @@
 #pragma once
-#include "components/debugging.hpp"
 #include "olc/olcPixelGameEngine.h"
 #include "olc/olcPGEX_TransformedView.h"
-#include <entt/entt.hpp>
 #include <expected>
+#include "registry.hpp"
 
 #include "logger.hpp"
 #include "layers/layer.hpp"
 #include "systems/system.hpp"
+
 
 class Layer;
 
@@ -92,7 +92,7 @@ class TacticalGame : public olc::PixelGameEngine
     // void pop_state();
     // void change_state(GameState* state);
 
-    entt::registry &get_reg() { return m_reg; }
+    GameRegistry* registry() { return m_registry.get(); }
     std::shared_ptr<olc::TileTransformedView> get_tv() { return tvp; }
 
     std::unique_ptr<olc::Sprite> layer_bg;
@@ -103,7 +103,7 @@ class TacticalGame : public olc::PixelGameEngine
   private:
     std::shared_ptr<olc::TileTransformedView> tvp;
     std::vector<std::unique_ptr<Layer>> m_layers;
-    entt::registry m_reg;
+    std::unique_ptr<GameRegistry> m_registry;
     std::string get_name() const { return "MAIN ENGINE"; }
 
     unsigned m_system_managers_amount;

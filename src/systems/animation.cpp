@@ -9,7 +9,7 @@ void GUIAnimation::execute(TacticalGame *ge)
     if (!ge->animation_tick())
         return;
 
-    auto &reg = ge->get_reg();
+    auto reg = ge->registry();
 
     // for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal,
     //         Rendering::Layer::_first>().each())
@@ -22,16 +22,16 @@ void CharacterAnimation::execute(TacticalGame *ge)
 {
     if (!ge->animation_tick())
         return;
-
-    auto &reg = ge->get_reg();
-    for (auto [ent, mng] : reg.view<Animation::AnimManager>().each()) {
+    Trace("Animation manager");
+    auto reg = ge->registry();
+    for (auto &&[ent, mng] : reg->get().view<Animation::AnimManager>().each()) {
         Trace("Elapsed frames "
               << mng.frames_elapsed << " / "
               << mng.curr_animation.frames[mng.index_curren_frame].frame_duration);
-        mng.frames_elapsed++;
 
         if (mng.frames_elapsed <
             mng.curr_animation.frames[mng.index_curren_frame].frame_duration) {
+            mng.frames_elapsed++;
             continue; // nothing else to do
         }
 
@@ -43,26 +43,42 @@ void CharacterAnimation::execute(TacticalGame *ge)
             mng.frames_elapsed = 0;
             mng.index_curren_frame++;
 
-            Rendering::Spritesheet sheet;
-            if (!tryget_component(reg, ent, sheet)) {
-                Error("Error when attempting to get spritesheet");
-                throw std::runtime_error("No sprite sheet for entity");
-            }
+            if (auto sheet = reg->get_component<Rendering::Spritesheet>(ent);
+                sheet != nullptr) {
+                
+                auto rmng = reg->get_component<Rendering::RenderingManager>(ent);
 
-            // nmake helper function for this ? unsure why tryget_component does not
-            // work for this when its non const
-            for (auto [ent, rmng] : reg.view<Rendering::RenderingManager>().each()) {
-                // TODO THIS ISN"T BEING SET IDK WHY
-                // FIGURE OUT
                 auto source_pos =
                     mng.curr_animation.frames[mng.index_curren_frame].frame_pos;
                 auto abs_sprite_pos =
-                    ((olc::vf2d)source_pos * (olc::vf2d)sheet.pixel_frame_size);
-                rmng.pos_sprite_sheet = abs_sprite_pos;
-                Trace("Animation pos " << rmng.pos_sprite_sheet << " for entity "
-                                       << Debugging::entity_name(reg, ent));
+                    ((olc::vf2d)source_pos * (olc::vf2d)sheet->pixel_frame_size);
+                rmng->pos_sprite_sheet = abs_sprite_pos;
+                rmng->pos_sprite_sheet.x = abs_sprite_pos.x;
+                rmng->pos_sprite_sheet.y = abs_sprite_pos.y;
+
+                Trace("Animation pos " << rmng->pos_sprite_sheet << " for entity "
+                                       << reg->entity_name(ent));
+                continue;
             }
-            continue;
+            Error("Error when attempting to get spritesheet in animation for entity "
+                  << reg->entity_name(ent));
+            throw std::runtime_error("No sprite sheet for entity");
+
+            // // nmake helper function for this ? unsure why tryget_component does not
+            // // work for this when its non const
+            // for (auto [ent, rmng] :
+            // reg-get().group<Rendering::RenderingManager>().each()) {
+
+            //     // TODO THIS ISN"T BEING SET IDK WHY
+            //     // FIGURE OUT
+            //     auto source_pos =
+            //         mng.curr_animation.frames[mng.index_curren_frame].frame_pos;
+            //     auto abs_sprite_pos =
+            //         ((olc::vf2d)source_pos * (olc::vf2d)sheet.pixel_frame_size);
+            //     rmng.pos_sprite_sheet = abs_sprite_pos;
+            //     Trace("Animation pos " << rmng.pos_sprite_sheet << " for entity "
+            //                            << Debugging::entity_name(reg, ent));
+            // }
         }
 
         if (mng.curr_animation.is_looping) {
@@ -78,7 +94,7 @@ void BGAnimation::execute(TacticalGame *ge)
 {
     if (!ge->animation_tick())
         return;
-    auto &reg = ge->get_reg();
+    auto reg = ge->registry();
 
     // for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal,
     // Rendering::Layer::_second>().each())

@@ -29,6 +29,8 @@ TacticalGame::TacticalGame()
 
     m_system_managers_amount = 0;
     m_decals_amount = 0;
+
+    m_registry = std::make_unique<GameRegistry>();
 }
 
 bool TacticalGame::OnUserDestroy() { return true; }
@@ -76,8 +78,6 @@ bool TacticalGame::OnUserCreate()
     m_system_managers[m_system_managers_amount] = std::move(animation_manager);
     Debug("Adding system " << m_system_managers[m_system_managers_amount++]->get_name());
 
-    Debug("Loading sprite sheets");
-
     return true;
 }
 
@@ -97,7 +97,7 @@ bool TacticalGame::OnUserUpdate(float dt)
     if (GetKey(olc::Key::P).bReleased) // && CURR_STATE->get_name()!="InitState") {
     {
         for (auto [ent, mng, list] :
-             m_reg.view<Animation::AnimManager, Animation::AnimationList>().each()) {
+             m_registry->get().view<Animation::AnimManager, Animation::AnimationList>().each()) {
             if (mng.index_curren_animation == 2)
                 mng.index_curren_animation = 0;
             else

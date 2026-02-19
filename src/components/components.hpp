@@ -11,10 +11,6 @@
 // |    Logic: Name
 // ------------------------------------------------
 
-struct Component {
-    Component() = default;
-    virtual std::string print() const = 0;
-};
 struct Size {
     int w;
     int h;
