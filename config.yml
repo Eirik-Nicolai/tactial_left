@@ -1,4 +1,4 @@
-log_level: TRACE
+log_level: DEBUG
 fullscreen: false
 vsync: false
 cohesion: false

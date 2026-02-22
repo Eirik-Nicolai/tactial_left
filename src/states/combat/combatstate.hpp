@@ -1,9 +1,14 @@
 #pragma once
 #include "game.hpp"
 #include "states/gamestate.hpp"
-#include "utils/complex_datatypes.hpp"
 #include "engine/event.hpp"
 #include "engine/mouse_event.hpp"
+
+#include "components/components.hpp"
+#include "components/combat.hpp"
+#include "components/interaction.hpp"
+#include "components/rendering.hpp"
+#include "components/animation.hpp"
 
 constexpr auto tile_amt_x = 20;
 constexpr auto tile_amt_y = 9;
@@ -31,19 +36,38 @@ class CombatState : public GameState
 
     // void on_event(TacticalGame* ge, Event& event) override; // ?
 
-    void solve_a_star();
+    void solve_a_star(GameRegistry* reg);
 
     /// ------ PRIVATE LOGIC ------ ///
-  private:
+  protected:
     float sElapsedTime; // useful for debugging
 
-    std::array<std::shared_ptr<Node>, tile_amt_x * tile_amt_y> combat_tiles;
-    std::shared_ptr<Node> node_start = nullptr;
-    std::shared_ptr<Node> node_end = nullptr;
+    // std::array<std::shared_ptr<Node>, tile_amt_x * tile_amt_y> combat_tiles;
+    // std::shared_ptr<Node> node_start = nullptr;
+    // std::shared_ptr<Node> node_end = nullptr;
 
     bool mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event);
     bool mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event);
 
     bool is_panning = false;
+};
+
+class CombatStateSelect : public CombatState
+{
+    GET_NAME(GameState, Combatstate)
+
+    /// --------- STATE LOGIC --------- ///
+  public:
+    CombatStateSelect() = default;
+    ~CombatStateSelect() = default;
+
+    void handle_input(TacticalGame *ge, Event &) override;
+
+    /// ------ PRIVATE LOGIC ------ ///
+  private:
+    float sElapsedTime; // useful for debugging
+
+    bool mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event);
+    bool mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event);
 };
 } // namespace PlayingState

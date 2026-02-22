@@ -29,7 +29,7 @@ class TacticalGame : public olc::PixelGameEngine
     std::expected<int, std::string> load_decal(const std::string &sprite_path,
                                                bool filter, bool clamp)
     {
-        Debug("Loading {} to index {}", sprite_path, m_decals_amount);
+        Debug("Loading " << sprite_path << " to index " << m_decals_amount);
         // TODO check mem leak and better way of loading/unloading sprites
         auto sprite = new olc::Sprite();
         if (sprite->LoadFromFile(sprite_path)) {
@@ -43,7 +43,7 @@ class TacticalGame : public olc::PixelGameEngine
 
     void unload_decals()
     {
-        Debug("Unloading {} decals", m_decals_amount);
+        Debug("Unloading " << m_decals_amount << " decals");
 
         while (m_decals_amount != 0)
             m_decals[m_decals_amount--].reset();

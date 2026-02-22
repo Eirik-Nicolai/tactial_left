@@ -5,29 +5,28 @@
 
 #include <string>
 
-namespace Animation
+namespace Component::Animation
 {
-struct AnimationFrame {
+Component(AnimationFrame)
     Pos frame_pos;      // based on relative frame of the spritesheet, not pixel pos
     int frame_duration; // in frames
 };
 // add state ?
-struct SpriteSheetAnimation {
-    std::string name;
+Component(SpriteSheetAnimation)
+    std::string animation_name;
     std::array<AnimationFrame, 40> frames;
     int frame_animation_length;
     bool is_looping;
     bool is_flipped;
 };
 
-struct AnimationList {
+Component(AnimationList)
     unsigned animations_amt = 0;
     std::array<Animation::SpriteSheetAnimation, 40> animations;
 };
 
 /// TODO rename these
-struct AnimManager {
-    std::string name;
+Component(AnimManager)
     int frame_duration;
     SpriteSheetAnimation curr_animation;
 

@@ -34,7 +34,7 @@ void InputHandler::register_input(INPUT_TYPE type, std::shared_ptr<Input> inp)
         m_registered_inputs[type] = NONE;
         return;
     }
-    Debug("Registering input {}", inp->get_name());
+    Debug("Registering input " << inp->get_name());
     m_registered_inputs[type] = std::move(inp);
 }
 

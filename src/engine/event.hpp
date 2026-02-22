@@ -1,8 +1,6 @@
 #pragma once
 
-#include "logger.hpp"
 #include "entt/entt.hpp"
-#include <memory_resource>
 #include <string>
 
 enum class EventType {
@@ -21,9 +19,10 @@ enum class EventType {
 };
 
 #define EVENT_CLASS_TYPE(type)                                                           \
+  public:                                                                                \
     static EventType get_static_type() { return EventType::type; }                       \
     virtual EventType get_type() const override { return get_static_type(); }            \
-    virtual const char *get_name() const override { return #type; }
+    std::string_view get_name() const override  { return #type; }
 
 class Event
 {
@@ -31,9 +30,7 @@ class Event
     bool consumed = false;
     virtual ~Event() {}
     virtual EventType get_type() const = 0;
-    virtual const char *get_name() const = 0;
-    virtual std::string to_string() const { return get_name(); }
-
+    virtual std::string_view get_name() const = 0;
   private:
 };
 

@@ -1,27 +1,39 @@
 #pragma once
 
 #include "components/components.hpp"
-#include "components/animation.hpp"
-#include "components/rendering.hpp"
-#include "components/debugging.hpp"
-#include "utils/debugging.hpp"
+#include "engine/event.hpp"
 #include <entt/entt.hpp>
 #include <ios>
-
-inline std::ostream &operator<<(std::ostream &os, entt::entity &e)
+#include "engine/mouse_event.hpp"
+// inline std::ostream &operator<<(std::ostream &os, Event &e)
+// {
+//     os << "Event(" << e.get_name() << ")";
+//     return os;
+// }
+inline std::ostream &operator<<(std::ostream &os, entt::entity e)
 {
-    // TODO 
+    os << "Entity(" << (uint32_t)e << ")";
     return os;
 }
-
-inline std::ostream &operator<<(std::ostream &os, Size &s)
+inline std::ostream &operator<<(std::ostream &os, Component::Size &s)
 {
     os << "Size(h:"<<s.h<<", w:"<<s.w<<")";
     return os;
 }
-
-inline std::ostream &operator<<(std::ostream &os, Pos &p)
+inline std::ostream &operator<<(std::ostream &os, Component::Pos &p)
 {
     os << "Pos(x:"<<p.x<<", y:"<<p.y<<")";
+    return os;
+}
+
+inline std::ostream &operator<<(std::ostream &os, MouseButtonPressedEvent &e)
+{
+    os << e.to_string();
+    return os;
+}
+
+inline std::ostream &operator<<(std::ostream &os, MouseButtonReleasedEvent &e)
+{
+    os << e.to_string();
     return os;
 }

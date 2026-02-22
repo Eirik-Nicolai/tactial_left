@@ -2,7 +2,7 @@
 #include "utils/ecs.hpp"
 #include "components/animation.hpp"
 #include "components/rendering.hpp"
-
+using namespace Component;
 void GUIAnimation::execute(TacticalGame *ge)
 {
 
@@ -38,7 +38,7 @@ void CharacterAnimation::execute(TacticalGame *ge)
         auto source_pos = mng.curr_animation.frames[mng.index_curren_frame].frame_pos;
         Trace("Source pos is " << source_pos.x << " " << source_pos.y);
         if (mng.curr_animation.frame_animation_length - 1 > mng.index_curren_frame) {
-            Trace("Moving frame for animation :" << mng.curr_animation.name
+            Trace("Moving frame for animation :" << mng.curr_animation.animation_name
                                                  << " indx:" << mng.index_curren_frame);
             mng.frames_elapsed = 0;
             mng.index_curren_frame++;
@@ -63,26 +63,10 @@ void CharacterAnimation::execute(TacticalGame *ge)
             Error("Error when attempting to get spritesheet in animation for entity "
                   << reg->entity_name(ent));
             throw std::runtime_error("No sprite sheet for entity");
-
-            // // nmake helper function for this ? unsure why tryget_component does not
-            // // work for this when its non const
-            // for (auto [ent, rmng] :
-            // reg-get().group<Rendering::RenderingManager>().each()) {
-
-            //     // TODO THIS ISN"T BEING SET IDK WHY
-            //     // FIGURE OUT
-            //     auto source_pos =
-            //         mng.curr_animation.frames[mng.index_curren_frame].frame_pos;
-            //     auto abs_sprite_pos =
-            //         ((olc::vf2d)source_pos * (olc::vf2d)sheet.pixel_frame_size);
-            //     rmng.pos_sprite_sheet = abs_sprite_pos;
-            //     Trace("Animation pos " << rmng.pos_sprite_sheet << " for entity "
-            //                            << Debugging::entity_name(reg, ent));
-            // }
         }
 
         if (mng.curr_animation.is_looping) {
-            Trace("Looping for " << mng.name);
+            Trace("Looping for " << mng.curr_animation.animation_name);
             mng.index_curren_frame = 0;
             mng.frames_elapsed = 0;
             continue;

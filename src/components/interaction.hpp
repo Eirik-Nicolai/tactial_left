@@ -1,12 +1,12 @@
 #ifndef INTERACTION_H_
 #define INTERACTION_H_
-
+#include "components.hpp"
 namespace Interaction
 {
-struct _hoverable {
+Component(Hoverable)
     bool is_hovered;
 };
-struct _selectable {
+Component(Selectable)
     bool is_selected;
 };
 }; // namespace Interaction

@@ -3,28 +3,19 @@
 
 #include "components.hpp"
 
-namespace Rendering
+namespace Component::Rendering
 {
 namespace Layer
 {
-struct _pre {
-};
-struct _bg_far {
-};
-struct _bg_near {
-};
-struct _furthest {
-};
-struct _middle {
-};
-struct _closest {
-};
-struct _post {
-};
-struct _gui {
-};
-struct _wireframe {
-};
+Tag(pre)
+Tag(bg_far)
+Tag(bg_near)
+Tag(furthest)
+Tag(middle)
+Tag(closest)
+Tag(post)
+Tag(gui)
+Tag(wireframe)
 }; // namespace Layer
 
 namespace Terrain
@@ -32,12 +23,13 @@ namespace Terrain
 
 };
 
-struct Spritesheet {
+Component(Spritesheet)
     unsigned decal_index;
     Size pixel_frame_size;
 };
 
-struct RenderingManager {
+Component(RenderingManager)
+
     // entt::entity sprite_sheet;
     olc::vf2d pos_sprite_sheet;
     olc::vf2d sprite_scale;
@@ -46,7 +38,7 @@ struct RenderingManager {
 namespace GUI
 {
 };
-struct Wireframe {
+Component(Wireframe)
     enum class TYPE {
         CIRCLE,
         SQUARE,

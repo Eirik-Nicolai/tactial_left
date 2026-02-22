@@ -7,6 +7,10 @@
 
 #include "utils/ecs.hpp"
 
+
+using namespace Component;
+
+
 // // TODO move all this to arent class init since we don't change it between
 // // types of managers
 // // or make templated ? unsure what is better
@@ -50,44 +54,44 @@ void WireframeRenderer::execute(TacticalGame *ge)
     auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_wireframe.get());
 
-    // for (auto &&[ent, pos, size, wireframe] :
-    //      reg.group<Pos, Size, Rendering::Wireframe>().each()) {
-    //     switch (wireframe.type) {
-    //     case Rendering::Wireframe::TYPE::CIRCLE: {
-    //         tv->DrawCircle(pos, size.h, wireframe.color);
-    //     } break;
-    //     case Rendering::Wireframe::TYPE::CIRCLE_FILL: {
-    //         tv->FillCircle(pos, size.h, wireframe.color);
-    //     } break;
-    //     case Rendering::Wireframe::TYPE::SQUARE: {
-    //         // HACK for debugging a*
-    //         tv->DrawRectDecal(pos + 4, size - 4, wireframe.color);
-    //         // tv->DrawRectDecal(pos, size, wireframe.color);
-    //     } break;
-    //     case Rendering::Wireframe::TYPE::SQUARE_FILL: {
-    //         tv->FillRectDecal(pos, size, wireframe.color);
-    //     } break;
-    //     case Rendering::Wireframe::TYPE::TRIANGLE: {
-    //         auto side_opposite = (int)(size.h / sqrt(3));
-    //         olc::vi2d pos2 = {static_cast<int>(pos.x + size.h - side_opposite),
-    //                           static_cast<int>(pos.y + size.h)};
-    //         olc::vi2d pos3 = {static_cast<int>(pos.x + size.h + side_opposite),
-    //                           static_cast<int>(pos.y + size.h)};
-    //         tv->DrawTriangle(pos, pos2, pos3);
-    //     } break;
-    //     case Rendering::Wireframe::TYPE::TRIANGLE_FILL: {
-    //         auto side_opposite = (int)(size.h / sqrt(3));
-    //         // olc::vi2d pos1 = {pos.x, pos.y};
-    //         olc::vi2d pos2 = {static_cast<int>(pos.x + side_opposite),
-    //                           static_cast<int>(pos.y + size.h)};
-    //         olc::vi2d pos3 = {static_cast<int>(pos.x - side_opposite),
-    //                           static_cast<int>(pos.y + size.h)};
-    //         tv->FillTriangle(pos, pos2, pos3);
-    //     } break;
-    //     default:
-    //         Error("Entity does not have a valid type {}", (int)wireframe.type);
-    //     };
-    // }
+    for (auto &&[ent, pos, size, wireframe] :
+         reg->get().view<Pos, Size, Rendering::Wireframe>().each()) {
+        switch (wireframe.type) {
+        case Rendering::Wireframe::TYPE::CIRCLE: {
+            tv->DrawCircle(pos, size.h, wireframe.color);
+        } break;
+        case Rendering::Wireframe::TYPE::CIRCLE_FILL: {
+            tv->FillCircle(pos, size.h, wireframe.color);
+        } break;
+        case Rendering::Wireframe::TYPE::SQUARE: {
+            // HACK for debugging a*
+            tv->DrawRectDecal(pos + 4, size - 4, wireframe.color);
+            // tv->DrawRectDecal(pos, size, wireframe.color);
+        } break;
+        case Rendering::Wireframe::TYPE::SQUARE_FILL: {
+            tv->FillRectDecal(pos, size, wireframe.color);
+        } break;
+        case Rendering::Wireframe::TYPE::TRIANGLE: {
+            auto side_opposite = (int)(size.h / sqrt(3));
+            olc::vi2d pos2 = {static_cast<int>(pos.x + size.h - side_opposite),
+                              static_cast<int>(pos.y + size.h)};
+            olc::vi2d pos3 = {static_cast<int>(pos.x + size.h + side_opposite),
+                              static_cast<int>(pos.y + size.h)};
+            tv->DrawTriangle(pos, pos2, pos3);
+        } break;
+        case Rendering::Wireframe::TYPE::TRIANGLE_FILL: {
+            auto side_opposite = (int)(size.h / sqrt(3));
+            // olc::vi2d pos1 = {pos.x, pos.y};
+            olc::vi2d pos2 = {static_cast<int>(pos.x + side_opposite),
+                              static_cast<int>(pos.y + size.h)};
+            olc::vi2d pos3 = {static_cast<int>(pos.x - side_opposite),
+                              static_cast<int>(pos.y + size.h)};
+            tv->FillTriangle(pos, pos2, pos3);
+        } break;
+        default:
+            Error("Entity does not have a valid type " << (int)wireframe.type);
+        };
+    }
 }
 
 void BackgroundRenderer::execute(TacticalGame *ge)
@@ -191,13 +195,13 @@ void render_middle_layer(TacticalGame *ge)
 }
 void render_closest_layer(TacticalGame *ge)
 {
-    auto get_name = [](){return "render_closest_layer"; };
+    auto get_name = []() { return "render_closest_layer"; };
     auto reg = ge->registry();
     auto tv = ge->get_tv();
 
     for (auto &&[ent, pos, size, sheet, mng] :
-         reg->get().view<Pos, Size, Rendering::Spritesheet, Rendering::RenderingManager,
-                   Rendering::Layer::_closest>()
+         reg->get()
+             .view<Pos, Size, Rendering::Spritesheet, Rendering::RenderingManager>()
              .each()) {
         auto d = ge->get_decal(sheet.decal_index);
         // d->UpdateSprite(); idk if this is needed

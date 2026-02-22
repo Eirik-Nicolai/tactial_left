@@ -95,8 +95,8 @@ void LoadState::enter(TacticalGame *ge)
     reg.emplace<Debugging::DebugName>(player, "PLAYER ENTITY");
     reg.emplace<Pos>(player, 50.f, 50.f );
     // reg.emplace<Rendering::Wireframe>(earth, Rendering::Wireframe::TYPE::TRIANGLE_FILL, olc::DARK_BLUE); reg.emplace<Size>(earth, 30.f, 0.f);
-    reg.emplace<Interaction::_selectable>(player);
-    reg.emplace<Interaction::_hoverable>(player);
+    reg.emplace<Interaction::Selectable>(player);
+    reg.emplace<Interaction::Hoverable>(player);
 
     Debug("creating rendering manager");
     reg.emplace<Rendering::Spritesheet>(player,player_decal_index, 33);

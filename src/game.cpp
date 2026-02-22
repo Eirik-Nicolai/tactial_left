@@ -56,8 +56,8 @@ bool TacticalGame::OnUserCreate()
     Debug("Setting init state");
 
     add_layer<GameLayer>();
-    add_layer<MenuLayer>();
-    add_layer<DebugLayer>();
+    // add_layer<MenuLayer>();
+    // add_layer<DebugLayer>();
 
     Debug("Initiating systems");
 
@@ -96,16 +96,16 @@ bool TacticalGame::OnUserUpdate(float dt)
     // HACK testing animation manager
     if (GetKey(olc::Key::P).bReleased) // && CURR_STATE->get_name()!="InitState") {
     {
-        for (auto [ent, mng, list] :
-             m_registry->get().view<Animation::AnimManager, Animation::AnimationList>().each()) {
+        for (auto [ent, mng, list] : m_registry->get()
+                                         .view<Component::Animation::AnimManager,
+                                               Component::Animation::AnimationList>()
+                                         .each()) {
             if (mng.index_curren_animation == 2)
                 mng.index_curren_animation = 0;
             else
                 mng.index_curren_animation++;
             mng.curr_animation = list.animations[mng.index_curren_animation];
             mng.index_curren_frame = 0;
-            Info("ANIMATION INDEX {} dur is {}", mng.index_curren_animation,
-                 mng.curr_animation.frames[0].frame_duration);
         }
     }
 
@@ -138,13 +138,20 @@ void TacticalGame::raise_event(Event &event)
 
 void handle_inputs(TacticalGame *ge)
 {
+    auto get_name = []() { return "game - handle_inputs()"; };
+    
     // TODO basically what I can do is add a function callback
     // to be used instead of olc_UpdateMouseState so we don't have to
     // poll everything individually
-    // if(ge->GetKey(olc::Key::P).bPressed)      { MouseButtonPressedEvent
-    // event(MOUSE_LBUTTON); ge->raise_event(event); }
-    // if(ge->GetKey(olc::Key::P).bReleased)     { MouseButtonPressedEvent
-    // event(MOUSE_LBUTTON); ge->raise_event(event); }
+    if (ge->GetKey(olc::Key::L).bPressed) {
+        Error("Pressed " << (int)olc::Key::L);
+        KeyPressedEvent event((int)olc::Key::L, false);
+        ge->raise_event(event);
+    }
+    if (ge->GetKey(olc::Key::L).bReleased) {
+        KeyReleasedEvent event((int)olc::Key::L);
+        ge->raise_event(event);
+    }
     if (ge->GetMouse(MOUSE_LBUTTON).bPressed) {
         MouseButtonPressedEvent event(MOUSE_LBUTTON);
         ge->raise_event(event);

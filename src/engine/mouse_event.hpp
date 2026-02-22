@@ -1,8 +1,8 @@
 #pragma once
 
-#include "event.hpp"
+#include <string>
 #include "magic_enum.hpp"
-#include <strstream>
+#include "event.hpp"
 
 //
 // Mouse Events
@@ -66,15 +66,15 @@ class MouseButtonPressedEvent : public MouseButtonEvent
   public:
     MouseButtonPressedEvent(int button) : MouseButtonEvent(button) {}
 
+    std::string to_string() const
+    {
+        std::stringstream ss;
+        ss << "MouseButtonPressedEvent(" << magic_enum::enum_name(get_button()) << ")";
+        return ss.str();
+    }
     // std::string to_string() const override {
     //   Debug("MouseButtonPressedEvent: {}", static_cast<uint8_t>(m_button));
     // }
-    friend inline std::ostream &operator<<(std::ostream &os, MouseButtonPressedEvent &e)
-    {
-        os << "Button: " << magic_enum::enum_name(e.m_button)
-           << ", consumed: " << e.consumed;
-        return os;
-    }
     EVENT_CLASS_TYPE(MouseButtonPressed)
 };
 
@@ -83,14 +83,11 @@ class MouseButtonReleasedEvent : public MouseButtonEvent
   public:
     MouseButtonReleasedEvent(int button) : MouseButtonEvent(button) {}
 
-    // std::string to_string() const override {
-    //   Debug("MouseButtonReleasedEvent: {}", static_cast<uint8_t>(m_button));
-    // }
-    friend inline std::ostream &operator<<(std::ostream &os, MouseButtonReleasedEvent &e)
+    std::string to_string() const
     {
-        os << "Button: " << magic_enum::enum_name(e.m_button)
-           << ", consumed: " << e.consumed;
-        return os;
+        std::stringstream ss;
+        ss << "MouseButtonReleasedEvent(" << magic_enum::enum_name(get_button()) << ")";
+        return ss.str();
     }
     EVENT_CLASS_TYPE(MouseButtonReleased)
 };

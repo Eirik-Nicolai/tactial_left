@@ -3,10 +3,11 @@
 
 #include <cstdint>
 #include <string>
+#include "components.hpp"
 
-namespace Debugging
+namespace Component::Debugging
 {
-struct DebugName {
+Component(DebugName)
     std::string name;
 };
 }; // namespace Debugging

@@ -22,6 +22,12 @@
 
 /// TODO use to serialize+save, unload and load registry
 /// states for different game states
+
+template<class T>
+concept HasName = requires(T a) {
+  {T::title()} -> std::same_as<std::string>;  
+};
+
 class GameRegistry
 {
 
@@ -32,89 +38,138 @@ class GameRegistry
     // ------ ECS helper functions ------
   public:
     // ADDING COMPONENT
-    template <typename C>
+    template <HasName C>
     void add_tag(entt::entity &e)
     {
+        // Trace("Unsafe adding " << C::title() << " to entity " << entity_name(e));
         m_reg.emplace<C>(e);
     }
-    
-    template <typename C>
-    void add_component(entt::entity &e)
-    {
-        Error("Attempting to add a component with no arguments to entity "
-              << entity_name(e) << ", consider using 'add_tag'");
-    }
-    template <typename C>
-    void unsafe_add_component(entt::entity &e)
-    {
-        add_component<C>(e);
-    }    
-    template <typename C, typename... Args>
+    // template <HasName C>
+    // void add_component(entt::entity &e)
+    // {
+    //     Error("Attempting to add a component with no arguments to entity "
+    //           << entity_name(e) << ", consider using 'add_tag'");
+    // }
+    // template <HasName C>
+    // void unsafe_add_component(entt::entity &e)
+    // {
+    //     // Trace("Unsafe adding " << C::title() << " to entity " << entity_name(e));
+    //     add_component<C>(e);
+    // }
+
+    template <HasName C, typename... Args>
     void add_component(entt::entity &e, Args &&...args)
     {
+        // Trace("Adding " << C::title() << " to entity " << entity_name(e));
         if (has_component<C>(e)) {
-            Error("Attempting to add duplicate component to entity " << entity_name(e));
+            Error("Attempting to add duplicate component " << C::title() << "  to entity "
+                                                           << entity_name(e));
+            return;
         }
         m_reg.emplace<C>(e, std::forward<Args>(args)...);
     }
-    template <typename C, typename... Args>
+    template <HasName C, typename... Args>
     void unsafe_add_component(entt::entity &e, Args &&...args)
     {
+        // Trace("Unsafe adding " << C::title() << " to entity " << entity_name(e));
         m_reg.emplace<C>(e, std::forward<Args>(args)...);
     }
 
     // REMOVING COMPONENT
-    template <typename C>
+    template <HasName C>
     void remove_component(entt::entity &e)
     {
+        //Trace("Removing " << C::title() << " to entity " << entity_name(e));
         if (auto b = m_reg.try_get<C>(e); b != nullptr) {
             m_reg.erase<C>(e);
             return;
         }
-        Error("Attempted to remove unassigned component from entity "
+        Error("Attempted to remove unassigned " << C::title() << " from entity "
               << entity_name(e));
     }
 
-    template <typename C>
+    template <HasName C>
     void unsafe_remove_component(entt::entity &e)
     {
+        //Trace("Unsafe removing " << C::title() << " to entity " << entity_name(e));
         m_reg.erase<C>(e);
     }
 
-    // RETRIEVING COMPONENT
-    template <typename C>
+    template <HasName C>
+    void remove_all_instances_of_tag()
+    {
+        //Trace("Removing all instances of " << C::title());
+        for (auto [ent] : m_reg.view<C>().each()) {
+            unsafe_remove_component<C>(ent);
+        }
+    }
+    
+    template <HasName C>
+    void remove_all_instances_of_component()
+    {
+        //Trace("Removing all instances of " << C::title());
+        for (auto [ent, _] : m_reg.view<C>().each()) {
+            unsafe_remove_component<C>(ent);
+        }
+    }
+
+    
+    //                      //
+    // RETRIEVING COMPONENT //
+    //                      //
+    template <HasName C>
     C *get_component(entt::entity &e)
     {
-        return m_reg.try_get<C>(e);;
+        return m_reg.try_get<C>(e);
+    }
+
+    
+    // OBS OBS
+    // these functions are for retrieving entitis of
+    // solo component holder (ie. camera, player, etc)
+    // they return the first entity found
+    template <HasName C>
+    entt::entity *get_entity_of_component()
+    {
+        for (auto [ent, _] : m_reg.view<C>().each()) {
+            return ent;
+        }
+    }
+    template <HasName C>
+    entt::entity *get_entity_of_tag()
+    {
+        for (auto [ent] : m_reg.view<C>().each()) {
+            return ent;
+        }
     }
 
     // TODO this doesnt work
     // entt will default it to the const func no matter what
     // and it will be immutable
-    // template <typename C>
+    // template <HasName C>
     // C &unsafe_get_component(entt::entity &e)
     // {
     //     return m_reg.get<C>(e);
     // }
 
-    template <typename C>
+    template <HasName C>
     bool has_component(entt::entity &e)
     {
         return get_component<C>(e) != nullptr;
     }
 
     // ENTITY CREATON AND HANDLING
-    entt::entity create_entity(const char *name)
+    inline entt::entity create_entity(const char* n)
     {
         auto e = m_reg.create();
-        unsafe_add_component<Debugging::DebugName>(e, name);
+        add_component<Component::Debugging::DebugName>(e, n);
         return e;
     }
 
     // OTHER HELPER THINGS
-    std::string_view entity_name(entt::entity &e)
+    inline std::string_view entity_name(entt::entity &e)
     {
-        return get_component<Debugging::DebugName>(e)->name;
+        return get_component<Component::Debugging::DebugName>(e)->name;
     }
     // TODO I would have like some way of forwarding creations
     // of views and groups to clean up the syntax a bit but
