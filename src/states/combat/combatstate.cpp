@@ -504,7 +504,7 @@ void CombatState::solve_a_star(GameRegistry* reg)
     }
 }
 
-void CombatStateSelect::handle_input(TacticalGame *ge, Event &event) {
+void CombatStatePlayerMovement::handle_input(TacticalGame *ge, Event &event) {
     // Error("Got input " << event);
     EventDispatcher dispatcher(ge, event);
     dispatcher.Dispatch<MouseButtonPressedEvent>(
@@ -518,13 +518,13 @@ void CombatStateSelect::handle_input(TacticalGame *ge, Event &event) {
 
 }
 
-bool CombatStateSelect::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event)
+bool CombatStatePlayerMovement::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event)
 {
     auto get_name = []() { return "CombatSelect - mouse_button_released()"; };
     Debug("Released");
     return false;
 }
-bool CombatStateSelect::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event)
+bool CombatStatePlayerMovement::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event)
 {
     auto get_name = []() { return "CombatSelect - mouse_button_pressed()"; };
     // HACK

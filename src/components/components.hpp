@@ -23,7 +23,8 @@
 namespace Component
 {
 
-Component(Size) int w;
+Component(Size)
+int w;
 int h;
 
 Size operator+(Size const &rhs) { return Size{.w = w + rhs.w, .h = h + rhs.h}; };
@@ -47,7 +48,8 @@ operator olc::vf2d() const { return olc::vf2d(h, w); };
 operator olc::vi2d() const { return olc::vi2d(h, w); };
 };
 
-Component(Pos) int x;
+Component(Pos)
+int x;
 int y;
 
 Pos operator+(Pos const &rhs) { return Pos{.x = x + rhs.x, .y = y + rhs.y}; };
@@ -73,8 +75,12 @@ Pos operator-(RHS const &rhs)
 
 operator olc::vf2d() const { return olc::vf2d(x, y); };
 operator olc::vi2d() const { return olc::vi2d(x, y); };
-}
-;
+};
+
+Component(Renderable)
+Pos pos;
+Size size;
+};
 
 namespace World
 {

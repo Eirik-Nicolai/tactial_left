@@ -5,10 +5,6 @@
 #include "olc/olcPGEX_TransformedView.h"
 
 #include "game.hpp"
-// #include "states/init/initstate.hpp"
-// #include "states/star/starstate.hpp"
-// #include "states/load/loadstate.hpp"
-#include "states/combat/combatstate.hpp"
 
 #include "systems/rendering.hpp"
 #include "systems/animation.hpp"

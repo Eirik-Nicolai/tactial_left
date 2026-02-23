@@ -34,17 +34,11 @@ class CombatState : public GameState
     void draw(TacticalGame *ge) override;
     void update(TacticalGame *ge) override; // ?
 
-    // void on_event(TacticalGame* ge, Event& event) override; // ?
-
     void solve_a_star(GameRegistry* reg);
 
     /// ------ PRIVATE LOGIC ------ ///
   protected:
     float sElapsedTime; // useful for debugging
-
-    // std::array<std::shared_ptr<Node>, tile_amt_x * tile_amt_y> combat_tiles;
-    // std::shared_ptr<Node> node_start = nullptr;
-    // std::shared_ptr<Node> node_end = nullptr;
 
     bool mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event);
     bool mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event);
@@ -52,17 +46,19 @@ class CombatState : public GameState
     bool is_panning = false;
 };
 
-class CombatStateSelect : public CombatState
+class CombatStatePlayerMovement : public CombatState
 {
     GET_NAME(GameState, Combatstate)
 
     /// --------- STATE LOGIC --------- ///
   public:
-    CombatStateSelect() = default;
-    ~CombatStateSelect() = default;
+    CombatStatePlayerMovement() = default;
+    ~CombatStatePlayerMovement() = default;
 
     void handle_input(TacticalGame *ge, Event &) override;
 
+    void draw(TacticalGame *ge) override;
+    void update(TacticalGame *ge) override; // ?
     /// ------ PRIVATE LOGIC ------ ///
   private:
     float sElapsedTime; // useful for debugging
@@ -70,4 +66,47 @@ class CombatStateSelect : public CombatState
     bool mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event);
     bool mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event);
 };
+   
+class CombatStatePlayerAction : public CombatState
+{
+    GET_NAME(GameState, Combatstate)
+
+    /// --------- STATE LOGIC --------- ///
+  public:
+    CombatStatePlayerAction() = default;
+    ~CombatStatePlayerAction() = default;
+
+    void handle_input(TacticalGame *ge, Event &) override;
+
+    void draw(TacticalGame *ge) override;
+    void update(TacticalGame *ge) override; // ?
+    /// ------ PRIVATE LOGIC ------ ///
+  private:
+    float sElapsedTime; // useful for debugging
+
+    bool mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event);
+    bool mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event);
+};
+       
+class CombatStateDoCombat : public CombatState
+{
+    GET_NAME(GameState, Combatstate)
+
+    /// --------- STATE LOGIC --------- ///
+  public:
+    CombatStateDoCombat() = default;
+    ~CombatStateDoCombat() = default;
+
+    void handle_input(TacticalGame *ge, Event &) override;
+
+    void draw(TacticalGame *ge) override;
+    void update(TacticalGame *ge) override; // ?
+    /// ------ PRIVATE LOGIC ------ ///
+  private:
+    float sElapsedTime; // useful for debugging
+
+    bool mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event);
+    bool mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event);
+};
+
 } // namespace PlayingState
