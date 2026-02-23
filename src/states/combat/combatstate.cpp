@@ -105,6 +105,20 @@ bool CombatState::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent
     }
     return false;
 }
+bool CombatState::mouse_button_pressed(TacticalGame *ge, GameEvent &event)
+{
+    auto get_name = []() { return "Combat - mouse_button_pressed()"; };
+    if (event.get_button() == MouseButtonEvent::MouseButton::MiddleMouseButton) {
+        auto tv = ge->get_tv();
+        auto pos_mouse = ge->GetMousePos();
+        ge->get_tv()->StartPan(pos_mouse);
+
+        is_panning = true;
+        return true;
+    }
+    return false;
+}
+
 
 CombatState::CombatState()
 {
