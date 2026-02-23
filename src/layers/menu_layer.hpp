@@ -12,15 +12,15 @@ class MenuLayer : public Layer
     MenuLayer(TacticalGame *ge);
     virtual ~MenuLayer();
 
-    virtual void on_event(TacticalGame *, Event &event) override;
+    virtual void on_event(TacticalGame *, Engine::Event &event) override;
 
     virtual void update(TacticalGame *) override;
     virtual void draw(TacticalGame *) override;
 
   private:
-    bool key_released(TacticalGame *, KeyReleasedEvent &event);
-    bool key_pressed(TacticalGame *, KeyPressedEvent &event);
+    bool key_released(TacticalGame *, Engine::KeyReleasedEvent &event);
+    bool key_pressed(TacticalGame *, Engine::KeyPressedEvent &event);
 
-    bool mouse_button_released(TacticalGame *, MouseButtonReleasedEvent &event);
-    bool mouse_button_pressed(TacticalGame *, MouseButtonPressedEvent &event);
+    bool mouse_button_released(TacticalGame *, Engine::MouseButtonReleasedEvent &event);
+    bool mouse_button_pressed(TacticalGame *, Engine::MouseButtonPressedEvent &event);
 };

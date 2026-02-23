@@ -30,7 +30,7 @@ class GameState
     virtual void update(TacticalGame *ge) {} // update and handle logic of state
     virtual void draw(TacticalGame *ge) {}   // draw state to screen
     // virtual void on_event(TacticalGame* ge, Event& event) {}        // events incoming
-
+    
   protected:
     // GameState() {}
     std::unique_ptr<InputHandler> handler;

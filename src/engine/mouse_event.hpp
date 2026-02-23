@@ -4,6 +4,7 @@
 #include "magic_enum.hpp"
 #include "event.hpp"
 
+namespace Engine {
 //
 // Mouse Events
 //
@@ -90,4 +91,6 @@ class MouseButtonReleasedEvent : public MouseButtonEvent
         return ss.str();
     }
     EVENT_CLASS_TYPE(MouseButtonReleased)
+};
+  
 };

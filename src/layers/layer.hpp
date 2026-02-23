@@ -12,7 +12,7 @@ class Layer
 
     virtual ~Layer() = default;
 
-    virtual void on_event(TacticalGame *, Event &event) {}
+    virtual void on_event(TacticalGame *, Engine::Event &event) {}
 
     virtual void update(TacticalGame *) {}
     virtual void draw(TacticalGame *) {}

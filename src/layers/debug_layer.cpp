@@ -70,8 +70,9 @@ void DebugLayer::update(TacticalGame *ge)
 
 void DebugLayer::draw(TacticalGame *) {}
 
-void DebugLayer::on_event(TacticalGame *ge, Event &e)
+void DebugLayer::on_event(TacticalGame *ge, Engine::Event &e)
 {
+    using namespace Engine;
     Error("This is an error");
     EventDispatcher dispatcher(ge, e);
     dispatcher.Dispatch<MouseButtonReleasedEvent>(
@@ -91,7 +92,7 @@ void DebugLayer::on_event(TacticalGame *ge, Event &e)
 
 // }
 
-bool DebugLayer::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event)
+bool DebugLayer::mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event)
 {
     auto window_pos = m_ui_manager.find_window("groupbox")->get_position();
     auto window_size = m_ui_manager.find_window("groupbox")->get_window_space();
@@ -103,7 +104,7 @@ bool DebugLayer::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEven
     }
     return false;
 }
-bool DebugLayer::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event)
+bool DebugLayer::mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event)
 {
     auto window_pos = m_ui_manager.find_window("groupbox")->get_position();
     auto window_size = m_ui_manager.find_window("groupbox")->get_window_space();

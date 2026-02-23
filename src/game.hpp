@@ -78,7 +78,7 @@ class TacticalGame : public olc::PixelGameEngine
 
     bool animation_tick() { return m_animation_tick; }
 
-    void raise_event(Event &event);
+    void raise_event(Engine::Event &event);
 
     template <typename L>
         requires(std::is_base_of_v<Layer, L>)

@@ -121,7 +121,7 @@ bool TacticalGame::OnUserUpdate(float dt)
     return true;
 }
 
-void TacticalGame::raise_event(Event &event)
+void TacticalGame::raise_event(Engine::Event &event)
 {
     // traverse the states in descending order and give them the event
     // to let them handle it as they see fit
@@ -141,44 +141,44 @@ void handle_inputs(TacticalGame *ge)
     // poll everything individually
     if (ge->GetKey(olc::Key::L).bPressed) {
         Error("Pressed " << (int)olc::Key::L);
-        KeyPressedEvent event((int)olc::Key::L, false);
+        Engine::KeyPressedEvent event((int)olc::Key::L, false);
         ge->raise_event(event);
     }
     if (ge->GetKey(olc::Key::L).bReleased) {
-        KeyReleasedEvent event((int)olc::Key::L);
+        Engine::KeyReleasedEvent event((int)olc::Key::L);
         ge->raise_event(event);
     }
     if (ge->GetMouse(MOUSE_LBUTTON).bPressed) {
-        MouseButtonPressedEvent event(MOUSE_LBUTTON);
+        Engine::MouseButtonPressedEvent event(MOUSE_LBUTTON);
         ge->raise_event(event);
     }
     if (ge->GetMouse(MOUSE_LBUTTON).bReleased) {
-        MouseButtonReleasedEvent event(MOUSE_LBUTTON);
+        Engine::MouseButtonReleasedEvent event(MOUSE_LBUTTON);
         ge->raise_event(event);
     }
-    // if(ge->GetMouse(MOUSE_LBUTTON).bHeld)     { MouseButtonPressedEvent
+    // if(ge->GetMouse(MOUSE_LBUTTON).bHeld)     { Engine::MouseButtonPressedEvent
     // event(MOUSE_LBUTTON); ge->raise_event(event); }
     if (ge->GetMouse(MOUSE_RBUTTON).bPressed) {
-        MouseButtonPressedEvent event(MOUSE_RBUTTON);
+        Engine::MouseButtonPressedEvent event(MOUSE_RBUTTON);
         ge->raise_event(event);
     }
     if (ge->GetMouse(MOUSE_RBUTTON).bReleased) {
-        MouseButtonReleasedEvent event(MOUSE_RBUTTON);
+        Engine::MouseButtonReleasedEvent event(MOUSE_RBUTTON);
         ge->raise_event(event);
     }
-    // if(ge->GetMouse(MOUSE_RBUTTON).bHeld)     { MouseButtonPressedEvent
+    // if(ge->GetMouse(MOUSE_RBUTTON).bHeld)     { Engine::MouseButtonPressedEvent
     // event(MOUSE_LBUTTON); ge->raise_event(event); }
     if (ge->GetMouse(MOUSE_MBUTTON).bPressed) {
-        MouseButtonPressedEvent event(MOUSE_MBUTTON);
+        Engine::MouseButtonPressedEvent event(MOUSE_MBUTTON);
         ge->raise_event(event);
     }
     if (ge->GetMouse(MOUSE_MBUTTON).bReleased) {
-        MouseButtonReleasedEvent event(MOUSE_MBUTTON);
+        Engine::MouseButtonReleasedEvent event(MOUSE_MBUTTON);
         ge->raise_event(event);
     }
-    // if(ge->GetMouse(MOUSE_MBUTTON).bHeld)     { MouseButtonPressedEvent
+    // if(ge->GetMouse(MOUSE_MBUTTON).bHeld)     { Engine::MouseButtonPressedEvent
     // event(MOUSE_LBUTTON); ge->raise_event(event); }
-    //  if(ge->GetMouseWheel() < 0)               { MouseButtonPressedEvent
+    //  if(ge->GetMouseWheel() < 0)               { Engine::MouseButtonPressedEvent
     //  event(MOUSE_LBUTTON); ge->raise_event(event); } if(ge->GetMouseWheel() > 0) {
-    //  MouseButtonPressedEvent event(MOUSE_LBUTTON); ge->raise_event(event); }
+    //  Engine::MouseButtonPressedEvent event(MOUSE_LBUTTON); ge->raise_event(event); }
 }

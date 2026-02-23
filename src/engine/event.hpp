@@ -2,13 +2,8 @@
 
 #include "entt/entt.hpp"
 #include <string>
-
-
-#define EVENT_CLASS_TYPE(type)                                                           \
-  public:                                                                                \
-    static Engine::EventType get_static_type() { return Engine::EventType::type; }                       \
-    virtual Engine::EventType get_type() const override { return get_static_type(); }            \
-    std::string_view get_name() const override { return #type; }
+// #include "game.hpp"
+class TacticalGame;
 
 namespace Engine
 {
@@ -30,6 +25,12 @@ enum class EventType {
     // Music
 };
 
+#define EVENT_CLASS_TYPE(type)                                                           \
+  public:                                                                                \
+    static EventType get_static_type() { return EventType::type; }                       \
+    virtual EventType get_type() const override { return get_static_type(); }            \
+    std::string_view get_name() const override { return #type; }
+
 class Event
 {
   public:
@@ -47,7 +48,6 @@ class NoneEvent : public Event
     EVENT_CLASS_TYPE(NoneEvent)
 };
 
-class TacticalGame;
 class EventDispatcher
 {
     template <typename T>
@@ -59,7 +59,7 @@ class EventDispatcher
     template <typename T>
     bool Dispatch(EventFn<T> func)
     {
-        // let the different gamestates dispatch a method to handle the event
+        // let the different users dispatch a method to handle the event
         // that they want to use
         if (m_event.get_type() == T::get_static_type() && !m_event.consumed) {
             m_event.consumed = func(m_ge, *(T *)&m_event);
@@ -72,5 +72,4 @@ class EventDispatcher
     TacticalGame *m_ge;
     Event &m_event;
 };
-
 }; // namespace Engine

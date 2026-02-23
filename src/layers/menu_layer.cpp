@@ -6,16 +6,16 @@
 MenuLayer::MenuLayer(TacticalGame *ge) {}
 MenuLayer::~MenuLayer() {}
 
-void MenuLayer::on_event(TacticalGame *ge, Event &event)
+void MenuLayer::on_event(TacticalGame *ge, Engine::Event &event)
 {
-    EventDispatcher dispatcher(ge, event);
-    dispatcher.Dispatch<MouseButtonReleasedEvent>(
-        [this](TacticalGame *ge, MouseButtonReleasedEvent &e) {
+    Engine::EventDispatcher dispatcher(ge, event);
+    dispatcher.Dispatch<Engine::MouseButtonReleasedEvent>(
+        [this](TacticalGame *ge, Engine::MouseButtonReleasedEvent &e) {
             return mouse_button_released(ge, e);
         });
 
-    dispatcher.Dispatch<MouseButtonPressedEvent>(
-        [this](TacticalGame *ge, MouseButtonPressedEvent &e) {
+    dispatcher.Dispatch<Engine::MouseButtonPressedEvent>(
+        [this](TacticalGame *ge, Engine::MouseButtonPressedEvent &e) {
             return mouse_button_pressed(ge, e);
         });
 }
@@ -23,7 +23,7 @@ void MenuLayer::on_event(TacticalGame *ge, Event &event)
 void MenuLayer::update(TacticalGame *ge) {}
 void MenuLayer::draw(TacticalGame *ge) { } //ge->FillRect({100, 100}, {300, 300}); }
 
-bool MenuLayer::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event)
+bool MenuLayer::mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event)
 {
     auto window_pos = olc::vf2d(100, 100);
     auto window_size = olc::vf2d(300, 300);
@@ -35,7 +35,7 @@ bool MenuLayer::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent
     }
     return false;
 }
-bool MenuLayer::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event)
+bool MenuLayer::mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event)
 {
     auto window_pos = olc::vf2d(100, 100);
     auto window_size = olc::vf2d(300, 300);

@@ -6,6 +6,7 @@
 // Key Events
 //
 
+namespace Engine {
 class KeyEvent : public Event
 {
   public:
@@ -47,4 +48,5 @@ class KeyReleasedEvent : public KeyEvent
     // }
 
     EVENT_CLASS_TYPE(KeyReleased)
+};
 };

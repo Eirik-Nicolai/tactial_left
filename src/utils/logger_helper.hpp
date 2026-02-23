@@ -26,13 +26,13 @@ inline std::ostream &operator<<(std::ostream &os, Component::Pos &p)
     return os;
 }
 
-inline std::ostream &operator<<(std::ostream &os, MouseButtonPressedEvent &e)
+inline std::ostream &operator<<(std::ostream &os, Engine::MouseButtonPressedEvent &e)
 {
     os << e.to_string();
     return os;
 }
 
-inline std::ostream &operator<<(std::ostream &os, MouseButtonReleasedEvent &e)
+inline std::ostream &operator<<(std::ostream &os, Engine::MouseButtonReleasedEvent &e)
 {
     os << e.to_string();
     return os;

@@ -78,10 +78,10 @@ class PanInputUpdate : public Input
     }
 };
 
-bool CombatState::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event)
+bool CombatState::mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event)
 {
     auto get_name = []() { return "Combat - mouse_button_released()"; };
-    if (event.get_button() == MouseButtonEvent::MouseButton::MiddleMouseButton) {
+    if (event.get_button() == Engine::MouseButtonEvent::MouseButton::MiddleMouseButton) {
         auto tv = ge->get_tv();
         auto pos_mouse = ge->GetMousePos();
         ge->get_tv()->EndPan(pos_mouse);
@@ -92,10 +92,10 @@ bool CombatState::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEve
 
     return false;
 }
-bool CombatState::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event)
+bool CombatState::mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event)
 {
     auto get_name = []() { return "Combat - mouse_button_pressed()"; };
-    if (event.get_button() == MouseButtonEvent::MouseButton::MiddleMouseButton) {
+    if (event.get_button() == Engine::MouseButtonEvent::MouseButton::MiddleMouseButton) {
         auto tv = ge->get_tv();
         auto pos_mouse = ge->GetMousePos();
         ge->get_tv()->StartPan(pos_mouse);
@@ -105,19 +105,19 @@ bool CombatState::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent
     }
     return false;
 }
-bool CombatState::mouse_button_pressed(TacticalGame *ge, GameEvent &event)
-{
-    auto get_name = []() { return "Combat - mouse_button_pressed()"; };
-    if (event.get_button() == MouseButtonEvent::MouseButton::MiddleMouseButton) {
-        auto tv = ge->get_tv();
-        auto pos_mouse = ge->GetMousePos();
-        ge->get_tv()->StartPan(pos_mouse);
+// bool CombatState::mouse_button_pressed(TacticalGame *ge, GameEvent &event)
+// {
+//     auto get_name = []() { return "Combat - mouse_button_pressed()"; };
+//     if (event.get_button() == Engine::MouseButtonEvent::MouseButton::MiddleMouseButton) {
+//         auto tv = ge->get_tv();
+//         auto pos_mouse = ge->GetMousePos();
+//         ge->get_tv()->StartPan(pos_mouse);
 
-        is_panning = true;
-        return true;
-    }
-    return false;
-}
+//         is_panning = true;
+//         return true;
+//     }
+//     return false;
+// }
 
 
 CombatState::CombatState()
@@ -283,17 +283,17 @@ void CombatState::enter(TacticalGame *ge)
 }
 void CombatState::exit(TacticalGame *ge) { LOG_FUNC }
 
-void CombatState::handle_input(TacticalGame *ge, Event &event)
+void CombatState::handle_input(TacticalGame *ge, Engine::Event &event)
 {
     // LOG_FUNC
     //  HACK FOR PANNING
-    EventDispatcher dispatcher(ge, event);
-    dispatcher.Dispatch<MouseButtonPressedEvent>(
-        [this](TacticalGame *ge, MouseButtonPressedEvent &e) {
+    Engine::EventDispatcher dispatcher(ge, event);
+    dispatcher.Dispatch<Engine::MouseButtonPressedEvent>(
+        [this](TacticalGame *ge, Engine::MouseButtonPressedEvent &e) {
             return mouse_button_pressed(ge, e);
         });
-    dispatcher.Dispatch<MouseButtonReleasedEvent>(
-        [this](TacticalGame *ge, MouseButtonReleasedEvent &e) {
+    dispatcher.Dispatch<Engine::MouseButtonReleasedEvent>(
+        [this](TacticalGame *ge, Engine::MouseButtonReleasedEvent &e) {
             return mouse_button_released(ge, e);
         });
 }
@@ -516,73 +516,4 @@ void CombatState::solve_a_star(GameRegistry* reg)
             }
         }
     }
-}
-
-void CombatStatePlayerMovement::handle_input(TacticalGame *ge, Event &event) {
-    // Error("Got input " << event);
-    EventDispatcher dispatcher(ge, event);
-    dispatcher.Dispatch<MouseButtonPressedEvent>(
-        [this](TacticalGame *ge, MouseButtonPressedEvent &e) {
-            return mouse_button_pressed(ge, e);
-        });
-    dispatcher.Dispatch<MouseButtonReleasedEvent>(
-        [this](TacticalGame *ge, MouseButtonReleasedEvent &e) {
-            return mouse_button_released(ge, e);
-        });
-
-}
-
-bool CombatStatePlayerMovement::mouse_button_released(TacticalGame *ge, MouseButtonReleasedEvent &event)
-{
-    auto get_name = []() { return "CombatSelect - mouse_button_released()"; };
-    Debug("Released");
-    return false;
-}
-bool CombatStatePlayerMovement::mouse_button_pressed(TacticalGame *ge, MouseButtonPressedEvent &event)
-{
-    auto get_name = []() { return "CombatSelect - mouse_button_pressed()"; };
-    // HACK
-    Debug("Mouse " << event);
-    auto sw = ge->ScreenWidth();
-    auto sh = ge->ScreenHeight();
-    auto w = (0.04);
-    auto h = (0.05);
-    auto rect_w = sw * w;
-    auto rect_h = sh * h;
-    auto offs_x = (sw / 2) - (rect_w * tile_amt_x / 2);
-    auto offs_y = (sh / 2) - (rect_h * tile_amt_y / 2);
-    auto reg = ge->registry();
-    // TODO this logic can be remade
-    for (auto [ent, pos, size, selectable, hoverable, node] :
-         reg->get().view<Component::Pos, Component::Size, Interaction::Selectable, Interaction::Hoverable, Component::Combat::Node>()
-             .each()) {
-        if (event.get_button() == MouseButtonEvent::MouseButton::LeftMouseButton) {
-            if (hoverable.is_hovered) {
-                auto x_normalized = ((pos.x - offs_x) / rect_w);
-                auto y_normalized = ((pos.y - offs_y) / rect_h);
-                auto index_pos = x_normalized + (tile_amt_x * y_normalized);
-                if (selectable.is_selected) {
-                    selectable.is_selected = false;
-                    node.is_obstacle = false;
-                } else {
-                    selectable.is_selected = true;
-                    node.is_obstacle = true;
-                }
-                return true;
-            }
-        }
-        if (event.get_button() == MouseButtonEvent::MouseButton::RightMouseButton) {
-            if (hoverable.is_hovered) {
-                auto x_normalized = ((pos.x - offs_x) / rect_w);
-                auto y_normalized = ((pos.y - offs_y) / rect_h);
-                auto index_pos = x_normalized + (tile_amt_x * y_normalized);
-                node.is_obstacle = false;
-                reg->remove_all_instances_of_tag<Component::Combat::_Node_Start>();
-                reg->add_tag<Component::Combat::_Node_Start>(ent);
-                return true;
-            }
-        }
-    }
-    
-    return false;
 }
