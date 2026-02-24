@@ -76,6 +76,8 @@ class TacticalGame : public olc::PixelGameEngine
     //     m_decals_amount = 0;
     // }
 
+    void handle_inputs();
+
     bool animation_tick() { return m_animation_tick; }
 
     void raise_event(Engine::Event &event);
@@ -117,5 +119,7 @@ class TacticalGame : public olc::PixelGameEngine
 
     float m_fElapsedTime = 0;
 
+    olc::vi2d prev_mouse_pos;
+    int min_distance = 15; // in pixels
   private: // DEBUGGING HELPER FUNCTIONS
 };

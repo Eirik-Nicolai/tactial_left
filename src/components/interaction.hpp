@@ -9,6 +9,7 @@ Component(Hoverable)
 Component(Selectable)
     bool is_selected;
 };
+
 }; // namespace Interaction
 
 #endif // INTERACTION_H_

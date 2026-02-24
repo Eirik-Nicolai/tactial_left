@@ -74,11 +74,12 @@ bool TacticalGame::OnUserCreate()
     m_system_managers[m_system_managers_amount] = std::move(animation_manager);
     Debug("Adding system " << m_system_managers[m_system_managers_amount++]->get_name());
 
+
+    prev_mouse_pos = GetMousePos();
     return true;
 }
 
 #include "components/animation.hpp"
-void handle_inputs(TacticalGame *ge);
 bool TacticalGame::OnUserUpdate(float dt)
 {
     // HACK for testing
@@ -105,7 +106,7 @@ bool TacticalGame::OnUserUpdate(float dt)
         }
     }
 
-    handle_inputs(this);
+    handle_inputs();
 
     // for (auto &layer : std::views::reverse(m_layers)) {
     for (auto &layer : m_layers) {
@@ -132,53 +133,62 @@ void TacticalGame::raise_event(Engine::Event &event)
     }
 }
 
-void handle_inputs(TacticalGame *ge)
+void TacticalGame::handle_inputs()
 {
     auto get_name = []() { return "game - handle_inputs()"; };
     
     // TODO basically what I can do is add a function callback
     // to be used instead of olc_UpdateMouseState so we don't have to
     // poll everything individually
-    if (ge->GetKey(olc::Key::L).bPressed) {
+    if (GetKey(olc::Key::L).bPressed) {
         Error("Pressed " << (int)olc::Key::L);
         Engine::KeyPressedEvent event((int)olc::Key::L, false);
-        ge->raise_event(event);
+        raise_event(event);
     }
-    if (ge->GetKey(olc::Key::L).bReleased) {
+    if (GetKey(olc::Key::L).bReleased) {
         Engine::KeyReleasedEvent event((int)olc::Key::L);
-        ge->raise_event(event);
+        raise_event(event);
     }
-    if (ge->GetMouse(MOUSE_LBUTTON).bPressed) {
+    if (GetMouse(MOUSE_LBUTTON).bPressed) {
         Engine::MouseButtonPressedEvent event(MOUSE_LBUTTON);
-        ge->raise_event(event);
+        raise_event(event);
     }
-    if (ge->GetMouse(MOUSE_LBUTTON).bReleased) {
+    if (GetMouse(MOUSE_LBUTTON).bReleased) {
         Engine::MouseButtonReleasedEvent event(MOUSE_LBUTTON);
-        ge->raise_event(event);
+        raise_event(event);
     }
-    // if(ge->GetMouse(MOUSE_LBUTTON).bHeld)     { Engine::MouseButtonPressedEvent
-    // event(MOUSE_LBUTTON); ge->raise_event(event); }
-    if (ge->GetMouse(MOUSE_RBUTTON).bPressed) {
+    // if(GetMouse(MOUSE_LBUTTON).bHeld)     { Engine::MouseButtonPressedEvent
+    // event(MOUSE_LBUTTON); raise_event(event); }
+    if (GetMouse(MOUSE_RBUTTON).bPressed) {
         Engine::MouseButtonPressedEvent event(MOUSE_RBUTTON);
-        ge->raise_event(event);
+        raise_event(event);
     }
-    if (ge->GetMouse(MOUSE_RBUTTON).bReleased) {
+    if (GetMouse(MOUSE_RBUTTON).bReleased) {
         Engine::MouseButtonReleasedEvent event(MOUSE_RBUTTON);
-        ge->raise_event(event);
+        raise_event(event);
     }
-    // if(ge->GetMouse(MOUSE_RBUTTON).bHeld)     { Engine::MouseButtonPressedEvent
-    // event(MOUSE_LBUTTON); ge->raise_event(event); }
-    if (ge->GetMouse(MOUSE_MBUTTON).bPressed) {
+    // if(GetMouse(MOUSE_RBUTTON).bHeld)     { Engine::MouseButtonPressedEvent
+    // event(MOUSE_LBUTTON); raise_event(event); }
+    if (GetMouse(MOUSE_MBUTTON).bPressed) {
         Engine::MouseButtonPressedEvent event(MOUSE_MBUTTON);
-        ge->raise_event(event);
+        raise_event(event);
     }
-    if (ge->GetMouse(MOUSE_MBUTTON).bReleased) {
+    if (GetMouse(MOUSE_MBUTTON).bReleased) {
         Engine::MouseButtonReleasedEvent event(MOUSE_MBUTTON);
-        ge->raise_event(event);
+        raise_event(event);
     }
-    // if(ge->GetMouse(MOUSE_MBUTTON).bHeld)     { Engine::MouseButtonPressedEvent
-    // event(MOUSE_LBUTTON); ge->raise_event(event); }
-    //  if(ge->GetMouseWheel() < 0)               { Engine::MouseButtonPressedEvent
-    //  event(MOUSE_LBUTTON); ge->raise_event(event); } if(ge->GetMouseWheel() > 0) {
-    //  Engine::MouseButtonPressedEvent event(MOUSE_LBUTTON); ge->raise_event(event); }
+    // if(GetMouse(MOUSE_MBUTTON).bHeld)     { Engine::MouseButtonPressedEvent
+    // event(MOUSE_LBUTTON); raise_event(event); }
+    //  if(GetMouseWheel() < 0)               { Engine::MouseButtonPressedEvent
+    //  event(MOUSE_LBUTTON); raise_event(event); } if(GetMouseWheel() > 0) {
+    //  Engine::MouseButtonPressedEvent event(MOUSE_LBUTTON); raise_event(event); }
+
+
+    auto diff_mouse = prev_mouse_pos - GetMousePos();
+    DrawLine(prev_mouse_pos, GetMousePos());
+    if(min_distance < std::abs(diff_mouse.x) || min_distance < std::abs(diff_mouse.y)) {
+        prev_mouse_pos = GetMousePos();
+        Engine::MouseMovedEvent event(prev_mouse_pos.x, prev_mouse_pos.y);
+        raise_event(event);
+    }
 }

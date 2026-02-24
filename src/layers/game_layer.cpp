@@ -21,11 +21,8 @@ void GameLayer::on_event(TacticalGame *ge, Engine::Event &event)
         [this](TacticalGame *ge, Engine::KeyReleasedEvent &e) {
             return key_released(ge, e);
         });
-    dispatcher.Dispatch<Engine::GameEvent>(
-        [this, &event](TacticalGame *ge, Engine::GameEvent &e) {
-            m_current_states.back()->handle_input(ge, event);
-            return true;
-        });
+
+    m_current_states.back()->handle_input(ge, event);
 }
 
 void GameLayer::update(TacticalGame *ge)
@@ -40,11 +37,13 @@ void GameLayer::draw(TacticalGame *ge)
         state->draw(ge);
     }
 }
-bool GameLayer::key_released(TacticalGame *, Engine::KeyReleasedEvent &event)
+bool GameLayer::key_released(TacticalGame *ge, Engine::KeyReleasedEvent &event)
 {
     if(m_current_states.size() == 1) {
+        // TODO create helper function
         m_current_states.push_back(
             std::move(std::make_unique<PlayingState::CombatStatePlayerMovement>()));
+        m_current_states.back()->enter(ge);
     } else {
         m_current_states.pop_back();
     }

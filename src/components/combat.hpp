@@ -1,5 +1,7 @@
 #pragma once
 #include "components.hpp"
+
+class TacticalGame;
 namespace Component::Combat
 {
 
@@ -16,10 +18,11 @@ Component(CombatState)
 Component(CombatTurn)
 };
 
-// absolute pos of tile, i.e. (0,1), (3,4) etc
-// might just use pos for this
-Component(TilePos)
-    Pos tile;
+
+Component(Moving) //{
+    std::vector<Pos> dest_sequence;
+    int speed;
+    std::function<void(TacticalGame*)> on_reached_dest;
 };
 
 
@@ -40,8 +43,19 @@ entt::entity parent;
 unsigned weight;
 };
 
+// absolute pos of tile, i.e. (0,1), (3,4) etc
+// might just use pos for this
+Component(CurrentlyHolding) // tile is currently parent of entity
+    entt::entity value;
+};
+
 Tag(Node_Start)
 Tag(Node_End)
 
 
-}
+namespace Interaction {
+    
+Tag(Playable)
+};
+
+};

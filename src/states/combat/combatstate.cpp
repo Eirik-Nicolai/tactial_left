@@ -201,10 +201,10 @@ void CombatState::enter(TacticalGame *ge)
             }
         }
 
-    reg->add_tag<Combat::_Node_Start>(combat_tiles[0]);
-    reg->add_tag<Combat::_Node_End>(combat_tiles[5]);
+    // testing
+    // reg->add_tag<Combat::_Node_Start>(combat_tiles[0]);
+    // reg->add_tag<Combat::_Node_End>(combat_tiles[5]);
 
-    solve_a_star(reg);
     auto path_1 = "assets/Cute_Fantasy_Free/Player/Player.png";
     auto player = reg->create_entity("Player");
     auto player_decal_index = ge->load_decal(path_1, false, true);
@@ -280,8 +280,9 @@ void CombatState::enter(TacticalGame *ge)
     mng.frames_elapsed = 0;
     reg->add_component<Animation::AnimManager>(player, mng);
 
+    reg->add_tag<Component::Combat::Interaction::_Playable>(player);
+    reg->add_component<Component::Combat::CurrentlyHolding>(combat_tiles[0], player);
 }
-void CombatState::exit(TacticalGame *ge) { LOG_FUNC }
 
 void CombatState::handle_input(TacticalGame *ge, Engine::Event &event)
 {
@@ -308,128 +309,15 @@ void CombatState::update(TacticalGame *ge)
         ge->get_tv()->ZoomAtScreenPos(0.5, ge->GetMousePos());
     }
     
-    // LOG_FUN
-    auto reg = ge->registry();
-    auto tv = ge->get_tv();
-    auto pos_mouse = ge->GetMousePos();
-
     if (is_panning) {
+        auto pos_mouse = ge->GetMousePos();
         ge->get_tv()->UpdatePan(pos_mouse);
     }
-    // this should be moved to a separate system
-    auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();
-    for (auto &&[ent, pos, size, hoverable] :
-         reg->get().view<Component::Pos, Component::Size, Interaction::Hoverable>().each()) {
-        hoverable.is_hovered = is_point_inside_rect(pos, size, mouse_pos);
-    }
-
-    if (ge->animation_tick())
-        solve_a_star(ge->registry());
 }
 
 void CombatState::draw(TacticalGame *ge)
 {
-    using namespace Component;
-    // LOG_FUNC
-    
-    auto reg = ge->registry();
-    for (auto &&[ent, wire, hoverable] :
-         reg->get().view<Rendering::Wireframe, Interaction::Hoverable>().each()) {
-        if (hoverable.is_hovered) {
-            wire.color = olc::RED;
-            wire.type = Rendering::Wireframe::TYPE::SQUARE;
-        } else {
-            wire.color = olc::DARK_RED;
-            wire.type = Rendering::Wireframe::TYPE::SQUARE;
-        }
-    }
-    for (auto &&[ent, wire, _] :
-         reg->get().view<Rendering::Wireframe, Interaction::Selectable>().each()) {
-        wire.color = olc::DARK_GREY;
-        wire.type = Rendering::Wireframe::TYPE::SQUARE;
-    }
 
-    // HACK debugging purposes
-    auto sw = ge->ScreenWidth();
-    auto sh = ge->ScreenHeight();
-    auto w = (0.04);
-    auto h = (0.05);
-    auto rect_w = sw * w;
-    auto rect_h = sh * h;
-    auto tv = ge->get_tv();
-
-    for (auto &&[ent, node, pos, size] :
-         reg->get()
-             .view<Component::Combat::Node,
-                   Component::Pos, Component::Size>()
-             .each()) {
-        if (node.is_visited) {
-            tv->FillRect(pos.x + 4, pos.y + 4, size.w - 4, size.h - 4,
-                         olc::VERY_DARK_RED);
-        }
-        if (node.weight > 0) {
-            tv->FillRect(pos.x + 4, pos.y + 4, size.w - 4, size.h - 4, olc::DARK_MAGENTA);
-        }
-        if (node.weight > 30) {
-            tv->FillRect(pos.x + 4, pos.y + 4, size.w - 4, size.h - 4, olc::MAGENTA);
-        }
-        if (node.is_obstacle) {
-            tv->FillRect(pos.x + 4, pos.y + 4, size.w - 4, size.h - 4, olc::WHITE);
-        }
-        std::stringstream ss;
-        ss << reg->entity_name(ent);
-        tv->DrawString(pos.x + 10,pos.y+size.h / 2, ss.str(), olc::WHITE, {0.5, 0.5});
-    }
-
-    for (auto &&[ent, pos, size] :
-         reg->get()
-             .view<Component::Combat::_Node_Start, Component::Pos, Component::Size>()
-             .each()) {
-        tv->FillRect(pos.x + 2, pos.y + 2, size.w - 2, size.h - 2, olc::BLUE);
-    }
-    // draw line for neighbour connections
-    for (auto &&[ent, node, pos, size] :
-         reg->get()
-             .view<Component::Combat::Node, Component::Pos, Component::Size>()
-             .each()) {
-        for (auto i = 0; i < node.neighbour_count; ++i) {
-            auto neighbour = node.neighbours[i];
-            auto npos = reg->get_component<Component::Pos>(neighbour);
-            auto nsize = reg->get_component<Component::Size>(neighbour);
-
-            tv->DrawLine(pos.x + size.w / 2, pos.y + size.h / 2, npos->x + nsize->w / 2,
-                         npos->y + nsize->h / 2, olc::WHITE, 0x0f0f0f0f);
-        }
-    }
-
-    // draw path
-    for (auto &&[ent, node, pos, size] :
-         reg->get()
-             .view<Component::Combat::_Node_End, Component::Combat::Node,
-                   Component::Pos, Component::Size>()
-             .each()) {
-        tv->FillRect(pos.x + 2, pos.y + 2, size.w - 2, size.h - 2, olc::GREEN);
-
-        // HACK this should be moved outside obvs
-        auto get_parent = [reg](entt::entity e) {
-            return reg->get_component<Component::Combat::Node>(e)->parent;
-        };
-        auto curr = ent;
-        while (true){
-            auto parent = get_parent(curr);
-            if(parent == entt::null) {
-                break;
-            }
-            auto cpos = reg->get_component<Component::Pos>(curr);
-            auto csize = reg->get_component<Component::Size>(curr);
-            auto ppos = reg->get_component<Component::Pos>(parent);
-            auto psize = reg->get_component<Component::Size>(parent);
-            tv->DrawLineDecal(olc::vf2d(cpos->x + csize->w / 2, cpos->y + csize->h / 2),
-                              olc::vf2d(ppos->x + psize->w / 2, ppos->y + psize->h / 2),
-                              olc::YELLOW);
-            curr = parent;
-        };
-    }
 }
 
 // TODO move to separate thread

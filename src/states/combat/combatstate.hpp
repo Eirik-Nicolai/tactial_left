@@ -24,16 +24,16 @@ class CombatState : public GameState
     CombatState();
     ~CombatState();
 
-    void enter(TacticalGame *ge) override;
-    void exit(TacticalGame *ge) override;
+    virtual void enter(TacticalGame *ge) override;
+    virtual void exit(TacticalGame *ge) override {};
 
-    virtual void handle_input(TacticalGame *ge, Engine::GameEvent &) override;
+    virtual void handle_input(TacticalGame *ge, Engine::Event &) override;
 
-    void pause(TacticalGame *ge) override;
-    void resume(TacticalGame *ge) override;
+    virtual void pause(TacticalGame *ge) override;
+    virtual void resume(TacticalGame *ge) override;
 
-    void draw(TacticalGame *ge) override;
-    void update(TacticalGame *ge) override; // ?
+    virtual void draw(TacticalGame *ge) override;
+    virtual void update(TacticalGame *ge) override; // ?
 
     /// ------ PRIVATE LOGIC ------ ///
   protected:

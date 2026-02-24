@@ -41,6 +41,7 @@ class GameRegistry
     template <HasName C>
     void add_tag(entt::entity &e)
     {
+        if(e==entt::null) return;
         // Trace("Unsafe adding " << C::title() << " to entity " << entity_name(e));
         m_reg.emplace<C>(e);
     }
@@ -60,7 +61,8 @@ class GameRegistry
     template <HasName C, typename... Args>
     void add_component(entt::entity &e, Args &&...args)
     {
-        // Trace("Adding " << C::title() << " to entity " << entity_name(e));
+        Debug("Adding " << C::title() << " to entity " << entity_name(e));
+        if(e==entt::null) return;
         if (has_component<C>(e)) {
             Error("Attempting to add duplicate component " << C::title() << "  to entity "
                                                            << entity_name(e));
@@ -79,11 +81,9 @@ class GameRegistry
     template <HasName C>
     void remove_component(entt::entity &e)
     {
-        //Trace("Removing " << C::title() << " to entity " << entity_name(e));
-        if (auto b = m_reg.try_get<C>(e); b != nullptr) {
-            m_reg.erase<C>(e);
-            return;
-        }
+        Trace("Removing " << C::title() << " to entity " << entity_name(e));
+        if(e==entt::null) return;
+        m_reg.remove<C>(e);
         Error("Attempted to remove unassigned " << C::title() << " from entity "
               << entity_name(e));
     }
@@ -120,6 +120,7 @@ class GameRegistry
     template <HasName C>
     C *get_component(entt::entity &e)
     {
+        if(e==entt::null) return nullptr;
         return m_reg.try_get<C>(e);
     }
 
@@ -155,6 +156,7 @@ class GameRegistry
     template <HasName C>
     bool has_component(entt::entity &e)
     {
+        if(e==entt::null) return false;
         return get_component<C>(e) != nullptr;
     }
 
@@ -162,13 +164,14 @@ class GameRegistry
     inline entt::entity create_entity(const char* n)
     {
         auto e = m_reg.create();
-        add_component<Component::Debugging::DebugName>(e, n);
+        m_reg.emplace<Component::Debugging::DebugName>(e, n);
         return e;
     }
 
     // OTHER HELPER THINGS
     inline std::string_view entity_name(entt::entity &e)
     {
+        if(e==entt::null) return "NULL_ENT";
         return get_component<Component::Debugging::DebugName>(e)->name;
     }
     // TODO I would have like some way of forwarding creations
