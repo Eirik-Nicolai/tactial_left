@@ -27,7 +27,7 @@ class CombatState : public GameState
     void enter(TacticalGame *ge) override;
     void exit(TacticalGame *ge) override;
 
-    void handle_input(TacticalGame *ge, Engine::Event &) override;
+    virtual void handle_input(TacticalGame *ge, Engine::GameEvent &) override;
 
     void pause(TacticalGame *ge) override;
     void resume(TacticalGame *ge) override;

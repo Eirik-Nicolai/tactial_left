@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/input_handler.hpp"
 #include "engine/event.hpp"
-#include "engine/event.hpp"
+#include "engine/game_input_event.hpp"
 #include "utils/debugging.hpp"
 
 class InputHandler;
@@ -25,7 +25,7 @@ class GameState
     virtual void resume(TacticalGame *ge) {} // resume logic, if paused
 
     // ------ LOOPING FUNCTIONS ------
-    virtual void handle_input(TacticalGame *ge, Engine::Event &) {
+    virtual void handle_input(TacticalGame *ge, Engine::GameEvent &) {
     } // handle all user input, if any
     virtual void update(TacticalGame *ge) {} // update and handle logic of state
     virtual void draw(TacticalGame *ge) {}   // draw state to screen

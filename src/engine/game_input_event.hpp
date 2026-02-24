@@ -1,7 +1,8 @@
 #pragma once
 #include "engine/event.hpp"
+namespace Engine {
 
-class GameEvent : public Engine::Event
+class GameEvent : public Event
 {
   public:
     GameEvent() {}
@@ -9,4 +10,5 @@ class GameEvent : public Engine::Event
     EVENT_CLASS_TYPE(GameEvent)
 
   private:
+};
 };

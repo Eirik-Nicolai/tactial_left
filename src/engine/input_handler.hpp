@@ -1,6 +1,7 @@
 #pragma once
 #include "logger.hpp"
 #include "input.hpp"
+#include "game_input_event.hpp"
 
 #include "utils/debugging.hpp"
 class TacticalGame;
@@ -12,7 +13,7 @@ class InputHandler
     
     void unregister_input(std::string&);
     void unregister_input(INPUT_TYPE type);
-    using InputFunction = std::function<void(TacticalGame*, Input*)>;
+    using InputFunction = std::function<void(TacticalGame*, Engine::GameEvent&)>;
     void register_input(std::string type, InputFunction i) {
         m_inputs[type] = std::move(i);
     }

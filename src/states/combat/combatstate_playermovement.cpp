@@ -8,9 +8,16 @@ CombatStatePlayerMovement::CombatStatePlayerMovement() {
     // handler->register_input("TEST_INPUT", [this](TacticalGame* ge, Input* inp){
     //     Info("Received input " << inp->get_name());
     // });
-    m_inputs["TEST_INPUT"] = [this](TacticalGame *ge, Input *inp) {
-        Info("Received input " << inp->get_name());
+    m_inputs["TEST_INPUT"] = [](TacticalGame *ge, Engine::GameEvent &inp) {
+        auto get_name = []() { return "INPUT CALLBACK ------"; };
+        Info("Received input " << inp.get_name());
     };
+}
+
+void CombatStatePlayerMovement::handle_input(TacticalGame *ge, Engine::GameEvent &input)
+{
+    Info("Received input " << input);
+    m_inputs[input.get_name()](ge, input);
 }
 
 void CombatStatePlayerMovement::on_input(TacticalGame *ge, Input &input)
@@ -26,7 +33,7 @@ void CombatStatePlayerMovement::on_input(TacticalGame *ge, Input &input)
     //         return mouse_button_released(ge, e);
     //     });
     Info("Received input");
-    m_inputs[input.get_name()](ge, &input);
+    //m_inputs[input.get_name()](ge, &input);
 }
 
 void CombatStatePlayerMovement::update(TacticalGame *ge)

@@ -1,6 +1,5 @@
 #include "game_layer.hpp"
-#include <ranges>
-
+#include "engine/game_input_event.hpp"
 #include "states/combat/combatstate.hpp"
 #include "states/combat/combatstate_playermovement.hpp"
 
@@ -22,7 +21,11 @@ void GameLayer::on_event(TacticalGame *ge, Engine::Event &event)
         [this](TacticalGame *ge, Engine::KeyReleasedEvent &e) {
             return key_released(ge, e);
         });
-    m_current_states.back()->handle_input(ge, event);
+    dispatcher.Dispatch<Engine::GameEvent>(
+        [this, &event](TacticalGame *ge, Engine::GameEvent &e) {
+            m_current_states.back()->handle_input(ge, event);
+            return true;
+        });
 }
 
 void GameLayer::update(TacticalGame *ge)

@@ -5,11 +5,11 @@
 #include <entt/entt.hpp>
 #include <ios>
 #include "engine/mouse_event.hpp"
-// inline std::ostream &operator<<(std::ostream &os, Event &e)
-// {
-//     os << "Event(" << e.get_name() << ")";
-//     return os;
-// }
+inline std::ostream &operator<<(std::ostream &os, Engine::Event &e)
+{
+    os << "Event(" << e.get_name() << ")";
+    return os;
+}
 inline std::ostream &operator<<(std::ostream &os, entt::entity e)
 {
     os << "Entity(" << (uint32_t)e << ")";

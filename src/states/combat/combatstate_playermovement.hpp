@@ -16,7 +16,7 @@ class CombatStatePlayerMovement : public CombatState
     void enter(TacticalGame *ge) override {};
     void exit(TacticalGame *ge) override {};
 
-    void handle_input(TacticalGame *ge, Engine::Event &) final {};
+    void handle_input(TacticalGame *ge, Engine::GameEvent &) final;
     void on_input(TacticalGame *ge, Input &);
 
     void pause(TacticalGame *ge) override {};
@@ -28,7 +28,7 @@ class CombatStatePlayerMovement : public CombatState
   private:
     bool mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event);
     bool mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event);
-    using InputFunction = std::function<void(TacticalGame*, Input*)>;
+    using InputFunction = std::function<void(TacticalGame*, Engine::GameEvent&)>;
     std::map<std::string,InputFunction> m_inputs;
 };
 
