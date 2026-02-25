@@ -4,22 +4,6 @@
 #include "components/rendering.hpp"
 #include "components/components.hpp"
 
-
-// template<typename T>
-// const char *GetTypeName();
-
-// #define MAKE_TEMPLATE_NAME(T) \
-//   template<> \
-//   const char *GetTypeName<T>() { return #T; }
-
-// struct Foo {};
-// class Bar {};
-
-// MAKE_TEMPLATE_NAME(Pos);
-// MAKE_TEMPLATE_NAME(Size);
-// MAKE_TEMPLATE_NAME(Foo);
-// MAKE_TEMPLATE_NAME(Bar);
-
 /// TODO use to serialize+save, unload and load registry
 /// states for different game states
 
@@ -41,8 +25,8 @@ class GameRegistry
     template <HasName C>
     void add_tag(entt::entity &e)
     {
+        Trace("Unsafe adding " << C::title() << " to entity " << entity_name(e));
         if(e==entt::null) return;
-        // Trace("Unsafe adding " << C::title() << " to entity " << entity_name(e));
         m_reg.emplace<C>(e);
     }
     // template <HasName C>
@@ -61,7 +45,7 @@ class GameRegistry
     template <HasName C, typename... Args>
     void add_component(entt::entity &e, Args &&...args)
     {
-        Debug("Adding " << C::title() << " to entity " << entity_name(e));
+        Trace("Adding " << C::title() << " to entity " << entity_name(e));
         if(e==entt::null) return;
         if (has_component<C>(e)) {
             Error("Attempting to add duplicate component " << C::title() << "  to entity "
@@ -73,7 +57,7 @@ class GameRegistry
     template <HasName C, typename... Args>
     void unsafe_add_component(entt::entity &e, Args &&...args)
     {
-        // Trace("Unsafe adding " << C::title() << " to entity " << entity_name(e));
+        Trace("Unsafe adding " << C::title() << " to entity " << entity_name(e));
         m_reg.emplace<C>(e, std::forward<Args>(args)...);
     }
 
@@ -91,14 +75,15 @@ class GameRegistry
     template <HasName C>
     void unsafe_remove_component(entt::entity &e)
     {
-        //Trace("Unsafe removing " << C::title() << " to entity " << entity_name(e));
+        Trace("Unsafe removing " << C::title() << " to entity " << entity_name(e));
         m_reg.erase<C>(e);
     }
 
     template <HasName C>
     void remove_all_instances_of_tag()
     {
-        //Trace("Removing all instances of " << C::title());
+        // TODO think theres an entt func for this
+        Trace("Removing all instances of " << C::title());
         for (auto [ent] : m_reg.view<C>().each()) {
             unsafe_remove_component<C>(ent);
         }
@@ -107,7 +92,8 @@ class GameRegistry
     template <HasName C>
     void remove_all_instances_of_component()
     {
-        //Trace("Removing all instances of " << C::title());
+        // TODO think theres an entt func for this
+        Trace("Removing all instances of " << C::title());
         for (auto [ent, _] : m_reg.view<C>().each()) {
             unsafe_remove_component<C>(ent);
         }
@@ -120,8 +106,30 @@ class GameRegistry
     template <HasName C>
     C *get_component(entt::entity &e)
     {
+        Trace("Get component " << C::title() << " from entity " << entity_name(e));
         if(e==entt::null) return nullptr;
         return m_reg.try_get<C>(e);
+    }
+
+    template <HasName C, typename... Args>
+    void set_or_add_component(entt::entity &e, Args &&...args)
+    {
+        Trace("Set/add component " << C::title() << " from entity " << entity_name(e));
+        if(e==entt::null) return;
+        return m_reg.emplace_or_replace<C>(e, std::forward<Args>(args) ...);
+    }
+
+    // template <HasName C, typename... Args>
+    // C *unsafe_set_component(entt::entity &e, Args &&...args)
+    // {
+    //     if(e==entt::null) return nullptr;
+    //     return m_reg.replace<C>(e, std::forward<Args>(args) ...);
+    // }
+    
+    template <HasName C>
+    void unsafe_set_component(entt::entity &e, std::function<void(C& c)> &&callback)
+    {
+        return m_reg.patch<C>(e, std::forward(callback));
     }
 
     
@@ -130,14 +138,14 @@ class GameRegistry
     // solo component holder (ie. camera, player, etc)
     // they return the first entity found
     template <HasName C>
-    entt::entity *get_entity_of_component()
+    entt::entity *get_single_entity_with_component()
     {
         for (auto [ent, _] : m_reg.view<C>().each()) {
             return ent;
         }
     }
     template <HasName C>
-    entt::entity *get_entity_of_tag()
+    entt::entity *get_single_entity_with_tag()
     {
         for (auto [ent] : m_reg.view<C>().each()) {
             return ent;

@@ -282,6 +282,9 @@ void CombatState::enter(TacticalGame *ge)
 
     reg->add_tag<Component::Combat::Interaction::_Playable>(player);
     reg->add_component<Component::Combat::CurrentlyHolding>(combat_tiles[0], player);
+    reg->unsafe_set_component<Component::Pos>(player, [&](Component::Pos &p){
+        p = (*reg->get_component<Component::Pos>(combat_tiles[0]));
+    });
 }
 
 void CombatState::handle_input(TacticalGame *ge, Engine::Event &event)
