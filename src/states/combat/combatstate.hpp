@@ -21,11 +21,11 @@ class CombatState : public GameState
 
     /// --------- STATE LOGIC --------- ///
   public:
-    CombatState();
+    CombatState(TacticalGame* ge);
     ~CombatState();
 
     virtual void enter(TacticalGame *ge) override;
-    virtual void exit(TacticalGame *ge) override {};
+    virtual void exit(TacticalGame *ge) override{};
 
     virtual void handle_input(TacticalGame *ge, Engine::Event &) override;
 
@@ -44,6 +44,11 @@ class CombatState : public GameState
     bool mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event);
 
     bool is_panning = false;
+
+    int screen_w;
+    int screen_h;
+    int rect_w;
+    int rect_h;
 };
 
 } // namespace PlayingState

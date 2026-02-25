@@ -1,7 +1,8 @@
 #pragma once
 #include "components.hpp"
 
-class TacticalGame;
+class GameRegistry;
+
 namespace Component::Combat
 {
 
@@ -21,8 +22,11 @@ Component(CombatTurn)
 
 Component(Moving) //{
     std::vector<Pos> dest_sequence;
-    int speed;
-    std::function<void(TacticalGame*)> on_reached_dest;
+    int sequence_step;
+
+    Pos directional_speed; // TODO change type to smth else
+    int moving_speed;
+    std::function<void(GameRegistry*)> on_reached_dest;
 };
 
 

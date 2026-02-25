@@ -5,7 +5,7 @@
 
 GameLayer::GameLayer(TacticalGame *ge)
 {
-    m_current_states.push_back(std::move(std::make_unique<PlayingState::CombatState>()));   
+    m_current_states.push_back(std::move(std::make_unique<PlayingState::CombatState>(ge)));   
     m_current_states.front()->enter(ge);
 }
 GameLayer::~GameLayer() {}
@@ -42,7 +42,7 @@ bool GameLayer::key_released(TacticalGame *ge, Engine::KeyReleasedEvent &event)
     if(m_current_states.size() == 1) {
         // TODO create helper function
         m_current_states.push_back(
-            std::move(std::make_unique<PlayingState::CombatStatePlayerMovement>()));
+            std::move(std::make_unique<PlayingState::CombatStatePlayerMovement>(ge)));
         m_current_states.back()->enter(ge);
     } else {
         m_current_states.pop_back();

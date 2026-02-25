@@ -10,7 +10,7 @@ class CombatStatePlayerMovement : public CombatState
 
     /// --------- STATE LOGIC --------- ///
   public:
-    CombatStatePlayerMovement();
+    CombatStatePlayerMovement(TacticalGame *ge);
     ~CombatStatePlayerMovement() = default;
     
     void enter(TacticalGame *ge) override;
@@ -41,10 +41,16 @@ class CombatStatePlayerAction : public CombatState
 
     /// --------- STATE LOGIC --------- ///
   public:
-    CombatStatePlayerAction() = default;
+    CombatStatePlayerAction(TacticalGame *ge) : CombatState(ge) {};
     ~CombatStatePlayerAction() = default;
 
-    void on_input(TacticalGame *ge, Input &);
+    void enter(TacticalGame *ge) override {};
+    void exit(TacticalGame *ge) override {};
+
+    void handle_input(TacticalGame *ge, Engine::Event &) final;
+    
+    void pause(TacticalGame *ge) override {};
+    void resume(TacticalGame *ge) override {};
 
     void draw(TacticalGame *ge) override;
     void update(TacticalGame *ge) override; // ?
@@ -54,23 +60,23 @@ class CombatStatePlayerAction : public CombatState
     bool mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event);
 };
 
-class CombatStateDoCombat : public CombatState
-{
-    GET_NAME(GameState, Combatstate)
+// class CombatStateDoCombat : public CombatState
+// {
+//     GET_NAME(GameState, Combatstate)
 
-    /// --------- STATE LOGIC --------- ///
-  public:
-    CombatStateDoCombat() = default;
-    ~CombatStateDoCombat() = default;
+//     /// --------- STATE LOGIC --------- ///
+//   public:
+//     CombatStateDoCombat() = default;
+//     ~CombatStateDoCombat() = default;
 
-    void on_input(TacticalGame *ge, Input &);
+//     void on_input(TacticalGame *ge, Input &);
 
-    void draw(TacticalGame *ge) override;
-    void update(TacticalGame *ge) override; // ?
-                                            /// ------ PRIVATE LOGIC ------ ///
-  private:
-    bool mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event);
-    bool mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event);
-};
+//     void draw(TacticalGame *ge) override;
+//     void update(TacticalGame *ge) override; // ?
+//                                             /// ------ PRIVATE LOGIC ------ ///
+//   private:
+//     bool mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event);
+//     bool mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event);
+// };
 
 }; // namespace PlayingState

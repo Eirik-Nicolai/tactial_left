@@ -58,12 +58,24 @@ Pos operator+(RHS const &rhs)
 {
     return Pos{.x = x + rhs, .y = y + rhs};
 };
+Pos& operator+=(Pos const &rhs) { this->x = x + rhs.x; this->y = y + rhs.y; return *this; };
+
+
 Pos operator-(Pos const &rhs) { return Pos{.x = x - rhs.x, .y = y - rhs.y}; };
 template <typename RHS>
 Pos operator-(RHS const &rhs)
 {
     return Pos{.x = x - rhs, .y = y - rhs};
 };
+
+Pos operator*(Pos const &rhs) { return Pos{.x = x * rhs.x, .y = y * rhs.y}; };
+template <typename RHS>
+Pos operator*(RHS const &rhs)
+{
+    return Pos{.x = x * rhs, .y = y * rhs};
+};
+
+const bool operator==(Pos const &rhs) { return this->x == rhs.x && this->y == rhs.y; };
 
 // Pos operator+(Pos const& rhs) { x+=rhs.x;y+=rhs.y; return *this; };
 // template <typename RHS>

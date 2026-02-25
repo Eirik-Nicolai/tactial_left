@@ -120,10 +120,18 @@ bool CombatState::mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPres
 // }
 
 
-CombatState::CombatState()
+CombatState::CombatState(TacticalGame* ge)
 {
     LOG_FUNC
     handler = std::make_unique<InputHandler>();
+
+    screen_w = ge->ScreenWidth();
+    screen_h = ge->ScreenHeight();
+    auto w = (0.04);
+    auto h = (0.05);
+    rect_w = screen_w * w;
+    rect_h = screen_h * h;
+    
 }
 CombatState::~CombatState() { LOG_FUNC }
 
@@ -138,16 +146,10 @@ void CombatState::enter(TacticalGame *ge)
     auto reg = ge->registry();
     auto tv = ge->get_tv();
 
-    auto sw = ge->ScreenWidth();
-    auto sh = ge->ScreenHeight();
-    auto w = (0.04);
-    auto h = (0.05);
-    auto rect_w = sw * w;
-    auto rect_h = sh * h;
-    auto offs_x = (sw / 2) - (rect_w * tile_amt_x / 2);
-    auto offs_y = (sh / 2) - (rect_h * tile_amt_y / 2);
-
     using namespace Component;
+
+    auto offs_x = (screen_w / 2) - (rect_w * tile_amt_x / 2);
+    auto offs_y = (screen_h / 2) - (rect_h * tile_amt_y / 2);
 
     // convenience temp storage for keeping track of neighbours
     int combat_tile_index = 0;
@@ -217,9 +219,7 @@ void CombatState::enter(TacticalGame *ge)
 
     reg->add_component<Pos>(player, 50.f, 50.f);
     reg->add_component<Size>(player, 300.f, 300.f);
-    reg->add_component<Interaction::Selectable>(player, false);
-    reg->add_component<Interaction::Hoverable>(player, false);
-
+   
     Debug("creating rendering manager");
     reg->add_component<Rendering::Spritesheet>(player, player_decal_index.value(), Size(32,32));
 
