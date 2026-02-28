@@ -78,34 +78,28 @@ class PanInputUpdate : public Input
     }
 };
 
-bool CombatState::mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event)
+bool CombatState::mouse_button_released(Engine::MouseButtonReleasedEvent &event)
 {
     auto get_name = []() { return "Combat - mouse_button_released()"; };
     if (event.get_button() == Engine::MouseButtonEvent::MouseButton::MiddleMouseButton) {
-        auto tv = ge->get_tv();
-        auto pos_mouse = ge->GetMousePos();
-        ge->get_tv()->EndPan(pos_mouse);
-
-        is_panning = false;
+        auto &camera = m_registry->unsafe_get_world_component<Component::World::Camera>();
+        camera.is_panning = false;
         return true;
     }
 
     return false;
 }
-bool CombatState::mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event)
+bool CombatState::mouse_button_pressed(Engine::MouseButtonPressedEvent &event)
 {
     auto get_name = []() { return "Combat - mouse_button_pressed()"; };
     if (event.get_button() == Engine::MouseButtonEvent::MouseButton::MiddleMouseButton) {
-        auto tv = ge->get_tv();
-        auto pos_mouse = ge->GetMousePos();
-        ge->get_tv()->StartPan(pos_mouse);
-
-        is_panning = true;
+        auto &camera = m_registry->unsafe_get_world_component<Component::World::Camera>();
+        camera.is_panning = true;
         return true;
     }
     return false;
 }
-// bool CombatState::mouse_button_pressed(TacticalGame *ge, GameEvent &event)
+// bool CombatState::mouse_button_pressed(GameEvent &event)
 // {
 //     auto get_name = []() { return "Combat - mouse_button_pressed()"; };
 //     if (event.get_button() == Engine::MouseButtonEvent::MouseButton::MiddleMouseButton) {
@@ -120,7 +114,7 @@ bool CombatState::mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPres
 // }
 
 
-CombatState::CombatState(TacticalGame* ge)
+CombatState::CombatState(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : GameState(reg)
 {
     LOG_FUNC
     handler = std::make_unique<InputHandler>();
@@ -131,19 +125,8 @@ CombatState::CombatState(TacticalGame* ge)
     auto h = (0.05);
     rect_w = screen_w * w;
     rect_h = screen_h * h;
-    
-}
-CombatState::~CombatState() { LOG_FUNC }
-
-void CombatState::pause(TacticalGame *ge) { LOG_FUNC }
-void CombatState::resume(TacticalGame *ge) { LOG_FUNC }
-
-void CombatState::enter(TacticalGame *ge)
-{
-    LOG_FUNC
 
     Debug("Entering combat state");
-    auto reg = ge->registry();
     auto tv = ge->get_tv();
 
     using namespace Component;
@@ -286,25 +269,34 @@ void CombatState::enter(TacticalGame *ge)
         p = (*reg->get_component<Component::Pos>(combat_tiles[0]));
     });
 }
+CombatState::~CombatState() { LOG_FUNC }
 
-void CombatState::handle_input(TacticalGame *ge, Engine::Event &event)
+void CombatState::pause() { LOG_FUNC }
+void CombatState::resume() { LOG_FUNC }
+
+void CombatState::handle_input(Engine::Event &event)
 {
     // LOG_FUNC
     //  HACK FOR PANNING
-    Engine::EventDispatcher dispatcher(ge, event);
+    Engine::EventDispatcher dispatcher(event);
     dispatcher.Dispatch<Engine::MouseButtonPressedEvent>(
-        [this](TacticalGame *ge, Engine::MouseButtonPressedEvent &e) {
-            return mouse_button_pressed(ge, e);
+        [this](Engine::MouseButtonPressedEvent &e) {
+            return mouse_button_pressed(e);
         });
     dispatcher.Dispatch<Engine::MouseButtonReleasedEvent>(
-        [this](TacticalGame *ge, Engine::MouseButtonReleasedEvent &e) {
-            return mouse_button_released(ge, e);
+        [this](Engine::MouseButtonReleasedEvent &e) {
+            return mouse_button_released(e);
         });
 }
 
-void CombatState::update(TacticalGame *ge)
+void CombatState::update()
 {
-    
+
+}
+
+void CombatState::draw(TacticalGame *ge)
+{
+    // HACK
     if(ge->GetMouseWheel()>0) {
         ge->get_tv()->ZoomAtScreenPos(2, ge->GetMousePos());
     }
@@ -312,19 +304,10 @@ void CombatState::update(TacticalGame *ge)
         ge->get_tv()->ZoomAtScreenPos(0.5, ge->GetMousePos());
     }
     
-    if (is_panning) {
-        auto pos_mouse = ge->GetMousePos();
-        ge->get_tv()->UpdatePan(pos_mouse);
-    }
-}
-
-void CombatState::draw(TacticalGame *ge)
-{
-
 }
 
 // TODO move to separate thread
-void CombatState::solve_a_star(GameRegistry* reg)
+void CombatState::solve_a_star(std::shared_ptr<GameRegistry> reg)
 {
     auto get_node_pos = [reg](entt::entity e) { return reg->entity_name(e); };
 

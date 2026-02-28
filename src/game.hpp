@@ -2,7 +2,7 @@
 #include "olc/olcPixelGameEngine.h"
 #include "olc/olcPGEX_TransformedView.h"
 #include <expected>
-#include "registry.hpp"
+#include "registry/registry.hpp"
 
 #include "logger.hpp"
 #include "layers/layer.hpp"
@@ -86,7 +86,7 @@ class TacticalGame : public olc::PixelGameEngine
         requires(std::is_base_of_v<Layer, L>)
     void add_layer()
     {
-        m_layers.push_back(std::make_unique<L>(this));
+        m_layers.push_back(std::make_unique<L>(this, m_registry));
     }
 
   public:
@@ -105,7 +105,7 @@ class TacticalGame : public olc::PixelGameEngine
   private:
     std::shared_ptr<olc::TileTransformedView> tvp;
     std::vector<std::unique_ptr<Layer>> m_layers;
-    std::unique_ptr<GameRegistry> m_registry;
+    std::shared_ptr<GameRegistry> m_registry;
     std::string get_name() const { return "MAIN ENGINE"; }
 
     unsigned m_system_managers_amount;
@@ -119,6 +119,9 @@ class TacticalGame : public olc::PixelGameEngine
 
     float m_fElapsedTime = 0;
 
+    // HACK move to system
+    bool camera_is_panning = false;
+    
     olc::vi2d prev_mouse_pos;
     int min_distance = 15; // in pixels
   private: // DEBUGGING HELPER FUNCTIONS

@@ -21,29 +21,24 @@ class CombatState : public GameState
 
     /// --------- STATE LOGIC --------- ///
   public:
-    CombatState(TacticalGame* ge);
+    CombatState(TacticalGame*, std::shared_ptr<GameRegistry> registry);
     ~CombatState();
 
-    virtual void enter(TacticalGame *ge) override;
-    virtual void exit(TacticalGame *ge) override{};
+    virtual void handle_input(Engine::Event &) override;
 
-    virtual void handle_input(TacticalGame *ge, Engine::Event &) override;
-
-    virtual void pause(TacticalGame *ge) override;
-    virtual void resume(TacticalGame *ge) override;
+    virtual void pause() override;
+    virtual void resume() override;
 
     virtual void draw(TacticalGame *ge) override;
-    virtual void update(TacticalGame *ge) override; // ?
+    virtual void update() override; // ?
 
     /// ------ PRIVATE LOGIC ------ ///
   protected:
     float sElapsedTime; // useful for debugging
-    void solve_a_star(GameRegistry* reg);
+    void solve_a_star(std::shared_ptr<GameRegistry> reg);
 
-    bool mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event);
-    bool mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event);
-
-    bool is_panning = false;
+    bool mouse_button_released(Engine::MouseButtonReleasedEvent &event);
+    bool mouse_button_pressed(Engine::MouseButtonPressedEvent &event);
 
     int screen_w;
     int screen_h;

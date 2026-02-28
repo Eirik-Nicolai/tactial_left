@@ -51,10 +51,10 @@ class NoneEvent : public Event
 class EventDispatcher
 {
     template <typename T>
-    using EventFn = std::function<bool(TacticalGame *ge, T &)>;
+    using EventFn = std::function<bool(T &)>;
 
   public:
-    EventDispatcher(TacticalGame *ge, Event &event) : m_ge(ge), m_event(event) {}
+    EventDispatcher(Event &event) : m_event(event) {}
 
     template <typename T>
     bool Dispatch(EventFn<T> func)
@@ -62,14 +62,13 @@ class EventDispatcher
         // let the different users dispatch a method to handle the event
         // that they want to use
         if (m_event.get_type() == T::get_static_type() && !m_event.consumed) {
-            m_event.consumed = func(m_ge, *(T *)&m_event);
+            m_event.consumed = func(*(T *)&m_event);
             return true;
         }
         return false;
     }
 
   private:
-    TacticalGame *m_ge;
     Event &m_event;
 };
 }; // namespace Engine

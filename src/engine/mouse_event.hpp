@@ -4,17 +4,27 @@
 #include "magic_enum.hpp"
 #include "event.hpp"
 
-namespace Engine {
+namespace Engine
+{
 //
 // Mouse Events
 //
-class MouseMovedEvent : public Event
+class MouseEvent : public Event
 {
   public:
-    MouseMovedEvent(double x, double y) : m_x(x), m_y(y) {}
+    MouseEvent(int x, int y) : m_x(x), m_y(y) {}
 
-    inline double GetX() const { return m_x; }
-    inline double GetY() const { return m_y; }
+    inline int GetX() const { return m_x; }
+    inline int GetY() const { return m_y; }
+
+  private:
+    int m_x, m_y;
+};
+
+class MouseMovedEvent : public MouseEvent
+{
+  public:
+    MouseMovedEvent(int x, int y) : MouseEvent(x, y) {}
 
     // std::string to_string() const override {
     //     Debug("MouseMovedEvent: {}, {}", m_x, m_y);
@@ -22,17 +32,15 @@ class MouseMovedEvent : public Event
     // }
 
     EVENT_CLASS_TYPE(MouseMoved)
-  private:
-    int m_x, m_y;
 };
 
-// class MouseScrolledEvent : public Event {
+// class MouseScrolledEvent : public MouseEvent {
 // public:
-//   MouseScrolledEvent(double xOffset, double yOffset)
+//   MouseScrolledEvent(int xOffset, int yOffset)
 //       : m_XOffset(xOffset), m_YOffset(yOffset) {}
 
-//   inline double GetXOffset() const { return m_XOffset; }
-//   inline double GetYOffset() const { return m_YOffset; }
+//   inline int GetXOffset() const { return m_XOffset; }
+//   inline int GetYOffset() const { return m_YOffset; }
 
 //   std::string to_string() const override {
 //     Debug("MouseScrolledEvent: {}, {}", m_XOffset, m_YOffset);
@@ -40,10 +48,10 @@ class MouseMovedEvent : public Event
 
 //   EVENT_CLASS_TYPE(MouseScrolled)
 // private:
-//   double m_XOffset, m_YOffset;
+//   int m_XOffset, m_YOffset;
 // };
 
-class MouseButtonEvent : public Event
+class MouseButtonEvent : public MouseEvent
 {
 
   public:
@@ -56,8 +64,14 @@ class MouseButtonEvent : public Event
     inline MouseButton get_button() const { return m_button; }
 
   protected:
-    MouseButtonEvent(int button) : m_button(static_cast<MouseButton>(button)) {}
-    MouseButtonEvent(MouseButton button) : m_button(button) {}
+    MouseButtonEvent(int x, int y, int button)
+        : MouseEvent(x, y), m_button(static_cast<MouseButton>(button))
+    {
+    }
+    MouseButtonEvent(int x, int y, MouseButton button)
+        : MouseEvent(x, y), m_button(button)
+    {
+    }
 
     MouseButton m_button;
 };
@@ -65,7 +79,10 @@ class MouseButtonEvent : public Event
 class MouseButtonPressedEvent : public MouseButtonEvent
 {
   public:
-    MouseButtonPressedEvent(int button) : MouseButtonEvent(button) {}
+    MouseButtonPressedEvent(int x, int y, int button)
+        : MouseButtonEvent(x, y, button)
+    {
+    }
 
     std::string to_string() const
     {
@@ -82,7 +99,10 @@ class MouseButtonPressedEvent : public MouseButtonEvent
 class MouseButtonReleasedEvent : public MouseButtonEvent
 {
   public:
-    MouseButtonReleasedEvent(int button) : MouseButtonEvent(button) {}
+    MouseButtonReleasedEvent(int x, int y, int button)
+        : MouseButtonEvent(x, y, button)
+    {
+    }
 
     std::string to_string() const
     {
@@ -92,5 +112,5 @@ class MouseButtonReleasedEvent : public MouseButtonEvent
     }
     EVENT_CLASS_TYPE(MouseButtonReleased)
 };
-  
-};
+
+}; // namespace Engine

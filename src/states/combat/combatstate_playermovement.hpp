@@ -6,28 +6,25 @@ namespace PlayingState {
 
 class CombatStatePlayerMovement : public CombatState
 {
-    GET_NAME(GameState, Combatstate)
+    GET_NAME(GameState, CombatstateMovement)
 
     /// --------- STATE LOGIC --------- ///
   public:
-    CombatStatePlayerMovement(TacticalGame *ge);
+    CombatStatePlayerMovement(TacticalGame*, std::shared_ptr<GameRegistry>);
     ~CombatStatePlayerMovement() = default;
     
-    void enter(TacticalGame *ge) override;
-    void exit(TacticalGame *ge) override {};
-
-    void handle_input(TacticalGame *ge, Engine::Event &) final;
+    void handle_input(Engine::Event &) final;
     
-    void pause(TacticalGame *ge) override {};
-    void resume(TacticalGame *ge) override {};
+    void pause() override {};
+    void resume() override {};
 
-    void draw(TacticalGame *ge) override;
-    void update(TacticalGame *ge) override; // ?
+    void draw(TacticalGame*) override;
+    void update() override; // ?
     /// ------ PRIVATE LOGIC ------ ///
   private:
-    bool mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event);
-    bool mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event);
-    bool mouse_button_moved(TacticalGame *ge, Engine::MouseMovedEvent &event);
+    bool mouse_button_moved(Engine::MouseMovedEvent &event);
+    bool mouse_button_released(Engine::MouseButtonReleasedEvent &event);
+    bool mouse_button_pressed(Engine::MouseButtonPressedEvent &event);
     using InputFunction = std::function<void(TacticalGame*, Engine::GameEvent&)>;
     std::map<std::string_view,InputFunction> m_inputs;
 
@@ -41,23 +38,20 @@ class CombatStatePlayerAction : public CombatState
 
     /// --------- STATE LOGIC --------- ///
   public:
-    CombatStatePlayerAction(TacticalGame *ge) : CombatState(ge) {};
+    CombatStatePlayerAction(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : CombatState(ge, reg) {};
     ~CombatStatePlayerAction() = default;
 
-    void enter(TacticalGame *ge) override {};
-    void exit(TacticalGame *ge) override {};
-
-    void handle_input(TacticalGame *ge, Engine::Event &) final;
+    void handle_input(Engine::Event &) final {};
     
-    void pause(TacticalGame *ge) override {};
-    void resume(TacticalGame *ge) override {};
+    void pause() override {};
+    void resume() override {};
 
-    void draw(TacticalGame *ge) override;
-    void update(TacticalGame *ge) override; // ?
+    void draw(TacticalGame*) override;
+    void update() override; // ?
                                             /// ------ PRIVATE LOGIC ------ ///
   private:
-    bool mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event);
-    bool mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event);
+    bool mouse_button_released(Engine::MouseButtonReleasedEvent &event) {return true;};
+    bool mouse_button_pressed(Engine::MouseButtonPressedEvent &event) {return true;};
 };
 
 // class CombatStateDoCombat : public CombatState
@@ -69,14 +63,14 @@ class CombatStatePlayerAction : public CombatState
 //     CombatStateDoCombat() = default;
 //     ~CombatStateDoCombat() = default;
 
-//     void on_input(TacticalGame *ge, Input &);
+//     void on_input(, Input &);
 
-//     void draw(TacticalGame *ge) override;
-//     void update(TacticalGame *ge) override; // ?
+//     void draw() override;
+//     void update() override; // ?
 //                                             /// ------ PRIVATE LOGIC ------ ///
 //   private:
-//     bool mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event);
-//     bool mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event);
+//     bool mouse_button_released(, Engine::MouseButtonReleasedEvent &event);
+//     bool mouse_button_pressed(, Engine::MouseButtonPressedEvent &event);
 // };
 
 }; // namespace PlayingState

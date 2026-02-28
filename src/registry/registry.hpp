@@ -14,6 +14,89 @@ concept HasName = requires(T a) {
 
 class GameRegistry
 {
+    class GameEventDispatcher
+    {
+      public:
+        GameEventDispatcher() = default;
+        ~GameEventDispatcher() = default;
+
+        //                  //
+        // EVENT DISPATCHER //
+        //                  //
+        template <typename E, auto func, typename... Args>
+        inline void add_listener_to_event(Args &&...value_or_instance)
+        {
+            m_dispatcher.sink<E>().template connect<func>(std::forward<Args>(value_or_instance)...);
+        }
+
+        // template <typename E, auto func, typename... Args>
+        // inline void add_listener_to_event(Args &&...value_or_instance)
+        // {
+        //     m_dispatcher.sink<E>().template connect<func>(std::forward<Args>(value_or_instance)...);
+        // }
+        template <typename Event>
+        inline void remove_all_listeners_on_event()
+        {
+            m_dispatcher.sink<Event>().template disconnect<>();
+        }
+
+        // template <typename Event, typename... Args>
+        // inline void queue_event(Args &&...args)
+        // {
+        //     m_dispatcher.enqueue(Event{std::forward<Args>(args)...});
+        // }
+
+        template <typename Event>
+        inline void queue_event(Event e)
+        {
+            m_dispatcher.enqueue(e);
+        }
+        
+        template <typename Event>
+        inline void queue_event()
+        {
+            m_dispatcher.enqueue<Event>();
+        }
+        template <typename Event, typename... Args>
+        inline void immediate_dispatch(Args &&...args)
+        {
+            m_dispatcher.trigger(Event{std::forward<Args>(args)...});
+        }
+
+        template <typename Event>
+        inline void immediate_dispatch()
+        {
+            m_dispatcher.trigger<Event>();
+        }
+
+        // dispatch all enqueued Event events
+        template <typename Event>
+        inline  void trigger_event()
+        {
+            m_dispatcher.update<Event>();
+        }
+        
+        // dispatch all enqueued Event events with ARGS
+        template <typename Event, typename... Args>
+        inline void trigger_event(Args ...args)
+        {
+            m_dispatcher.update(Event{std::forward<Args>(args)...});
+        }
+
+        // dispatch all enqueued events
+        inline void update()
+        {
+            m_dispatcher.update();
+        }
+
+        inline entt::dispatcher& get() {
+            return m_dispatcher;
+        }
+
+      private:
+        entt::dispatcher m_dispatcher;
+        std::string get_name() const { return "GAME REGISTRY - Game Event Dispatcher"; }
+    };
 
   public:
     GameRegistry() = default;
@@ -21,7 +104,9 @@ class GameRegistry
 
     // ------ ECS helper functions ------
   public:
-    // ADDING COMPONENT
+    //                  //
+    // ADDING COMPONENT //
+    //                  //
     template <HasName C>
     void add_tag(entt::entity e)
     {
@@ -82,8 +167,9 @@ class GameRegistry
     {
         m_reg.patch<C>(e, std::forward<std::function<void(C& c)>>(callback));
     }
-
-    // REMOVING COMPONENT
+    //                    //
+    // REMOVING COMPONENT //
+    //                    //
     template <HasName C>
     void remove_component(entt::entity e)
     {
@@ -114,8 +200,47 @@ class GameRegistry
         Trace("Removing all instances of " << C::title());
         m_reg.clear<C>();
     }
-
     
+    //                  //
+    // WORLD COMPONENTS //
+    //                  //
+    template <HasName C, typename... Args>
+    C &set_world_component(Args ...args)
+    {
+        return m_reg.ctx().emplace<C>(std::forward<Args>(args)...);
+    }
+    
+    template <HasName C>
+    C &set_world_tag()
+    {
+        return m_reg.ctx().emplace<C>();
+    }
+    
+    template <HasName C>
+    bool get_world_component(C& component)
+    {
+        if(m_reg.ctx().contains<C>()) {
+            component = m_reg.ctx().get<C>();
+            return true;
+        }
+        return false;
+    }
+    
+    template <HasName C>
+    C &unsafe_get_world_component()
+    {
+        return m_reg.ctx().get<C>();
+    }
+
+    template <HasName C>
+    void remove_world_component()
+    {
+        if (!m_reg.ctx().erase<C>()) {
+            Warn("Attempted to remove world component " << C::title()
+                                                        << " which did not exist");
+        }
+    }
+
     //                      //
     // RETRIEVING COMPONENT //
     //     AND ENTITIES     //
@@ -181,7 +306,9 @@ class GameRegistry
         return get_component<C>(e) != nullptr;
     }
 
-    // ENTITY CREATON AND HANDLING
+    //                             //
+    // ENTITY CREATON AND HANDLING //
+    //                             //
     inline entt::entity create_entity(const char* n)
     {
         auto e = m_reg.create();
@@ -189,7 +316,14 @@ class GameRegistry
         return e;
     }
 
-    // OTHER HELPER THINGS
+    //                  //
+    // EVENT DISPATCHER //
+    //                  //
+    GameEventDispatcher dispatcher;
+    
+    //                     //
+    // OTHER HELPER THINGS //
+    //                     //
     inline std::string_view entity_name(entt::entity e)
     {
         if(e==entt::null) return "NULL_ENT";
@@ -199,8 +333,14 @@ class GameRegistry
     // of views and groups to clean up the syntax a bit but
     // i'm not figuring out that template hell rn
     entt::registry& get() { return m_reg; }
+
+    // call update on all internals that need it
+    void update(float deltatime)
+    {
+        std::ignore = deltatime; // not needed for the time being
+        dispatcher.update();
+    };
   private:
     entt::registry m_reg;
-
     std::string get_name() const { return "GAME REGISTRY"; }
 };

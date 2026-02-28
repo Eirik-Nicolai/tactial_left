@@ -5,25 +5,30 @@
 
 #include "states/gamestate.hpp"
 
+#include "registry/game_event.hpp"
+
 class GameLayer : public Layer
 {
   public:
     GET_NAME(Layer, GameLayer)
 
-    GameLayer(TacticalGame *);
+    GameLayer(TacticalGame*, std::shared_ptr<GameRegistry> reg);
     virtual ~GameLayer();
 
-    virtual void on_event(TacticalGame *, Engine::Event &event) override;
-
-    virtual void update(TacticalGame *) override;
-    virtual void draw(TacticalGame *) override;
+    virtual void on_event(Engine::Event &) override;
+    virtual void update() override;
+    virtual void draw() override;
 
   private:
-    bool key_released(TacticalGame *, Engine::KeyReleasedEvent &event);
-    bool key_pressed(TacticalGame *, Engine::KeyPressedEvent &event);
+    bool key_released(Engine::KeyReleasedEvent &event);
+    bool key_pressed(Engine::KeyPressedEvent &event);
 
-    bool mouse_button_released(TacticalGame *, Engine::MouseButtonReleasedEvent &event);
-    bool mouse_button_pressed(TacticalGame *, Engine::MouseButtonPressedEvent &event);
+    bool mouse_button_released(Engine::MouseButtonReleasedEvent &event);
+    bool mouse_button_pressed(Engine::MouseButtonPressedEvent &event);
+
+    // void on_state_change(state_change);
+    // void on_state_change_func(state_change_func);
+    void on_state_change_playaction(do_state_change_playaction);
 
     std::vector<std::unique_ptr<GameState>> m_current_states;
 };

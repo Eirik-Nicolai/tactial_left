@@ -2,19 +2,18 @@
 #include "logger.hpp"
 #include "utils/geometry.hpp"
 
+#include "registry/game_event.hpp"
+
 namespace PlayingState
 {
 
-CombatStatePlayerMovement::CombatStatePlayerMovement(TacticalGame *ge) : CombatState(ge) {
+CombatStatePlayerMovement::CombatStatePlayerMovement(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : CombatState(ge, reg) {
     // TODO can use this for mapping buttons ig
     // if we're using buttons ?
     handler = std::make_unique<InputHandler>();
     m_controlled_entity = entt::null;
     m_tile_dest = entt::null;
-}
 
-void CombatStatePlayerMovement::enter(TacticalGame *ge) {
-    auto reg = ge->registry();
     for (auto &&[ent] :
          reg->get().view<Component::Combat::Interaction::_Playable>().each()) {
         m_controlled_entity = ent;
@@ -31,38 +30,37 @@ void CombatStatePlayerMovement::enter(TacticalGame *ge) {
     Info("Currently controlling entity " << reg->entity_name(m_controlled_entity));
 }
 
-void CombatStatePlayerMovement::handle_input(TacticalGame *ge, Engine::Event &event)
+void CombatStatePlayerMovement::handle_input(Engine::Event &event)
 {
-    Engine::EventDispatcher dispatcher(ge, event);
+    Engine::EventDispatcher dispatcher(event);
     
     dispatcher.Dispatch<Engine::MouseButtonPressedEvent>(
-        [this](TacticalGame *ge, Engine::MouseButtonPressedEvent &e) {
-            return mouse_button_pressed(ge, e);
+        [this](Engine::MouseButtonPressedEvent &e) {
+            return mouse_button_pressed(e);
         });
     dispatcher.Dispatch<Engine::MouseButtonReleasedEvent>(
-        [this](TacticalGame *ge, Engine::MouseButtonReleasedEvent &e) {
-            return mouse_button_released(ge, e);
+        [this](Engine::MouseButtonReleasedEvent &e) {
+            return mouse_button_released(e);
         });
     dispatcher.Dispatch<Engine::MouseMovedEvent>(
-        [this](TacticalGame *ge, Engine::MouseMovedEvent &e) {
-            return mouse_button_moved(ge, e);
+        [this](Engine::MouseMovedEvent &e) {
+            return mouse_button_moved(e);
         });
 }
 
-void CombatStatePlayerMovement::update(TacticalGame *ge)
+void CombatStatePlayerMovement::update()
 {
     // move entity to selected spot, one line at a time
     using namespace Component;
 
-    auto reg = ge->registry();
     for (auto &&[ent, pos, seq] :
-         reg->get().view<Component::Pos, Combat::Moving>().each()) {
+         m_registry->get().view<Component::Pos, Combat::Moving>().each()) {
         // Debug("Currently on pos " << pos);
         // if we've reached next step in the sequence
         if (pos == seq.dest_sequence[seq.sequence_step]) {
             // have we arrived
             if (seq.sequence_step == 0) {
-                seq.on_reached_dest(reg);
+                seq.on_reached_dest(m_registry);
                 continue;;
             }
             // else, incremnt and find new speed
@@ -102,7 +100,7 @@ void CombatStatePlayerMovement::draw(TacticalGame *ge)
     auto tv = ge->get_tv();
 
     for (auto &&[ent, node, pos, size] :
-         reg->get()
+         m_registry->get()
              .view<Component::Combat::Node, Component::Pos, Component::Size>()
              .each()) {
         if (node.is_visited) {
@@ -119,25 +117,25 @@ void CombatStatePlayerMovement::draw(TacticalGame *ge)
             tv->FillRect(pos.x + 4, pos.y + 4, size.w - 4, size.h - 4, olc::WHITE);
         }
         std::stringstream ss;
-        ss << reg->entity_name(ent);
+        ss << m_registry->entity_name(ent);
         tv->DrawString(pos.x + 10, pos.y + size.h / 2, ss.str(), olc::WHITE, {0.5, 0.5});
     }
 
     for (auto &&[ent, pos, size] :
-         reg->get()
+         m_registry->get()
              .view<Component::Combat::_Node_Start, Component::Pos, Component::Size>()
              .each()) {
         tv->FillRect(pos.x + 2, pos.y + 2, size.w - 2, size.h - 2, olc::BLUE);
     }
     // draw line for neighbour connections
     for (auto &&[ent, node, pos, size] :
-         reg->get()
+         m_registry->get()
              .view<Component::Combat::Node, Component::Pos, Component::Size>()
              .each()) {
         for (auto i = 0; i < node.neighbour_count; ++i) {
             auto neighbour = node.neighbours[i];
-            auto npos = reg->get_component<Component::Pos>(neighbour);
-            auto nsize = reg->get_component<Component::Size>(neighbour);
+            auto npos = m_registry->get_component<Component::Pos>(neighbour);
+            auto nsize = m_registry->get_component<Component::Size>(neighbour);
 
             tv->DrawLine(pos.x + size.w / 2, pos.y + size.h / 2, npos->x + nsize->w / 2,
                          npos->y + nsize->h / 2, olc::WHITE, 0x0f0f0f0f);
@@ -146,15 +144,15 @@ void CombatStatePlayerMovement::draw(TacticalGame *ge)
 
     // draw path
     for (auto &&[ent, node, pos, size] :
-         reg->get()
+         m_registry->get()
              .view<Component::Combat::_Node_End, Component::Combat::Node, Component::Pos,
                    Component::Size>()
              .each()) {
         tv->FillRect(pos.x + 2, pos.y + 2, size.w - 2, size.h - 2, olc::GREEN);
 
         // HACK this should be moved outside obvs
-        auto get_parent = [reg](entt::entity e) {
-            return reg->get_component<Component::Combat::Node>(e)->parent;
+        auto get_parent = [this](entt::entity e) {
+            return m_registry->get_component<Component::Combat::Node>(e)->parent;
         };
         auto curr = ent;
         while (true) {
@@ -162,10 +160,10 @@ void CombatStatePlayerMovement::draw(TacticalGame *ge)
             if (parent == entt::null) {
                 break;
             }
-            auto cpos = reg->get_component<Component::Pos>(curr);
-            auto csize = reg->get_component<Component::Size>(curr);
-            auto ppos = reg->get_component<Component::Pos>(parent);
-            auto psize = reg->get_component<Component::Size>(parent);
+            auto cpos = m_registry->get_component<Component::Pos>(curr);
+            auto csize = m_registry->get_component<Component::Size>(curr);
+            auto ppos = m_registry->get_component<Component::Pos>(parent);
+            auto psize = m_registry->get_component<Component::Size>(parent);
             tv->DrawLineDecal(olc::vf2d(cpos->x + csize->w / 2, cpos->y + csize->h / 2),
                               olc::vf2d(ppos->x + psize->w / 2, ppos->y + psize->h / 2),
                               olc::YELLOW);
@@ -174,64 +172,57 @@ void CombatStatePlayerMovement::draw(TacticalGame *ge)
     }
 }
 
-bool CombatStatePlayerMovement::mouse_button_moved(TacticalGame *ge, Engine::MouseMovedEvent &event)
+bool CombatStatePlayerMovement::mouse_button_moved(Engine::MouseMovedEvent &event)
 {
     auto get_name = []() { return "CombatSelect - mouse_button_moved()"; };
-    auto reg = ge->registry();
-    auto tv = ge->get_tv();
-    auto pos_mouse = ge->GetMousePos();
-
+ 
+    Debug("Mouse pos " << event.GetX() << "  " << event.GetY());
     // this should be moved to a separate system
-    auto mouse_pos = tv->ScaleToWorld(pos_mouse) + tv->GetWorldOffset();
     for (auto &&[ent, pos, size, hoverable] :
-         reg->get()
+         m_registry->get()
              .view<Component::Pos, Component::Size, Interaction::Hoverable>()
              .each()) {
-        hoverable.is_hovered = is_point_inside_rect(pos, size, mouse_pos);
+        hoverable.is_hovered = is_point_inside_rect(pos, size, olc::vi2d{event.GetX(), event.GetY()});
         if (hoverable.is_hovered && ent != m_tile_dest) {
-            auto curr_end = reg->get_single_entity_with_tag<Component::Combat::_Node_End>();
-            reg->remove_component<Component::Combat::_Node_End>(m_tile_dest);
+            auto curr_end = m_registry->get_single_entity_with_tag<Component::Combat::_Node_End>();
+            m_registry->remove_component<Component::Combat::_Node_End>(m_tile_dest);
             m_tile_dest = ent;
-            reg->add_tag<Component::Combat::_Node_End>(m_tile_dest);
+            m_registry->add_tag<Component::Combat::_Node_End>(m_tile_dest);
 
-            solve_a_star(reg);
+            solve_a_star(m_registry);
         }
     }
 
-    // if (ge->animation_tick())
-    //     solve_a_star(ge->registry());
-
     return false;
 }
-bool CombatStatePlayerMovement::mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event)
+bool CombatStatePlayerMovement::mouse_button_released(Engine::MouseButtonReleasedEvent &event)
 {
     auto get_name = []() { return "CombatSelect - mouse_button_released()"; };
     Debug("Released");
     using namespace Component;
-    auto reg = ge->registry();
     
     Component::Combat::Moving moving_sequence;
-    auto pos = reg->get_component<Pos>(m_controlled_entity);
+    auto pos = m_registry->get_component<Pos>(m_controlled_entity);
     
-    entt::entity start_tile_entity = reg->get_entity_on_check<Combat::CurrentlyHolding>([this](Combat::CurrentlyHolding c) {
+    entt::entity start_tile_entity = m_registry->get_entity_on_check<Combat::CurrentlyHolding>([this](Combat::CurrentlyHolding c) {
         return m_controlled_entity==c.value;
     });
 
-    Debug("Starting at " << reg->entity_name(start_tile_entity));
+    Debug("Starting at " << m_registry->entity_name(start_tile_entity));
     
     moving_sequence.moving_speed = 4;
     moving_sequence.directional_speed = {0,0};
     auto traversing_entity = m_tile_dest;
     while(traversing_entity!=entt::null) {
-        moving_sequence.dest_sequence.push_back(reg->unsafe_get_component<Pos>(traversing_entity));
-        traversing_entity = reg->unsafe_get_component<Combat::Node>(traversing_entity).parent;
+        moving_sequence.dest_sequence.push_back(m_registry->unsafe_get_component<Pos>(traversing_entity));
+        traversing_entity = m_registry->unsafe_get_component<Combat::Node>(traversing_entity).parent;
     }
 
     moving_sequence.sequence_step = moving_sequence.dest_sequence.size()-1;
     for(auto step : moving_sequence.dest_sequence) {
         Debug("Seq step: " << step);
     }
-    moving_sequence.on_reached_dest = [this, start_tile_entity](GameRegistry *reg) {
+    moving_sequence.on_reached_dest = [start_tile_entity, this](std::shared_ptr<GameRegistry> reg) {
         auto get_name = [&, start_tile_entity]() { return "On Dest Reached !"; };
         Info("Reached dest ! Removing from " << start_tile_entity);
         reg->unsafe_remove_component<Combat::CurrentlyHolding>(start_tile_entity);
@@ -240,12 +231,12 @@ bool CombatStatePlayerMovement::mouse_button_released(TacticalGame *ge, Engine::
         reg->unsafe_remove_component<Combat::Moving>(m_controlled_entity);
 
         // HACK
-        // switch to next state ?
+        reg->dispatcher.queue_event<do_state_change_playaction>();
     };
-    reg->unsafe_add_component<Combat::Moving>(m_controlled_entity, moving_sequence);
+    m_registry->unsafe_add_component<Combat::Moving>(m_controlled_entity, moving_sequence);
     return true;
 }
-bool CombatStatePlayerMovement::mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event)
+bool CombatStatePlayerMovement::mouse_button_pressed(Engine::MouseButtonPressedEvent &event)
 {
     auto get_name = []() { return "CombatSelect - mouse_button_pressed()"; };
     // HACK
@@ -258,20 +249,22 @@ bool CombatStatePlayerMovement::mouse_button_pressed(TacticalGame *ge, Engine::M
     // auto rect_h = sh * h;
     auto offs_x = (screen_w / 2) - (rect_w * tile_amt_x / 2);
     auto offs_y = (screen_h / 2) - (rect_h * tile_amt_y / 2);
-    auto reg = ge->registry();
     // TODO this logic can be remade
     for (auto [ent, pos, size, selectable, hoverable, node] :
-         reg->get().view<Component::Pos, Component::Size, Interaction::Selectable,
-         Interaction::Hoverable, Component::Combat::Node>()
+         m_registry->get()
+             .view<Component::Pos, Component::Size, Interaction::Selectable,
+                   Interaction::Hoverable, Component::Combat::Node>()
              .each()) {
-        
-        if (event.get_button() == Engine::MouseButtonEvent::MouseButton::LeftMouseButton) {
+
+        if (event.get_button() ==
+            Engine::MouseButtonEvent::MouseButton::LeftMouseButton) {
             if (hoverable.is_hovered) {
-                
+
                 return true;
             }
         }
-        if (event.get_button() == Engine::MouseButtonEvent::MouseButton::RightMouseButton) {
+        if (event.get_button() ==
+            Engine::MouseButtonEvent::MouseButton::RightMouseButton) {
             if (hoverable.is_hovered) {
                 auto x_normalized = ((pos.x - offs_x) / rect_w);
                 auto y_normalized = ((pos.y - offs_y) / rect_h);
@@ -288,20 +281,13 @@ bool CombatStatePlayerMovement::mouse_button_pressed(TacticalGame *ge, Engine::M
         }
     }
     return false;
-    }
-
-
-
-
-
+}
 
     // HACK for testing
-void CombatStatePlayerAction::update(TacticalGame *ge)
+void CombatStatePlayerAction::update()
 {
     // move entity to selected spot, one line at a time
     using namespace Component;
-
-    auto reg = ge->registry();
 }
 
 

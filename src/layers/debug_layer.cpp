@@ -5,7 +5,7 @@
 // #define PGEX_UI
 // #include "olc/olcPGEX_UI.h"
 
-DebugLayer::DebugLayer(TacticalGame *ge)
+DebugLayer::DebugLayer(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : Layer(ge, reg)
 {
     m_ui_manager.create_window("groupbox", "TEST", {0, 0}, {300, 400});
     m_ui_manager.find_window("groupbox")->disable_close(true);
@@ -60,7 +60,7 @@ DebugLayer::DebugLayer(TacticalGame *ge)
 
 DebugLayer::~DebugLayer() {}
 
-void DebugLayer::update(TacticalGame *ge)
+void DebugLayer::update()
 {
 
     //m_ui_manager.run();
@@ -68,21 +68,21 @@ void DebugLayer::update(TacticalGame *ge)
     // if()
 }
 
-void DebugLayer::draw(TacticalGame *) {}
+void DebugLayer::draw() {}
 
-void DebugLayer::on_event(TacticalGame *ge, Engine::Event &e)
+void DebugLayer::on_event(Engine::Event &e)
 {
     using namespace Engine;
     Error("This is an error");
-    EventDispatcher dispatcher(ge, e);
+    EventDispatcher dispatcher(e);
     dispatcher.Dispatch<MouseButtonReleasedEvent>(
-        [this](TacticalGame *ge, MouseButtonReleasedEvent &e) {
-            return mouse_button_released(ge, e);
+        [this](MouseButtonReleasedEvent &e) {
+            return mouse_button_released(e);
         });
 
     dispatcher.Dispatch<MouseButtonPressedEvent>(
-        [this](TacticalGame *ge, MouseButtonPressedEvent &e) {
-            return mouse_button_pressed(ge, e);
+        [this](MouseButtonPressedEvent &e) {
+            return mouse_button_pressed(e);
         });
 }
 // bool DebugLayer::key_released(TacticalGame *, KeyReleasedEvent &event) {
@@ -92,11 +92,11 @@ void DebugLayer::on_event(TacticalGame *ge, Engine::Event &e)
 
 // }
 
-bool DebugLayer::mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event)
+bool DebugLayer::mouse_button_released(Engine::MouseButtonReleasedEvent &event)
 {
     auto window_pos = m_ui_manager.find_window("groupbox")->get_position();
     auto window_size = m_ui_manager.find_window("groupbox")->get_window_space();
-    auto mouse = ge->GetMousePos();
+    auto mouse = m_game->GetMousePos();
     if (is_point_inside_rect(window_pos.x, window_pos.y, window_size.x, window_size.y,
                              mouse.x, mouse.y)) {
         Info("Released debug");
@@ -104,11 +104,11 @@ bool DebugLayer::mouse_button_released(TacticalGame *ge, Engine::MouseButtonRele
     }
     return false;
 }
-bool DebugLayer::mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event)
+bool DebugLayer::mouse_button_pressed(Engine::MouseButtonPressedEvent &event)
 {
     auto window_pos = m_ui_manager.find_window("groupbox")->get_position();
     auto window_size = m_ui_manager.find_window("groupbox")->get_window_space();
-    auto mouse = ge->GetMousePos();
+    auto mouse = m_game->GetMousePos();
     if (is_point_inside_rect(window_pos.x, window_pos.y, window_size.x, window_size.y,
                              mouse.x, mouse.y)) {
         Info("pressed debug");

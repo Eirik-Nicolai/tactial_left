@@ -9,18 +9,17 @@ class MenuLayer : public Layer
   public:
     GET_NAME(Layer, MenuLayer)
 
-    MenuLayer(TacticalGame *ge);
+    MenuLayer(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : Layer(ge, reg) {}
     virtual ~MenuLayer();
 
-    virtual void on_event(TacticalGame *, Engine::Event &event) override;
-
-    virtual void update(TacticalGame *) override;
-    virtual void draw(TacticalGame *) override;
+    virtual void on_event(Engine::Event &) override;
+    virtual void update() override;
+    virtual void draw() override;
 
   private:
-    bool key_released(TacticalGame *, Engine::KeyReleasedEvent &event);
-    bool key_pressed(TacticalGame *, Engine::KeyPressedEvent &event);
+    bool key_released(Engine::KeyReleasedEvent &event);
+    bool key_pressed(Engine::KeyPressedEvent &event);
 
-    bool mouse_button_released(TacticalGame *, Engine::MouseButtonReleasedEvent &event);
-    bool mouse_button_pressed(TacticalGame *, Engine::MouseButtonPressedEvent &event);
+    bool mouse_button_released(Engine::MouseButtonReleasedEvent &event);
+    bool mouse_button_pressed(Engine::MouseButtonPressedEvent &event);
 };

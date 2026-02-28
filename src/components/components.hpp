@@ -96,7 +96,19 @@ Size size;
 
 namespace World
 {
+Component(Camera) // {
+    Pos camera_pos;
+
+    bool is_panning;
+    olc::vf2d world_scale;
+
+    // add tweening pos -> pos
+    // add tweening size -> size
+    // add culling of sprites ?
 };
+};
+
+
 struct Orbiting {
     entt::entity anchor;
     float dist;

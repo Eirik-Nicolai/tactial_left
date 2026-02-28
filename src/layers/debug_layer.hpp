@@ -13,19 +13,19 @@ class DebugLayer : public Layer
   public:
     GET_NAME(Layer, MenuLayer)
 
-    DebugLayer(TacticalGame *ge);
+    DebugLayer(TacticalGame* ge, std::shared_ptr<GameRegistry> reg);
     virtual ~DebugLayer();
 
-    virtual void on_event(TacticalGame *, Engine::Event &) override;
-    virtual void update(TacticalGame *) override;
-    virtual void draw(TacticalGame *) override;
+    virtual void on_event(Engine::Event &) override;
+    virtual void update() override;
+    virtual void draw() override;
 
   private:
-    // bool key_released(TacticalGame *, KeyReleasedEvent &event);
-    // bool key_pressed(TacticalGame *, KeyPressedEvent &event);
+    // bool key_released(KeyReleasedEvent &event);
+    // bool key_pressed(KeyPressedEvent &event);
 
-    bool mouse_button_released(TacticalGame *, Engine::MouseButtonReleasedEvent &event);
-    bool mouse_button_pressed(TacticalGame *, Engine::MouseButtonPressedEvent &event);
+    bool mouse_button_released(Engine::MouseButtonReleasedEvent &event);
+    bool mouse_button_pressed(Engine::MouseButtonPressedEvent &event);
 
     // TODO do later
     olc::FrostUI m_ui_manager;

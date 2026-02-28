@@ -26,7 +26,7 @@ Component(Moving) //{
 
     Pos directional_speed; // TODO change type to smth else
     int moving_speed;
-    std::function<void(GameRegistry*)> on_reached_dest;
+    std::function<void(std::shared_ptr<GameRegistry>)> on_reached_dest;
 };
 
 

@@ -3,31 +3,30 @@
 #include "engine/mouse_event.hpp"
 #include "utils/geometry.hpp"
 
-MenuLayer::MenuLayer(TacticalGame *ge) {}
 MenuLayer::~MenuLayer() {}
 
-void MenuLayer::on_event(TacticalGame *ge, Engine::Event &event)
+void MenuLayer::on_event(Engine::Event &event)
 {
-    Engine::EventDispatcher dispatcher(ge, event);
+    Engine::EventDispatcher dispatcher(event);
     dispatcher.Dispatch<Engine::MouseButtonReleasedEvent>(
-        [this](TacticalGame *ge, Engine::MouseButtonReleasedEvent &e) {
-            return mouse_button_released(ge, e);
+        [this](Engine::MouseButtonReleasedEvent &e) {
+            return mouse_button_released(e);
         });
 
     dispatcher.Dispatch<Engine::MouseButtonPressedEvent>(
-        [this](TacticalGame *ge, Engine::MouseButtonPressedEvent &e) {
-            return mouse_button_pressed(ge, e);
+        [this](Engine::MouseButtonPressedEvent &e) {
+            return mouse_button_pressed(e);
         });
 }
 
-void MenuLayer::update(TacticalGame *ge) {}
-void MenuLayer::draw(TacticalGame *ge) { } //ge->FillRect({100, 100}, {300, 300}); }
+void MenuLayer::update() {}
+void MenuLayer::draw() { } //ge->FillRect({100, 100}, {300, 300}); }
 
-bool MenuLayer::mouse_button_released(TacticalGame *ge, Engine::MouseButtonReleasedEvent &event)
+bool MenuLayer::mouse_button_released(Engine::MouseButtonReleasedEvent &event)
 {
     auto window_pos = olc::vf2d(100, 100);
     auto window_size = olc::vf2d(300, 300);
-    auto mouse = ge->GetMousePos();
+    auto mouse = m_game->GetMousePos();
     if (is_point_inside_rect(window_pos.x, window_pos.y, window_size.x, window_size.y,
                              mouse.x, mouse.y)) {
         Info("Released menu square");
@@ -35,11 +34,11 @@ bool MenuLayer::mouse_button_released(TacticalGame *ge, Engine::MouseButtonRelea
     }
     return false;
 }
-bool MenuLayer::mouse_button_pressed(TacticalGame *ge, Engine::MouseButtonPressedEvent &event)
+bool MenuLayer::mouse_button_pressed(Engine::MouseButtonPressedEvent &event)
 {
     auto window_pos = olc::vf2d(100, 100);
     auto window_size = olc::vf2d(300, 300);
-    auto mouse = ge->GetMousePos();
+    auto mouse = m_game->GetMousePos();
     if (is_point_inside_rect(window_pos.x, window_pos.y, window_size.x, window_size.y,
                              mouse.x, mouse.y)) {
         Info("Pressed menu square");
