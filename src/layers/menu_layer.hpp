@@ -9,7 +9,7 @@ class MenuLayer : public Layer
   public:
     GET_NAME(Layer, MenuLayer)
 
-    MenuLayer(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : Layer(ge, reg) {}
+    MenuLayer(TacticalGame* ge, std::shared_ptr<GameRegistry> reg);
     virtual ~MenuLayer();
 
     virtual void on_event(Engine::Event &) override;

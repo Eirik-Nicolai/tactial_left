@@ -16,6 +16,7 @@ set(SRC_MAIN
     src/game.cpp
     src/main.cpp
     src/logger.cpp
+    src/asset_manager.cpp
 )
 
 set(SRC_LAYERS

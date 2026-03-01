@@ -73,7 +73,6 @@ void DebugLayer::draw() {}
 void DebugLayer::on_event(Engine::Event &e)
 {
     using namespace Engine;
-    Error("This is an error");
     EventDispatcher dispatcher(e);
     dispatcher.Dispatch<MouseButtonReleasedEvent>(
         [this](MouseButtonReleasedEvent &e) {
@@ -112,7 +111,7 @@ bool DebugLayer::mouse_button_pressed(Engine::MouseButtonPressedEvent &event)
     if (is_point_inside_rect(window_pos.x, window_pos.y, window_size.x, window_size.y,
                              mouse.x, mouse.y)) {
         Info("pressed debug");
-        return true;
+        return false;
     }
     return false;
 }

@@ -6,6 +6,8 @@
 #include "utils/geometry.hpp"
 #include "utils/complex_datatypes.hpp"
 
+#include "asset_manager.hpp"
+
 using namespace PlayingState;
 
 class TestInput : public Input
@@ -192,19 +194,21 @@ CombatState::CombatState(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : 
 
     auto path_1 = "assets/Cute_Fantasy_Free/Player/Player.png";
     auto player = reg->create_entity("Player");
-    auto player_decal_index = ge->load_decal(path_1, false, true);
-    if(!player_decal_index){
-        Error("Loading decal returned " << player_decal_index.error());
-        throw std::runtime_error("");
+    std::string player_decal;
+    try {
+        player_decal = AssetManager::instance().load_sprite_sheet(path_1, "User Sprite sheet 1");
+    } catch (std::exception &e) {
+        Error("Unable to load image at path " << path_1);
+        throw e;
     }
     
-    Debug("LOADED SPRITE " << player_decal_index.value());
+    Debug("LOADED SPRITE " << player_decal);
 
     reg->add_component<Pos>(player, 50.f, 50.f);
     reg->add_component<Size>(player, 300.f, 300.f);
    
     Debug("creating rendering manager");
-    reg->add_component<Rendering::Spritesheet>(player, player_decal_index.value(), Size(32,32));
+    reg->add_component<Rendering::Spritesheet>(player, player_decal, Size(32,32));
 
     Rendering::RenderingManager rendering_manager;
     // rendering_manager.sprite_sheet = player;

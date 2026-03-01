@@ -1134,7 +1134,7 @@ namespace olc
 	class Decal
 	{
 	public:
-		Decal(olc::Sprite* spr, bool filter = false, bool clamp = true);
+		Decal(olc::Sprite* spr = nullptr, bool filter = false, bool clamp = true);
 		Decal(const uint32_t nExistingTextureResource, olc::Sprite* spr);
 		virtual ~Decal();
 		void Update();

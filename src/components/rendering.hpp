@@ -24,7 +24,7 @@ namespace Terrain
 };
 
 Component(Spritesheet)
-    unsigned decal_index;
+    std::string decal_index;
     Size pixel_frame_size;
 };
 

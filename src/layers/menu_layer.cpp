@@ -3,6 +3,11 @@
 #include "engine/mouse_event.hpp"
 #include "utils/geometry.hpp"
 
+MenuLayer::MenuLayer(TacticalGame *ge, std::shared_ptr<GameRegistry> reg) : Layer(ge, reg)
+{
+}
+
+
 MenuLayer::~MenuLayer() {}
 
 void MenuLayer::on_event(Engine::Event &event)
@@ -20,7 +25,7 @@ void MenuLayer::on_event(Engine::Event &event)
 }
 
 void MenuLayer::update() {}
-void MenuLayer::draw() { } //ge->FillRect({100, 100}, {300, 300}); }
+void MenuLayer::draw() { m_game->FillRect({100, 100}, {300, 300}); }
 
 bool MenuLayer::mouse_button_released(Engine::MouseButtonReleasedEvent &event)
 {

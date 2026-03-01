@@ -7,6 +7,7 @@
 
 #include "utils/ecs.hpp"
 
+#include "asset_manager.hpp"
 
 using namespace Component;
 
@@ -203,13 +204,13 @@ void render_closest_layer(TacticalGame *ge)
          reg->get()
              .view<Pos, Size, Rendering::Spritesheet, Rendering::RenderingManager>()
              .each()) {
-        auto d = ge->get_decal(sheet.decal_index);
-        // d->UpdateSprite(); idk if this is needed
         if (ge->animation_tick()) {
             Trace("Entity(" << reg->entity_name(ent) << ") "
                             << "pos_sprite_sheet:" << mng.pos_sprite_sheet);
         }
-        tv->DrawPartialDecal(pos, d.get(), mng.pos_sprite_sheet, sheet.pixel_frame_size,
+        auto decal = AssetManager::instance().get_spritesheet(sheet.decal_index);
+        // d->UpdateSprite(); idk if this is needed
+        tv->DrawPartialDecal(pos, decal.get(), mng.pos_sprite_sheet, sheet.pixel_frame_size,
                              {3.f, 3.f});
     }
 

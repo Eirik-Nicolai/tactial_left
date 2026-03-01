@@ -1,17 +1,13 @@
 #pragma once
 #include "olc/olcPixelGameEngine.h"
 #include "olc/olcPGEX_TransformedView.h"
-#include <expected>
 #include "registry/registry.hpp"
-
-#include "logger.hpp"
 #include "layers/layer.hpp"
 #include "systems/system.hpp"
 
 
 class Layer;
 
-constexpr auto MAX_SPRITE_SHEETS = 200;
 constexpr auto ANIMATION_TICK_TIME = 0.017;
 class TacticalGame : public olc::PixelGameEngine
 {
@@ -26,36 +22,6 @@ class TacticalGame : public olc::PixelGameEngine
     bool OnUserUpdate(float) override;
 
   public:
-    std::expected<int, std::string> load_decal(const std::string &sprite_path,
-                                               bool filter, bool clamp)
-    {
-        Debug("Loading " << sprite_path << " to index " << m_decals_amount);
-        // TODO check mem leak and better way of loading/unloading sprites
-        auto sprite = new olc::Sprite();
-        if (sprite->LoadFromFile(sprite_path)) {
-            Debug("Adding to " << m_decals_amount);
-            m_decals[m_decals_amount] = 
-                std::make_shared<olc::Decal>(sprite, filter, clamp);
-            return m_decals_amount++;
-        }
-        return std::unexpected<std::string>("Unable to load sprite");
-    }
-
-    void unload_decals()
-    {
-        Debug("Unloading " << m_decals_amount << " decals");
-
-        while (m_decals_amount != 0)
-            m_decals[m_decals_amount--].reset();
-    }
-
-    std::shared_ptr<olc::Decal> get_decal(int index)
-    {
-        if (index >= m_decals_amount)
-            return nullptr;
-        return m_decals[index];
-    }
-
     // Spritesheet load_spritesheet(const std::string& sprite_sheet_path,
     //                           int pixel_frame_width,
     //                           int pixel_frame_height) {
@@ -111,8 +77,8 @@ class TacticalGame : public olc::PixelGameEngine
     unsigned m_system_managers_amount;
     std::array<std::unique_ptr<SystemManager>, MAX_SYSTEM_AMOUNT> m_system_managers;
 
-    unsigned m_decals_amount;
-    std::array<std::shared_ptr<olc::Decal>, MAX_SPRITE_SHEETS> m_decals;
+    // unsigned m_decals_amount;
+    // std::array<std::shared_ptr<olc::Decal>, MAX_SPRITE_SHEETS> m_decals;
     // std::deque<std::unique_ptr<olc::Decal>> m_decals;
 
     bool m_animation_tick = false;

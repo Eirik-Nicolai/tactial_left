@@ -24,7 +24,6 @@ TacticalGame::TacticalGame()
     sAppName = "TACTICAL LEFTIST";
 
     m_system_managers_amount = 0;
-    m_decals_amount = 0;
 
     m_registry = std::make_unique<GameRegistry>();
 }
@@ -58,8 +57,8 @@ bool TacticalGame::OnUserCreate()
     Debug("Setting init state");
 
     add_layer<GameLayer>();
-    // add_layer<MenuLayer>();
-    // add_layer<DebugLayer>();
+    add_layer<MenuLayer>();
+    add_layer<DebugLayer>();
 
     Debug("Initiating systems");
 

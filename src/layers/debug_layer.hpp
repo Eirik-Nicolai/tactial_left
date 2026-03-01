@@ -11,7 +11,7 @@
 class DebugLayer : public Layer
 {
   public:
-    GET_NAME(Layer, MenuLayer)
+    GET_NAME(Layer, DebugLayer)
 
     DebugLayer(TacticalGame* ge, std::shared_ptr<GameRegistry> reg);
     virtual ~DebugLayer();
