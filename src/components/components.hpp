@@ -4,6 +4,9 @@
 
 #include <string>
 
+class GameRegistry;
+using EcsCallback = std::function<bool(std::shared_ptr<GameRegistry>, entt::entity)>;
+
 // ------------------------------------------------
 // |    COMPONENTS FOR ECS SYSTEM MAIN FILE
 // |    Naming:
@@ -89,7 +92,7 @@ operator olc::vf2d() const { return olc::vf2d(x, y); };
 operator olc::vi2d() const { return olc::vi2d(x, y); };
 };
 
-Component(Renderable)
+Component(Box)
 Pos pos;
 Size size;
 };

@@ -230,13 +230,24 @@ void PostRenderer::execute(TacticalGame *ge) { LOG_FUNC }
 
 void GUIRenderer::execute(TacticalGame *ge)
 {
+    using namespace Component;
     auto reg = ge->registry();
     auto tv = ge->get_tv();
     ge->SetDrawTarget(ge->layer_gui.get());
 
-    // for(auto &&[ent, pos, size] : reg->get().view<Pos, Size,
-    // Rendering::GUI::_container>().each())
-    // {
-    //     tv->DrawCircle(pos.x, pos.y, size.h);
-    // }
+    for (auto &&[ent, pos, size] :
+         reg->get().view<GUI::Pos, GUI::Size, GUI::_is_gui>().each()) {
+        std::shared_ptr<olc::Decal> d;
+        if (auto ptr = reg->get_component<Rendering::Texture>(ent); ptr != nullptr) {
+            d = AssetManager::instance().get_texture(ptr->decal_index);
+        }
+        if (auto ptr = reg->get_component<Rendering::TextureList>(ent); ptr != nullptr) {
+            auto index = ptr->textures[ptr->curr_texture];
+            d = AssetManager::instance().get_texture(index);
+        }
+        ge->FillRect(pos.x, pos.y, 40, 40, olc::RED);
+        // Info("Decal h:" << d->height << " id:" << d->id);
+        ge->DrawDecal(pos, d.get());
+    }
 }
+

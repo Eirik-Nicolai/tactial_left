@@ -144,8 +144,6 @@ CombatState::CombatState(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : 
             std::stringstream ss;
             ss << "("<<x<<"," << y <<")";
             entt::entity tile = reg->create_entity(ss.str().c_str());
-            reg->add_component<Interaction::Selectable>(tile, false);
-            reg->add_component<Interaction::Hoverable>(tile, false);
 
             Pos p;
             p.x = offs_x + (x * rect_w);
@@ -163,7 +161,20 @@ CombatState::CombatState(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : 
             Rendering::Wireframe wire;
             wire.color = olc::DARK_RED;
             wire.type = Rendering::Wireframe::TYPE::SQUARE;
-            reg->add_component<Rendering::Wireframe>(tile, wire);
+
+            Interaction::Selectable select;
+            select.on_left_select = nullptr;
+            select.on_middle_select = nullptr;
+            select.on_right_select = [this,
+                                      name = ss.str()](std::shared_ptr<GameRegistry> reg,
+                                                       entt::entity me) {
+                auto get_name = [name]() { return name; };
+                auto node = reg->unsafe_get_component<Combat::Node>(me);
+                node.is_obstacle = !node.is_obstacle;
+
+                return true;
+            };
+            reg->add_component<Interaction::Selectable>(tile, select);
             combat_tiles[x + (tile_amt_x * y)] = tile;
         }
 

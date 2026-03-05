@@ -60,7 +60,7 @@ class TacticalGame : public olc::PixelGameEngine
     // void pop_state();
     // void change_state(GameState* state);
 
-    GameRegistry* registry() { return m_registry.get(); }
+    std::shared_ptr<GameRegistry> registry() { return m_registry; }
     std::shared_ptr<olc::TileTransformedView> get_tv() { return tvp; }
 
     std::unique_ptr<olc::Sprite> layer_bg;
@@ -87,8 +87,9 @@ class TacticalGame : public olc::PixelGameEngine
 
     // HACK move to system
     bool camera_is_panning = false;
-    
+
     olc::vi2d prev_mouse_pos;
-    int min_distance = 15; // in pixels
+    int min_distance = 5; // in pixels
+
   private: // DEBUGGING HELPER FUNCTIONS
 };

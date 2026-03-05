@@ -22,4 +22,5 @@ class MenuLayer : public Layer
 
     bool mouse_button_released(Engine::MouseButtonReleasedEvent &event);
     bool mouse_button_pressed(Engine::MouseButtonPressedEvent &event);
+    bool mouse_moved(Engine::MouseMovedEvent &event);
 };

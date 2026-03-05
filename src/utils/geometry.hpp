@@ -23,6 +23,13 @@ inline bool is_point_inside_rect(int rect_x, int rect_y, int rect_w, int rect_h,
     return false;
 }
 
+inline bool is_point_inside_rect(Component::Box b, int px, int py)
+{
+    // Compare radius of circle with distance
+    // of its center from given point
+    return is_point_inside_rect(b.pos.x,b.pos.y,b.size.w,b.size.h, px, py);
+}
+
 template <typename Position, typename Size, typename OtherPosition>
 inline bool is_point_inside_rect(Position rect_pos, Size rect_size,
                                  OtherPosition mouse_pos)

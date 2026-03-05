@@ -1,7 +1,7 @@
 #pragma once
 #include "game.hpp"
 #include "utils/debugging.hpp"
-
+#include "logger.hpp"
 class TacticalGame;
 constexpr auto MAX_SYSTEM_AMOUNT = 20;
 class System
@@ -32,10 +32,9 @@ class SystemManager
     {
         // Debug("Adding to list of {}, size: {}", get_name(), m_system_amount);
         if (m_system_amount < m_systems.max_size()) {
-            m_systems[m_system_amount] = std::move(system);
-            m_system_amount++;
+            m_systems[m_system_amount++] = std::move(system);
         } else {
-            // Error("System manager {} is full !", get_name());
+            Error("System manager is full !");
         }
     }
 

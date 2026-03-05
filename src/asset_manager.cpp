@@ -21,7 +21,7 @@ std::string AssetManager::load_sprite_sheet(const std::string &sprite_path,
     Debug("Loading " << sprite_path << " to index " << m_loaded_sprite_sheets.size());
     // TODO check mem leak and better way of loading/unloading sprites
     auto sprite = new olc::Sprite();
-    if (sprite->LoadFromFile(sprite_path)) {
+    if (sprite->LoadFromFile(sprite_path) == olc::rcode::OK) {
         Debug("Loading sprite sheet {" << sprite_path << "}");
         m_loaded_sprite_sheets.emplace_back(
             std::make_shared<olc::Decal>(sprite, filter, clamp));
@@ -44,7 +44,7 @@ std::string AssetManager::load_texture(const std::string &sprite_path,
     Debug("Loading " << sprite_path << " to index " << m_loaded_textures.size());
     // TODO check mem leak and better way of loading/unloading sprites
     auto sprite = new olc::Sprite();
-    if (sprite->LoadFromFile(sprite_path)) {
+    if (sprite->LoadFromFile(sprite_path) == olc::rcode::OK) {
         Debug("Loading sprite sheet {" << sprite_path << "} " << friendly_name);
         m_loaded_textures.emplace_back(
             std::make_shared<olc::Decal>(sprite, filter, clamp));
@@ -64,8 +64,8 @@ void AssetManager::unload_decals()
 {
     Warn("Function unload_decals not implemented");
     // Debug("Unloading " << m_loaded_assets.size() << " decals");
-    // m_loaded_assets.clear();
-    // m_name_to_asset_index.clear();
+    m_loaded_textures.clear();
+    m_name_to_asset_index.clear();
 }
 
 std::shared_ptr<olc::Decal> AssetManager::get_spritesheet(const std::string& key)
@@ -84,4 +84,9 @@ std::shared_ptr<olc::Decal> AssetManager::get_texture(const std::string& key)
         throw std::runtime_error("Key not tied to loaded texture");
     }
     return m_loaded_textures[m_name_to_asset_index[key]];
+}
+
+std::pair<int, int> AssetManager::get_texture_size(const std::string& key) {
+    auto d = get_texture(key);
+    return std::make_pair(d->width, d->height);
 }

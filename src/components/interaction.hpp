@@ -1,15 +1,17 @@
-#ifndef INTERACTION_H_
-#define INTERACTION_H_
+#pragma once
 #include "components.hpp"
-namespace Interaction
+namespace Component::Interaction
 {
 Component(Hoverable)
+    Box boundaries;
     bool is_hovered;
+    EcsCallback on_mouse_hover;
+    EcsCallback on_mouse_exit;
 };
+
 Component(Selectable)
-    bool is_selected;
+    EcsCallback on_left_select;
+    EcsCallback on_middle_select;
+    EcsCallback on_right_select;
 };
-
 }; // namespace Interaction
-
-#endif // INTERACTION_H_

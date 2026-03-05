@@ -26,6 +26,8 @@ class GameLayer : public Layer
     bool mouse_button_released(Engine::MouseButtonReleasedEvent &event);
     bool mouse_button_pressed(Engine::MouseButtonPressedEvent &event);
 
+    bool mouse_moved(Engine::MouseMovedEvent &event);
+
     // void on_state_change(state_change);
     // void on_state_change_func(state_change_func);
     void on_state_change_playaction(do_state_change_playaction);

@@ -39,9 +39,9 @@
         LOG(LOG_TRACE(), _1)
 
 //// utils functions ////
-// #define HorizontalLine()                                                                 \
-//     std::cout                                                                            \
-//         << "[-------------------------------------------------------------------------]"
+#define HorizontalLine()                                                                 \
+    std::cout                                                                            \
+        << "[-------------------------------------------------------------------------]\n"
 
 // #define HorizontalLine(_1)                                                               \
 //     std::cout <<                                                                            \

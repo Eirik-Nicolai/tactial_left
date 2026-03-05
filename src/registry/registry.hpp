@@ -1,8 +1,6 @@
 #include "entt/entt.hpp"
 #include "logger.hpp"
 #include "components/debugging.hpp"
-#include "components/rendering.hpp"
-#include "components/components.hpp"
 
 /// TODO use to serialize+save, unload and load registry
 /// states for different game states
@@ -303,7 +301,7 @@ class GameRegistry
     bool has_component(entt::entity e)
     {
         if(e==entt::null) return false;
-        return get_component<C>(e) != nullptr;
+        return m_reg.all_of<C>(e);
     }
 
     //                             //

@@ -28,6 +28,15 @@ Component(Spritesheet)
     Size pixel_frame_size;
 };
 
+Component(Texture)
+    std::string decal_index;
+};
+Component(TextureList)
+    std::array<std::string, 20> textures;
+    size_t curr_texture;
+    size_t amt_texture;
+};
+
 Component(RenderingManager)
 
     // entt::entity sprite_sheet;
