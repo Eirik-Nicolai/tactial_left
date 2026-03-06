@@ -17,25 +17,25 @@ namespace PlayingState
 {
 class CombatState : public GameState
 {
-    GET_NAME(GameState, Combatstate)
+    GET_NAME(GameState, CombatstateBase)
 
     /// --------- STATE LOGIC --------- ///
   public:
-    CombatState(TacticalGame*, std::shared_ptr<GameRegistry> registry);
-    ~CombatState();
+    CombatState(TacticalGame* ge, std::shared_ptr<GameRegistry> registry) : GameState(ge, registry) {};
+    ~CombatState() {LOG_FUNC};
 
     virtual void handle_input(Engine::Event &) override;
 
     virtual void pause() override;
     virtual void resume() override;
 
-    virtual void draw(TacticalGame *ge) override;
+    virtual void draw() override;
     virtual void update() override; // ?
 
     /// ------ PRIVATE LOGIC ------ ///
   protected:
     float sElapsedTime; // useful for debugging
-    void solve_a_star(std::shared_ptr<GameRegistry> reg);
+    void solve_a_star();
 
     bool mouse_button_released(Engine::MouseButtonReleasedEvent &event);
     bool mouse_button_pressed(Engine::MouseButtonPressedEvent &event);

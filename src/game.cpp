@@ -19,7 +19,7 @@
 #include "layers/menu_layer.hpp"
 #include "layers/debug_layer.hpp"
 
-TacticalGame::TacticalGame()
+TacticalGame::TacticalGame(bool pause_update) : m_pause_update(pause_update)
 {
     sAppName = "TACTICAL LEFTIST";
 
@@ -48,6 +48,8 @@ bool TacticalGame::OnUserCreate()
     tvp->SetWorldOffset(olc::vi2d(0.f, 0.f) -
                         (tvp->ScaleToWorld({ScreenWidth() / 2.f, ScreenHeight() / 2.f})));
 
+    SetPixelMode(olc::Pixel::ALPHA);
+    
     Component::World::Camera c;
     c.camera_pos = {0,0};
     c.world_scale = {0,0};
@@ -87,74 +89,89 @@ bool TacticalGame::OnUserCreate()
 #include "components/animation.hpp"
 bool TacticalGame::OnUserUpdate(float dt)
 {
-    // HACK for testing
-    Clear(olc::BLACK);
+    if (!m_pause_update || (m_pause_update && GetKey(olc::Key::SPACE).bHeld)) {
+        // HACK for testing
+        Clear(olc::BLACK);
 
-    m_animation_tick = m_fElapsedTime > ANIMATION_TICK_TIME;
-    if (m_animation_tick)
-        m_fElapsedTime = 0;
-    else
-        m_fElapsedTime += dt;
-    // HACK testing animation manager
-    if (GetKey(olc::Key::P).bReleased) // && CURR_STATE->get_name()!="InitState") {
-    {
-        for (auto [ent, mng, list] : m_registry->get()
-                                         .view<Component::Animation::AnimManager,
-                                               Component::Animation::AnimationList>()
-                                         .each()) {
-            if (mng.index_curren_animation == 2)
-                mng.index_curren_animation = 0;
-            else
-                mng.index_curren_animation++;
-            mng.curr_animation = list.animations[mng.index_curren_animation];
-            mng.index_curren_frame = 0;
+        // At the beginning of the frame we deal with all events that were pushed
+        if(!m_event_queue.empty()) {
+            while(!m_event_queue.empty()) {
+                auto e = m_event_queue.front();
+                for (auto &layer : std::views::reverse(m_layers)) {
+                    auto &event = *e;
+                    layer->on_event(event);
+                    if (event.consumed)
+                        break;
+                }
+
+                // TODO this is kind of a HACK could use a queue or smth
+                m_event_queue.erase(m_event_queue.begin());
+            }
         }
-    }
 
-    handle_inputs();
-
-    // for (auto &layer : std::views::reverse(m_layers)) {
-    for (auto &layer : m_layers) {
-        layer->update();
-        layer->draw();
-    }
-
-    for (int i = 0; i < m_system_managers_amount; ++i) {
-        m_system_managers[i]->dispatch(this);
-    }
-
-    // dispatch possible events
-    m_registry->update(dt);
-
-    // HACK move to a camera system
-    Component::World::Camera camera;
-    auto has_camera = m_registry->get_world_component<Component::World::Camera>(camera);
-    if(has_camera) {
-        if (camera.is_panning) {
-            auto pos_mouse = GetMousePos();
-            get_tv()->UpdatePan(pos_mouse);
+        m_animation_tick = m_fElapsedTime > ANIMATION_TICK_TIME;
+        if (m_animation_tick)
+            m_fElapsedTime = 0;
+        else
+            m_fElapsedTime += dt;
+        // HACK testing animation manager
+        if (GetKey(olc::Key::P).bReleased) // && CURR_STATE->get_name()!="InitState") {
+        {
+            for (auto [ent, mng, list] : m_registry->get()
+                                             .view<Component::Animation::AnimManager,
+                                                   Component::Animation::AnimationList>()
+                                             .each()) {
+                if (mng.index_curren_animation == 2)
+                    mng.index_curren_animation = 0;
+                else
+                    mng.index_curren_animation++;
+                mng.curr_animation = list.animations[mng.index_curren_animation];
+                mng.index_curren_frame = 0;
+            }
         }
-        if (camera.is_panning && !camera_is_panning) {
-            camera_is_panning = true;
-            get_tv()->StartPan(GetMousePos());
-        } else if (!camera.is_panning && camera_is_panning) {
-            camera_is_panning = false;
-            get_tv()->EndPan(GetMousePos());
+
+        handle_inputs();
+
+        // for (auto &layer : std::views::reverse(m_layers)) {
+        for (auto &layer : m_layers) {
+            layer->update();
+            layer->draw();
         }
+
+        for (int i = 0; i < m_system_managers_amount; ++i) {
+            m_system_managers[i]->dispatch(this);
+        }
+
+        // dispatch possible events
+        m_registry->update(dt);
+
+        // HACK move to a camera system
+        Component::World::Camera camera;
+        auto has_camera =
+            m_registry->get_world_component<Component::World::Camera>(camera);
+        if (has_camera) {
+            if (camera.is_panning) {
+                auto pos_mouse = GetMousePos();
+                get_tv()->UpdatePan(pos_mouse);
+            }
+            if (camera.is_panning && !camera_is_panning) {
+                camera_is_panning = true;
+                get_tv()->StartPan(GetMousePos());
+            } else if (!camera.is_panning && camera_is_panning) {
+                camera_is_panning = false;
+                get_tv()->EndPan(GetMousePos());
+            }
+        }
+        m_animation_tick = false;
     }
-    m_animation_tick = false;
-    return true;
+    return true;    
 }
 
-void TacticalGame::raise_event(Engine::Event &event)
+void TacticalGame::raise_event(std::shared_ptr<Engine::Event> event)
 {
     // traverse the states in descending order and give them the event
     // to let them handle it as they see fit
-    for (auto &layer : std::views::reverse(m_layers)) {
-        layer->on_event(event);
-        if (event.consumed)
-            break;
-    }
+    m_event_queue.push_back(event);
 }
 
 void TacticalGame::handle_inputs()
@@ -165,57 +182,85 @@ void TacticalGame::handle_inputs()
     // to be used instead of olc_UpdateMouseState so we don't have to
     // poll everything individually
     if (GetKey(olc::Key::L).bPressed) {
-        Error("Pressed " << (int)olc::Key::L);
-        Engine::KeyPressedEvent event((int)olc::Key::L, false);
+        auto event = std::make_shared<Engine::KeyPressedEvent>((int)olc::Key::L, false);
         raise_event(event);
     }
     if (GetKey(olc::Key::L).bReleased) {
-        Engine::KeyReleasedEvent event((int)olc::Key::L);
+        auto event = std::make_shared<Engine::KeyReleasedEvent>((int)olc::Key::L);
         raise_event(event);
     }
+    if (GetKey(olc::Key::SPACE).bPressed) {
+        auto event = std::make_shared<Engine::KeyPressedEvent>((int)olc::Key::SPACE, false);
+        raise_event(event);
+    }
+    if (GetKey(olc::Key::SPACE).bReleased) {
+        auto event = std::make_shared<Engine::KeyReleasedEvent>((int)olc::Key::SPACE);
+        raise_event(event);
+    }
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
     if (GetMouse(MOUSE_LBUTTON).bPressed) {
-        auto mouse_pos =
+        auto screen_mouse_pos = GetMousePos();
+        auto world_mouse_pos =
             get_tv()->ScaleToWorld(GetMousePos()) + get_tv()->GetWorldOffset();
-        Engine::MouseButtonPressedEvent event(mouse_pos.x, mouse_pos.y,
+        auto event = std::make_shared<Engine::MouseButtonPressedEvent>(screen_mouse_pos.x, screen_mouse_pos.y,
+                                              world_mouse_pos.x, world_mouse_pos.y,
                                               MOUSE_LBUTTON);
         raise_event(event);
     }
     if (GetMouse(MOUSE_LBUTTON).bReleased) {
-        auto mouse_pos =
+        auto screen_mouse_pos = GetMousePos();
+        auto world_mouse_pos =
             get_tv()->ScaleToWorld(GetMousePos()) + get_tv()->GetWorldOffset();
-        Engine::MouseButtonReleasedEvent event(mouse_pos.x, mouse_pos.y,
+        auto event = std::make_shared<Engine::MouseButtonReleasedEvent>(screen_mouse_pos.x, screen_mouse_pos.y,
+                                               world_mouse_pos.x, world_mouse_pos.y,
                                                MOUSE_LBUTTON);
         raise_event(event);
     }
     // if(GetMouse(MOUSE_LBUTTON).bHeld)     { Engine::MouseButtonPressedEvent
     // event(MOUSE_LBUTTON); raise_event(event); }
     if (GetMouse(MOUSE_RBUTTON).bPressed) {
-        auto mouse_pos =
+        auto screen_mouse_pos = GetMousePos();
+        auto world_mouse_pos =
             get_tv()->ScaleToWorld(GetMousePos()) + get_tv()->GetWorldOffset();
-        Engine::MouseButtonPressedEvent event(mouse_pos.x, mouse_pos.y,
+        auto event = std::make_shared<Engine::MouseButtonPressedEvent>(screen_mouse_pos.x, screen_mouse_pos.y,
+                                              world_mouse_pos.x, world_mouse_pos.y,
                                               MOUSE_RBUTTON);
         raise_event(event);
     }
     if (GetMouse(MOUSE_RBUTTON).bReleased) {
-        auto mouse_pos =
+        auto screen_mouse_pos = GetMousePos();
+        auto world_mouse_pos =
             get_tv()->ScaleToWorld(GetMousePos()) + get_tv()->GetWorldOffset();
-        Engine::MouseButtonReleasedEvent event(mouse_pos.x, mouse_pos.y,
+        auto event = std::make_shared<Engine::MouseButtonReleasedEvent>(screen_mouse_pos.x, screen_mouse_pos.y,
+                                               world_mouse_pos.x, world_mouse_pos.y,
                                                MOUSE_RBUTTON);
         raise_event(event);
     }
     // if(GetMouse(MOUSE_RBUTTON).bHeld)     { Engine::MouseButtonPressedEvent
     // event(MOUSE_LBUTTON); raise_event(event); }
     if (GetMouse(MOUSE_MBUTTON).bPressed) {
-        auto mouse_pos =
+        auto screen_mouse_pos = GetMousePos();
+        auto world_mouse_pos =
             get_tv()->ScaleToWorld(GetMousePos()) + get_tv()->GetWorldOffset();
-        Engine::MouseButtonPressedEvent event(mouse_pos.x, mouse_pos.y,
+        auto event = std::make_shared<Engine::MouseButtonPressedEvent>(screen_mouse_pos.x, screen_mouse_pos.y,
+                                              world_mouse_pos.x, world_mouse_pos.y,
                                               MOUSE_MBUTTON);
         raise_event(event);
     }
     if (GetMouse(MOUSE_MBUTTON).bReleased) {
-        auto mouse_pos =
+        auto screen_mouse_pos = GetMousePos();
+        auto world_mouse_pos =
             get_tv()->ScaleToWorld(GetMousePos()) + get_tv()->GetWorldOffset();
-        Engine::MouseButtonReleasedEvent event(mouse_pos.x, mouse_pos.y,
+        auto event = std::make_shared<Engine::MouseButtonReleasedEvent>(screen_mouse_pos.x, screen_mouse_pos.y,
+                                               world_mouse_pos.x, world_mouse_pos.y,
                                                MOUSE_MBUTTON);
         raise_event(event);
     }
@@ -227,10 +272,12 @@ void TacticalGame::handle_inputs()
 
     auto diff_mouse = prev_mouse_pos - GetMousePos();
     DrawLine(prev_mouse_pos, GetMousePos());
-    if(min_distance < std::abs(diff_mouse.x) || min_distance < std::abs(diff_mouse.y)) {
+    if (min_distance < std::abs(diff_mouse.x) || min_distance < std::abs(diff_mouse.y)) {
         prev_mouse_pos = GetMousePos();
-        auto mouse_pos = get_tv()->ScaleToWorld(prev_mouse_pos) + get_tv()->GetWorldOffset();
-        Engine::MouseMovedEvent event(mouse_pos.x, mouse_pos.y);
+        auto world_mouse_pos =
+            get_tv()->ScaleToWorld(prev_mouse_pos) + get_tv()->GetWorldOffset();
+        auto event = std::make_shared<Engine::MouseMovedEvent>(prev_mouse_pos.x, prev_mouse_pos.y,
+                                      world_mouse_pos.x, world_mouse_pos.y);
         raise_event(event);
     }
 }

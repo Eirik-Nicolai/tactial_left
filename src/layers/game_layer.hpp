@@ -30,7 +30,16 @@ class GameLayer : public Layer
 
     // void on_state_change(state_change);
     // void on_state_change_func(state_change_func);
-    void on_state_change_playaction(do_state_change_playaction);
+
+    
+    void queue_state_change(int indx, std::unique_ptr<GameState> new_state);
+    void change_state(int indx, std::unique_ptr<GameState> new_state);
+    void add_state(std::unique_ptr<GameState> new_state);
 
     std::vector<std::unique_ptr<GameState>> m_current_states;
+    struct queued_state {
+        int index;
+        std::unique_ptr<GameState> queued_state;
+    };
+    std::vector<queued_state> m_queued_states;
 };

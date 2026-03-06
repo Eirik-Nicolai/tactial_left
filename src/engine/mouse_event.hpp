@@ -12,19 +12,20 @@ namespace Engine
 class MouseEvent : public Event
 {
   public:
-    MouseEvent(int x, int y) : m_x(x), m_y(y) {}
+    MouseEvent(int sx, int sy, int wx, int wy) : m_sx(sx), m_sy(sy), m_wx(wx), m_wy(wy) {}
 
-    inline int GetX() const { return m_x; }
-    inline int GetY() const { return m_y; }
+    std::pair<int,int> get_screen_pos() const { return std::make_pair(m_sx, m_sy); }
+    std::pair<int,int> get_world_pos() const { return std::make_pair(m_wx, m_wy); }
 
   private:
-    int m_x, m_y;
+    int m_sx, m_sy; // screen space pos
+    int m_wx, m_wy; // world space pos
 };
 
 class MouseMovedEvent : public MouseEvent
 {
   public:
-    MouseMovedEvent(int x, int y) : MouseEvent(x, y) {}
+    MouseMovedEvent(int sx, int sy, int wx, int wy) : MouseEvent(sx, sy, wx, wy) {}
 
     // std::string to_string() const override {
     //     Debug("MouseMovedEvent: {}, {}", m_x, m_y);
@@ -64,12 +65,12 @@ class MouseButtonEvent : public MouseEvent
     inline MouseButton get_button() const { return m_button; }
 
   protected:
-    MouseButtonEvent(int x, int y, int button)
-        : MouseEvent(x, y), m_button(static_cast<MouseButton>(button))
+    MouseButtonEvent(int sx, int sy, int wx, int wy, int button)
+        : MouseEvent(sx, sy, wx, wy), m_button(static_cast<MouseButton>(button))
     {
     }
-    MouseButtonEvent(int x, int y, MouseButton button)
-        : MouseEvent(x, y), m_button(button)
+    MouseButtonEvent(int sx, int sy, int wx, int wy, MouseButton button)
+        : MouseEvent(sx, sy, wx, wy), m_button(button)
     {
     }
 
@@ -79,8 +80,8 @@ class MouseButtonEvent : public MouseEvent
 class MouseButtonPressedEvent : public MouseButtonEvent
 {
   public:
-    MouseButtonPressedEvent(int x, int y, int button)
-        : MouseButtonEvent(x, y, button)
+    MouseButtonPressedEvent(int sx, int sy, int wx, int wy, int button)
+        : MouseButtonEvent(sx, sy, wx, wy, button)
     {
     }
 
@@ -99,8 +100,8 @@ class MouseButtonPressedEvent : public MouseButtonEvent
 class MouseButtonReleasedEvent : public MouseButtonEvent
 {
   public:
-    MouseButtonReleasedEvent(int x, int y, int button)
-        : MouseButtonEvent(x, y, button)
+    MouseButtonReleasedEvent(int sx, int sy, int wx, int wy, int button)
+        : MouseButtonEvent(sx, sy, wx, wy, button)
     {
     }
 

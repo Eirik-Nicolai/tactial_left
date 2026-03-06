@@ -20,7 +20,8 @@ enum class EventType {
     MouseScrolled,
 
 
-    GameEvent
+    GameEvent,
+    DebugEvent
     // Audio
     // Music
 };

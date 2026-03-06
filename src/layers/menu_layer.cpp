@@ -118,13 +118,13 @@ void MenuLayer::draw() {
 bool MenuLayer::mouse_moved(Engine::MouseMovedEvent &event) {
     using namespace Component;
     using namespace Component;
-    auto reg = m_game->registry();
-    auto mouse_pos = m_game->GetMousePos();
+    auto [mouse_pos_x, mouse_pos_y] = event.get_screen_pos();
     for (auto &&[ent, hoverable] :
          m_registry->get().view<Component::Interaction::Hoverable, _is_gui>().each()) {
         const bool was_hovered = hoverable.is_hovered;
-        hoverable.is_hovered = is_point_inside_rect(
-            hoverable.boundaries.pos, hoverable.boundaries.size, mouse_pos);
+        hoverable.is_hovered =
+            is_point_inside_rect(hoverable.boundaries.pos, hoverable.boundaries.size,
+                                 olc::vi2d(mouse_pos_x, mouse_pos_y));
         m_game->DrawRect(
             {hoverable.boundaries.pos.x, hoverable.boundaries.pos.y},
             {hoverable.boundaries.size.w, hoverable.boundaries.size.h},
@@ -132,9 +132,9 @@ bool MenuLayer::mouse_moved(Engine::MouseMovedEvent &event) {
 
         // do action if state changed
         if ((!was_hovered && hoverable.is_hovered) && hoverable.on_mouse_hover) {
-            return hoverable.on_mouse_hover(reg, ent);
+            return hoverable.on_mouse_hover(m_registry, ent);
         } else if ((was_hovered && !hoverable.is_hovered) && hoverable.on_mouse_exit) {
-            return hoverable.on_mouse_exit(reg, ent);
+            return hoverable.on_mouse_exit(m_registry, ent);
         }
     }
     return false;

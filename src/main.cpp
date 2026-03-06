@@ -32,6 +32,8 @@ auto main(int argc, char *argv[]) -> int
     bool Cohesion = false;
     bool RealWindow = true;
 
+    bool pauseupdate = false; // only progress update if holding spacebar
+
     auto conf = fkyaml::node::deserialize(fs);
     try {
         // TODO can cast string to enum instead
@@ -59,12 +61,13 @@ auto main(int argc, char *argv[]) -> int
         V_sync = conf.at("vsync").as_bool();
         Cohesion = conf.at("cohesion").as_bool();
         RealWindow = conf.at("realwindow").as_bool();
+        pauseupdate = conf.at("pauseupdate").as_bool();
     } catch (std::exception &e) {
         std::cout << "ERROR " << e.what() << std::endl;
         throw std::runtime_error("CANNOT READ CONFIG");
     }
 
-    TacticalGame game;
+    TacticalGame game(pauseupdate);
     if (game.Construct(Width, Height, PixelH, PixelW, Fullscreen, V_sync, Cohesion,
                        RealWindow))
         game.Start();

@@ -30,6 +30,8 @@ set(SRC_STATES
     # src/states/init/initstate.cpp
     # src/states/load/loadstate.cpp
     src/states/combat/combatstate.cpp
+    src/states/combat/combatstate_initialize.cpp
+    src/states/combat/combatstate_playeraction.cpp
     src/states/combat/combatstate_playermovement.cpp
 )
 

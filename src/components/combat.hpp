@@ -6,6 +6,13 @@ class GameRegistry;
 namespace Component::Combat
 {
 
+namespace World
+{
+Component(TileInfo)
+    Size s;
+};
+};
+
 Component(Ability)
 
 };

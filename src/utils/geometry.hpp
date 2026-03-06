@@ -17,10 +17,7 @@ inline bool is_point_inside_rect(int rect_x, int rect_y, int rect_w, int rect_h,
 {
     // Compare radius of circle with distance
     // of its center from given point
-    if (px >= rect_x && px <= rect_x + rect_w && py >= rect_y && py <= rect_y + rect_h) {
-        return true;
-    }
-    return false;
+    return px >= rect_x && px < rect_x + rect_w && py >= rect_y && py < rect_y + rect_h;
 }
 
 inline bool is_point_inside_rect(Component::Box b, int px, int py)

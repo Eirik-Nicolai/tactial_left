@@ -7,82 +7,61 @@
 
 DebugLayer::DebugLayer(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : Layer(ge, reg)
 {
-    m_ui_manager.create_window("groupbox", "TEST", {0, 0}, {300, 400});
-    m_ui_manager.find_window("groupbox")->disable_close(true);
-    m_ui_manager.add_dropdown("groupbox", "resolution", "Resolution: ", {80, 10},
-                              {100, 20});
-    m_ui_manager.find_element("resolution")->add_item("1920x1080");
-    m_ui_manager.find_element("resolution")->add_item("1280x720");
-    m_ui_manager.find_element("resolution")->add_item("800x600");
-    m_ui_manager.find_element("resolution")->add_item("640x360");
-    m_ui_manager.find_element("resolution")->set_default_item(0);
-    m_ui_manager.find_element("resolution")->set_animation_speed(1000);
-    m_ui_manager.find_element("resolution")->set_max_display_items(4);
+    m_debug_lines["DBG"] = std::vector<std::string>{"DEBUG INFO"};
+    m_debug_box.is_active = true;
+    m_debug_box.pos = {100,300};
+    m_debug_box.size = {100,20};
 
-    m_ui_manager.add_dropdown("groupbox", "quality", "Quality: ", {80, 40}, {100, 20});
-    m_ui_manager.find_element("quality")->add_item("High", {1.f, 1.f});
-    m_ui_manager.find_element("quality")->add_item("Medium");
-    m_ui_manager.find_element("quality")->add_item("Low");
-    m_ui_manager.find_element("quality")->set_default_item(0);
-    m_ui_manager.find_element("quality")->set_animation_speed(1000);
-    m_ui_manager.find_element("quality")->set_max_display_items(5);
-
-    m_ui_manager.add_checkbox("groupbox", "fullscreen", "Fullscreen: ", {80, 70},
-                              {20, 20});
-
-    m_ui_manager.add_inputfield("groupbox", "custom_title", "Custom title: ", {80, 100},
-                                {100, 20});
-    m_ui_manager.find_element("custom_title")->inputfield_scale({1.25f, 1.25f});
-
-    m_ui_manager.add_button(
-        "groupbox", "launch", "Launch game", {10, 130}, {180, 20}, [&] {
-            auto x = m_ui_manager.find_element("slider")->get_slider_value<int>();
-            auto y = m_ui_manager.find_element("slider1")->get_slider_value<float>();
-            auto k = m_ui_manager.find_element("fullscreen")->get_checkbox_state();
-
-            std::cout << x << " - " << y << " - " << k << "\n";
-        });
-    m_ui_manager.find_element("resolution")
-        ->set_colors({olc::Pixel(120, 120, 120), olc::Pixel(100, 100, 100),
-                      olc::Pixel(80, 80, 80)});
-
-    m_ui_manager.add_int_slider("groupbox", "slider", "Testing: ", {80, 160}, {100, 10},
-                                {-5, 5});
-    m_ui_manager.find_element("slider")->set_slider_value(
-        2000); // the set_slider_value function will clamp this value
-               // automatically
-    m_ui_manager.add_float_slider("groupbox", "slider1", "Testing 2: ", {80, 190},
-                                  {100, 10}, {-155, 372});
-    m_ui_manager.find_element("slider1")->set_slider_value(
-        100000.f); // .f will indicate that this is a float value (this function
-                   // is templated to avoid implicit casting)
+    m_dragging_debug_box = false;
+    m_mouse_offs = {0,0};
 }
 
 DebugLayer::~DebugLayer() {}
 
 void DebugLayer::update()
 {
-
-    // m_ui_manager.run();
-
-    // if()
+    auto box_width = 0;
+    auto box_height = 0;
+    for (auto [key, list] : m_debug_lines) {
+        box_height += list.size() * LINE_HEIGHT + 4; // 2 pixel padding each side
+        for (auto s : list) {
+            auto printed_s = key + " - " + s;
+            if (box_width < printed_s.length() * LINE_WIDTH) {
+                box_width = (printed_s.length() * LINE_WIDTH); // 2 pixel padding each side
+            }
+        }
+    }
+    m_debug_box.size.x = box_width;
+    m_debug_box.size.y = box_height;
 }
 
-void DebugLayer::draw() {}
+void DebugLayer::draw()
+{
+    m_game->FillRect(m_debug_box.pos, m_debug_box.size+10, BG_COLOUR);
+    m_game->DrawRect(m_debug_box.pos, m_debug_box.size+10, BORDER_COLOUR);
+
+    auto string_y = m_debug_box.pos.y+4;
+    for (auto [key, list] : m_debug_lines) {
+        for (auto s : list) {
+            auto printed_s = key + " - " + s;
+            m_game->DrawString(m_debug_box.pos.x+5, string_y, printed_s);
+            string_y += LINE_HEIGHT;
+        }
+    }
+    
+}
 
 void DebugLayer::on_event(Engine::Event &e)
 {
     using namespace Engine;
     EventDispatcher dispatcher(e);
-    dispatcher.Dispatch<MouseButtonReleasedEvent>(
-        [this](MouseButtonReleasedEvent &e) {
-            return mouse_button_released(e);
-        });
-
-    dispatcher.Dispatch<MouseButtonPressedEvent>(
-        [this](MouseButtonPressedEvent &e) {
-            return mouse_button_pressed(e);
-        });
+    dispatcher.Dispatch<Engine::MouseMovedEvent>(
+        [this](Engine::MouseMovedEvent &e) { return mouse_moved(e); });
+    dispatcher.Dispatch<Engine::MouseButtonPressedEvent>(
+        [this](Engine::MouseButtonPressedEvent &e) { return mouse_button_pressed(e); });
+    dispatcher.Dispatch<Engine::MouseButtonReleasedEvent>(
+        [this](Engine::MouseButtonReleasedEvent &e) { return mouse_button_released(e); });
+    dispatcher.Dispatch<DebugEvent>([this](DebugEvent &e) { return update_debug(e); });
 }
 // bool DebugLayer::key_released(TacticalGame *, KeyReleasedEvent &event) {
 
@@ -91,27 +70,55 @@ void DebugLayer::on_event(Engine::Event &e)
 
 // }
 
+bool DebugLayer::mouse_moved(Engine::MouseMovedEvent &event)
+{
+    auto get_name = []() { return "DebugLayer - mouse_button_moved()"; };
+
+    if(m_dragging_debug_box) {
+        auto [mx, my] = event.get_screen_pos();
+        m_debug_box.pos = olc::vi2d(mx, my) - m_mouse_offs;
+    }
+
+    return false;
+}
 bool DebugLayer::mouse_button_released(Engine::MouseButtonReleasedEvent &event)
 {
-    auto window_pos = m_ui_manager.find_window("groupbox")->get_position();
-    auto window_size = m_ui_manager.find_window("groupbox")->get_window_space();
-    auto mouse = m_game->GetMousePos();
-    if (is_point_inside_rect(window_pos.x, window_pos.y, window_size.x, window_size.y,
-                             mouse.x, mouse.y)) {
-        Info("Released debug");
-        return false;
+    auto get_name = []() { return "DebugLayer - mouse_button_released()"; };
+
+    if(m_dragging_debug_box) {
+        Info("Releasing debug box");
+        m_dragging_debug_box = false;
+        m_mouse_offs = {0,0};
+        return true;
     }
+    
     return false;
 }
 bool DebugLayer::mouse_button_pressed(Engine::MouseButtonPressedEvent &event)
 {
-    auto window_pos = m_ui_manager.find_window("groupbox")->get_position();
-    auto window_size = m_ui_manager.find_window("groupbox")->get_window_space();
-    auto mouse = m_game->GetMousePos();
-    if (is_point_inside_rect(window_pos.x, window_pos.y, window_size.x, window_size.y,
-                             mouse.x, mouse.y)) {
-        Info("pressed debug");
-        return false;
+    auto get_name = []() { return "DebugLayer - mouse_button_pressed()"; };
+
+    if (event.get_button() == Engine::MouseButtonEvent::MouseButton::LeftMouseButton) {
+        auto [mouse_x, mouse_y] = event.get_screen_pos();
+        Debug("Checking {" << mouse_x << ", " << mouse_y << "} inside ["
+                           << m_debug_box.pos << "  " << "," << m_debug_box.size << "]");
+
+        if (is_point_inside_rect(m_debug_box.pos.x, m_debug_box.pos.y, m_debug_box.size.x,
+                                 m_debug_box.size.y, mouse_x, mouse_y)) {
+            Info("Grabbing debug box");
+            m_dragging_debug_box = true;
+            auto [mx, my] = event.get_screen_pos();
+            m_mouse_offs = olc::vi2d{mx, my} - m_debug_box.pos;
+            return true;
+        }
     }
+
     return false;
+}
+
+bool DebugLayer::update_debug(Engine::DebugEvent &event)
+{
+    m_debug_lines[event.key()] = event.get_debug_list();
+    
+    return true;
 }

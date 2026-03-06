@@ -1,13 +1,17 @@
 #include "combatstate_playermovement.hpp"
+#include "combatstate_playeraction.hpp"
 #include "logger.hpp"
 #include "utils/geometry.hpp"
-
 #include "registry/game_event.hpp"
 
 namespace PlayingState
 {
 
-CombatStatePlayerMovement::CombatStatePlayerMovement(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : CombatState(ge, reg) {
+CombatStatePlayerMovement::CombatStatePlayerMovement(TacticalGame *ge,
+                                                     std::shared_ptr<GameRegistry> reg)
+    : CombatState(ge, reg)
+{
+    LOG_FUNC
     // TODO can use this for mapping buttons ig
     // if we're using buttons ?
     handler = std::make_unique<InputHandler>();
@@ -15,54 +19,54 @@ CombatStatePlayerMovement::CombatStatePlayerMovement(TacticalGame* ge, std::shar
     m_tile_dest = entt::null;
 
     for (auto &&[ent] :
-         reg->get().view<Component::Combat::Interaction::_Playable>().each()) {
+         m_registry->get().view<Component::Combat::Interaction::_Playable>().each()) {
         m_controlled_entity = ent;
     }
+    Debug("Setting entity " << m_registry->entity_name(m_controlled_entity));
 
     for (auto &&[ent, holding] :
-         reg->get().view<Component::Combat::CurrentlyHolding>().each()) {
+         m_registry->get().view<Component::Combat::CurrentlyHolding>().each()) {
         // HACK testing
         if (holding.value == m_controlled_entity) {
-            reg->add_tag<Component::Combat::_Node_Start>(ent);
+            m_registry->add_tag<Component::Combat::_Node_Start>(ent);
         }
     }
 
+    Debug("Adding node callbacks");
     for (auto &&[ent, holding] :
-         reg->get().view<Component::Combat::Node>().each()) {
+         m_registry->get().view<Component::Combat::Node>().each()) {
         auto selectable =
-            reg->get_component<Component::Interaction::Selectable>(ent);
-        selectable->on_left_select = [this, name = reg->entity_name(ent)](std::shared_ptr<GameRegistry> reg,
+            m_registry->get_component<Component::Interaction::Selectable>(ent);
+        selectable->on_left_select = [this, name = m_registry->entity_name(ent)](std::shared_ptr<GameRegistry> reg,
                                            entt::entity me) {
             auto get_name = [name]() { return name; };
                 Debug("Released");
                 Component::Combat::Moving moving_sequence;
-                auto pos = m_registry->get_component<Component::Pos>(m_controlled_entity);
+                auto pos = reg->get_component<Component::Pos>(m_controlled_entity);
 
                 entt::entity start_tile_entity =
-                    m_registry->get_entity_on_check<Component::Combat::CurrentlyHolding>(
+                    reg->get_entity_on_check<Component::Combat::CurrentlyHolding>(
                         [this](Component::Combat::CurrentlyHolding c) {
                             return m_controlled_entity == c.value;
                         });
 
-                Debug("Starting at " << m_registry->entity_name(start_tile_entity));
+                Debug("Starting at " << reg->entity_name(start_tile_entity));
 
                 moving_sequence.moving_speed = 4;
                 moving_sequence.directional_speed = {0, 0};
                 auto traversing_entity = m_tile_dest;
                 while (traversing_entity != entt::null) {
                     moving_sequence.dest_sequence.push_back(
-                        m_registry->unsafe_get_component<Component::Pos>(traversing_entity));
+                        reg->unsafe_get_component<Component::Pos>(traversing_entity));
                     traversing_entity =
-                        m_registry->unsafe_get_component<Component::Combat::Node>(traversing_entity)
+                        reg->unsafe_get_component<Component::Combat::Node>(traversing_entity)
                             .parent;
                 }
 
                 moving_sequence.sequence_step = moving_sequence.dest_sequence.size() - 1;
-                for (auto step : moving_sequence.dest_sequence) {
-                    Debug("Seq step: " << step);
-                }
+
                 moving_sequence.on_reached_dest =
-                    [start_tile_entity, this](std::shared_ptr<GameRegistry> reg) {
+                    [this, start_tile_entity](std::shared_ptr<GameRegistry> reg) {
                         auto get_name = [&, start_tile_entity]() {
                             return "On Dest Reached !";
                         };
@@ -73,17 +77,15 @@ CombatStatePlayerMovement::CombatStatePlayerMovement(TacticalGame* ge, std::shar
                                                                      m_controlled_entity);
 
                         reg->unsafe_remove_component<Component::Combat::Moving>(m_controlled_entity);
-
-                        // HACK
-                        reg->dispatcher.queue_event<do_state_change_playaction>();
-                    };
-                m_registry->unsafe_add_component<Component::Combat::Moving>(m_controlled_entity,
-                                                                 moving_sequence);
+                        m_change_state_to<CombatStatePlayerAction>();
+                    };  
+                reg->unsafe_add_component<Component::Combat::Moving>(
+                    m_controlled_entity, moving_sequence);
 
                 return true;
         };
         selectable->on_right_select =
-            [this, name = reg->entity_name(ent)](std::shared_ptr<GameRegistry> reg,
+            [this, name = m_registry->entity_name(ent)](std::shared_ptr<GameRegistry> reg,
                                                  entt::entity me) {
                 auto get_name = [name]() { return name; };
                 auto node = reg->unsafe_get_component<Component::Combat::Node>(me);
@@ -92,33 +94,36 @@ CombatStatePlayerMovement::CombatStatePlayerMovement(TacticalGame* ge, std::shar
                 return true;
             };
 
-        auto p = reg->unsafe_get_component<Component::Pos>(ent);
-        reg->add_component<Component::Interaction::Hoverable>(
+        auto p = m_registry->unsafe_get_component<Component::Pos>(ent);
+        Component::Combat::World::TileInfo info;
+        m_registry->get_world_component(info);
+        m_registry->add_component<Component::Interaction::Hoverable>(
             ent,
             Component::Interaction::Hoverable{
                 .boundaries = Component::Box{Component::Pos{p.x + 5, p.y + 5},
-                                             Component::Size{.w = rect_w - 5, .h = rect_h - 5}},
+                                             Component::Size{.w = info.s.w - 5, .h = info.s.h - 5}},
                 .is_hovered = false,
                 // TODO later
                 .on_mouse_hover =
-                    [this, name = reg->entity_name(ent)](std::shared_ptr<GameRegistry> reg,
+                    [this, name = m_registry->entity_name(ent)](std::shared_ptr<GameRegistry> reg,
                                             entt::entity me) {
                         auto get_name = [name]() { return name; };
+                        reg->remove_all_instances_of_tag<Component::Combat::_Node_End>();
                         reg->add_tag<Component::Combat::_Node_End>(me);
-                        solve_a_star(reg);
+                        m_tile_dest = me; // TODO remove this member and just use _Node_End
+                        solve_a_star();
                         return false;
                     },
                 .on_mouse_exit =
-                    [this, name = reg->entity_name(ent)](std::shared_ptr<GameRegistry> reg,
+                    [this, name = m_registry->entity_name(ent)](std::shared_ptr<GameRegistry> reg,
                                             entt::entity me) {
                         auto get_name = [name]() { return name; };
-                        reg->remove_component<Component::Combat::_Node_End>(me);
                         return false;
                     },
             });
     }
 
-    Info("Currently controlling entity " << reg->entity_name(m_controlled_entity));
+    Info("Finished setting up movement state");
 }
 
 void CombatStatePlayerMovement::handle_input(Engine::Event &event)
@@ -146,13 +151,28 @@ void CombatStatePlayerMovement::update()
 
     for (auto &&[ent, pos, seq] :
          m_registry->get().view<Component::Pos, Combat::Moving>().each()) {
-        // Debug("Currently on pos " << pos);
         // if we've reached next step in the sequence
+        if(seq.sequence_step > seq.dest_sequence.size()) Error("out of bounds")
         if (pos == seq.dest_sequence[seq.sequence_step]) {
             // have we arrived
             if (seq.sequence_step == 0) {
-                seq.on_reached_dest(m_registry);
-                continue;;
+                // seq.on_reached_dest(m_registry);
+                entt::entity start_tile_entity =
+                    m_registry->get_entity_on_check<Component::Combat::CurrentlyHolding>(
+                        [this](Component::Combat::CurrentlyHolding c) {
+                            return m_controlled_entity == c.value;
+                        });
+                auto get_name = []() { return "On Dest Reached !"; };
+                Info("Reached dest ! Removing from " << start_tile_entity);
+                m_registry->unsafe_remove_component<Component::Combat::CurrentlyHolding>(
+                    start_tile_entity);
+                m_registry->add_component<Component::Combat::CurrentlyHolding>(
+                    m_tile_dest, m_controlled_entity);
+
+                m_registry->unsafe_remove_component<Component::Combat::Moving>(
+                    m_controlled_entity);
+                m_change_state_to<CombatStatePlayerAction>();
+                continue;
             }
             // else, incremnt and find new speed
             seq.sequence_step--;
@@ -161,34 +181,27 @@ void CombatStatePlayerMovement::update()
 
             direction.x = std::abs(direction.x);
             direction.y = std::abs(direction.y);
-            seq.directional_speed.x = (direction.x / rect_w) * seq.moving_speed;
-            seq.directional_speed.y = (direction.y / rect_h) * seq.moving_speed;
-            Debug("Dir " << direction << " speed " << seq.directional_speed);
+            Component::Combat::World::TileInfo info;
+            m_registry->get_world_component(info);
+
+            seq.directional_speed.x = (direction.x / info.s.w) * seq.moving_speed;
+            seq.directional_speed.y = (direction.y / info.s.h) * seq.moving_speed;
             continue;
         }
         // else, we're just moving on to the next dest
         auto x = seq.directional_speed.x;
         auto y = seq.directional_speed.y;
-        Debug("Moving speed " << x << ", " << y);
         pos.x = pos.x + x;
         pos.y = pos.y + y;
     }
 }
 
-void CombatStatePlayerMovement::draw(TacticalGame *ge)
+void CombatStatePlayerMovement::draw()
 {
     using namespace Component;
     // LOG_FUNC
-    auto reg = ge->registry();
 
-    // HACK debugging purposes
-    // auto sw = ge->ScreenWidth();
-    // auto sh = ge->ScreenHeight();
-    // auto w = (0.04);
-    // auto h = (0.05);
-    // auto rect_w = sw * w;
-    // auto rect_h = sh * h;
-    auto tv = ge->get_tv();
+    auto tv = m_game->get_tv();
 
     for (auto &&[ent, node, pos, size] :
          m_registry->get()
@@ -308,23 +321,6 @@ bool CombatStatePlayerMovement::mouse_button_pressed(Engine::MouseButtonPressedE
     Debug("Mouse " << event);
 
     return false;
-}
-
-    // HACK for testing
-void CombatStatePlayerAction::update()
-{
-    // move entity to selected spot, one line at a time
-    using namespace Component;
-}
-
-void CombatStatePlayerAction::draw(TacticalGame *ge)
-{
-    using namespace Component;
-    // LOG_FUNC
-    auto reg = ge->registry();
-
-
-    ge->DrawStringDecal({100, 100}, "IN PLAYER ACTION STATE", olc::WHITE, {1,4});
 }
 
 }; // namespace PlayingState

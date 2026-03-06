@@ -13,7 +13,7 @@ class InputHandler
     
     void unregister_input(std::string&);
     void unregister_input(INPUT_TYPE type);
-    using InputFunction = std::function<void(TacticalGame*, Engine::GameEvent&)>;
+    using InputFunction = std::function<void(TacticalGame*, Engine::Event&)>;
     // void register_input(std::string type, InputFunction i) {
     //     m_inputs[type] = std::move(i);
     // }

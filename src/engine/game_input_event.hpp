@@ -3,16 +3,20 @@
 namespace Engine {
 
 
-    
-class GameEvent : public Event
+class DebugEvent : public Event
 {
   public:
-    GameEvent(std::string&& s) : m_type(std::forward<std::string>(s)) {}
+    DebugEvent(std::string indx, std::vector<std::string> &&debug_list)
+    : m_index(indx), m_debug(std::forward<std::vector<std::string>>(std::move(debug_list)))
+    {
+    }
 
-    std::string_view get_type() { return m_type; }
-    EVENT_CLASS_TYPE(GameEvent)
+    std::string key() { return m_index; }
+    std::vector<std::string> get_debug_list() { return m_debug; }
+    EVENT_CLASS_TYPE(DebugEvent)
 
   private:
-    std::string m_type;
+    std::vector<std::string> m_debug;
+    std::string m_index;
 };
 };

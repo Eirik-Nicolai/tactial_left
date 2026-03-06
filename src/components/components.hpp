@@ -78,8 +78,6 @@ Pos operator*(RHS const &rhs)
     return Pos{.x = x * rhs, .y = y * rhs};
 };
 
-const bool operator==(Pos const &rhs) { return this->x == rhs.x && this->y == rhs.y; };
-
 // Pos operator+(Pos const& rhs) { x+=rhs.x;y+=rhs.y; return *this; };
 // template <typename RHS>
 // Pos operator+(RHS const& rhs) { x+=rhs;y+=rhs; return *this; };
@@ -91,6 +89,9 @@ const bool operator==(Pos const &rhs) { return this->x == rhs.x && this->y == rh
 operator olc::vf2d() const { return olc::vf2d(x, y); };
 operator olc::vi2d() const { return olc::vi2d(x, y); };
 };
+
+inline const bool operator==(const Pos &lhs, const Pos &rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; };
+
 
 Component(Box)
 Pos pos;

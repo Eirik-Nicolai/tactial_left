@@ -5,14 +5,13 @@
 #include "layers/layer.hpp"
 #include "systems/system.hpp"
 
-
 class Layer;
-
 constexpr auto ANIMATION_TICK_TIME = 0.017;
 class TacticalGame : public olc::PixelGameEngine
 {
   public:
-    TacticalGame();
+    TacticalGame() : m_pause_update(false) {};
+    TacticalGame(bool pause_update);
 
     float fElapsedTime;
 
@@ -46,7 +45,7 @@ class TacticalGame : public olc::PixelGameEngine
 
     bool animation_tick() { return m_animation_tick; }
 
-    void raise_event(Engine::Event &event);
+    void raise_event(std::shared_ptr<Engine::Event>);
 
     template <typename L>
         requires(std::is_base_of_v<Layer, L>)
@@ -91,5 +90,8 @@ class TacticalGame : public olc::PixelGameEngine
     olc::vi2d prev_mouse_pos;
     int min_distance = 5; // in pixels
 
+    std::vector<std::shared_ptr<Engine::Event>> m_event_queue;
+    
   private: // DEBUGGING HELPER FUNCTIONS
+    bool m_pause_update;
 };
