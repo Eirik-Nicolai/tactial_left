@@ -13,7 +13,7 @@
 
 constexpr auto tile_amt_x = 20;
 constexpr auto tile_amt_y = 9;
-namespace PlayingState
+namespace State::Playing::Combat
 {
 class CombatState : public GameState
 {
@@ -35,8 +35,7 @@ class CombatState : public GameState
     /// ------ PRIVATE LOGIC ------ ///
   protected:
     float sElapsedTime; // useful for debugging
-    void solve_a_star();
-
+    
     bool mouse_button_released(Engine::MouseButtonReleasedEvent &event);
     bool mouse_button_pressed(Engine::MouseButtonPressedEvent &event);
 
@@ -44,6 +43,13 @@ class CombatState : public GameState
     int screen_h;
     int rect_w;
     int rect_h;
+
+    protected: // SYSTEMS
+      void System_CombatProgression();
+      void System_StatusEffectProgression();
+
+      void System_Onecall_ApplyToBaseStats(entt::entity &effect, entt::entity &target);
+      void System_Onecall_SolveAStar();
 };
 
-} // namespace PlayingState
+} // namespace State::Playing::Combat

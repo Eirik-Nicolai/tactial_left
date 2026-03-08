@@ -2,7 +2,7 @@
 #include "combatstate.hpp"
 #include "game.hpp"
 
-namespace PlayingState {
+namespace State::Playing::Combat {
   
 class CombatStatePlayerAction : public CombatState
 {

@@ -5,7 +5,7 @@
 #include "engine/event.hpp"
 #include "engine/key_event.hpp"
 namespace TransitionState {
-class CombatStateInit : public PlayingState::CombatState
+class CombatStateInit : public State::Playing::Combat::CombatState
 {
     GET_NAME(GameState, CombatStateInit)
 

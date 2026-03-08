@@ -2,7 +2,7 @@
 #include "combatstate.hpp"
 #include "game.hpp"
 
-namespace PlayingState {
+namespace State::Playing::Combat {
 
 class CombatStatePlayerMovement : public CombatState
 {
@@ -53,4 +53,4 @@ class CombatStatePlayerMovement : public CombatState
 //     bool mouse_button_pressed(, Engine::MouseButtonPressedEvent &event);
 // };
 
-}; // namespace PlayingState
+}; // namespace State::Playing::Combat

@@ -4,7 +4,7 @@
 #include "utils/geometry.hpp"
 #include "registry/game_event.hpp"
 
-namespace PlayingState
+namespace State::Playing::Combat
 {
 
 CombatStatePlayerMovement::CombatStatePlayerMovement(TacticalGame *ge,
@@ -111,7 +111,7 @@ CombatStatePlayerMovement::CombatStatePlayerMovement(TacticalGame *ge,
                         reg->remove_all_instances_of_tag<Component::Combat::_Node_End>();
                         reg->add_tag<Component::Combat::_Node_End>(me);
                         m_tile_dest = me; // TODO remove this member and just use _Node_End
-                        solve_a_star();
+                        System_Onecall_SolveAStar();
                         return false;
                     },
                 .on_mouse_exit =
@@ -147,10 +147,8 @@ void CombatStatePlayerMovement::handle_input(Engine::Event &event)
 void CombatStatePlayerMovement::update()
 {
     // move entity to selected spot, one line at a time
-    using namespace Component;
-
     for (auto &&[ent, pos, seq] :
-         m_registry->get().view<Component::Pos, Combat::Moving>().each()) {
+         m_registry->get().view<Component::Pos, Component::Combat::Moving>().each()) {
         // if we've reached next step in the sequence
         if(seq.sequence_step > seq.dest_sequence.size()) Error("out of bounds")
         if (pos == seq.dest_sequence[seq.sequence_step]) {
@@ -323,4 +321,4 @@ bool CombatStatePlayerMovement::mouse_button_pressed(Engine::MouseButtonPressedE
     return false;
 }
 
-}; // namespace PlayingState
+}; // namespace State::Playing::Combat

@@ -1,6 +1,9 @@
+#pragma once 
 #include "entt/entt.hpp"
 #include "logger.hpp"
 #include "components/debugging.hpp"
+
+using EcsSystem = std::function<void(float deltatime)>;
 
 /// TODO use to serialize+save, unload and load registry
 /// states for different game states
@@ -10,7 +13,7 @@ concept HasName = requires(T a) {
   {T::title()} -> std::same_as<std::string>;  
 };
 
-class GameRegistry
+class GameRegistry : public std::enable_shared_from_this<GameRegistry>
 {
     class GameEventDispatcher
     {
@@ -333,12 +336,19 @@ class GameRegistry
     entt::registry& get() { return m_reg; }
 
     // call update on all internals that need it
-    void update(float deltatime)
+    void update(float dt, bool animation_tick)
     {
-        std::ignore = deltatime; // not needed for the time being
         dispatcher.update();
+
+        // INTERNAL SYSTEMS
+        if(animation_tick) System_Animation(dt);
     };
   private:
     entt::registry m_reg;
     std::string get_name() const { return "GAME REGISTRY"; }
+
+  private:
+
+    // generic systems
+    void System_Animation(float deltatime);
 };

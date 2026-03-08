@@ -2,6 +2,7 @@
 #include "logger_level.hpp"
 #include "utils/logger_helper.hpp"
 
+#define GET_NAME_FUNC(_1) auto get_name = []() { return #_1; }
 
 #define PRINT_FUNC(x)                                                                    \
     if (Logger::get().loglevel() > Logger::LogLevel::DEBUG) {                            \

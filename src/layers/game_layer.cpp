@@ -12,7 +12,7 @@
 GameLayer::GameLayer(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : Layer(ge, reg)
 {
     // TODO have issue around this state being the base state but also the loader so we load things several times
-    add_state(std::move(std::make_unique<PlayingState::CombatState>(m_game, m_registry)));
+    add_state(std::move(std::make_unique<State::Playing::Combat::CombatState>(m_game, m_registry)));
     add_state(std::move(std::make_unique<TransitionState::CombatStateInit>(m_game, m_registry)));
 }
 

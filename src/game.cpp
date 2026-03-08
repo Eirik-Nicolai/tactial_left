@@ -6,14 +6,9 @@
 
 #include "game.hpp"
 
-#include "systems/rendering.hpp"
-#include "systems/animation.hpp"
-
 #include <ranges>
 #include "engine/key_event.hpp"
 #include "engine/mouse_event.hpp"
-
-#include "utils/ecs.hpp"
 
 #include "layers/game_layer.hpp"
 #include "layers/menu_layer.hpp"
@@ -22,8 +17,6 @@
 TacticalGame::TacticalGame(bool pause_update) : m_pause_update(pause_update)
 {
     sAppName = "TACTICAL LEFTIST";
-
-    m_system_managers_amount = 0;
 
     m_registry = std::make_unique<GameRegistry>();
 }
@@ -64,22 +57,22 @@ bool TacticalGame::OnUserCreate()
 
     Debug("Initiating systems");
 
-    // TODO add helper function
-    auto rendering_manager = std::make_unique<SystemManager>("Rendering System Manager");
-    rendering_manager->add(std::make_unique<PreRenderer>());
-    rendering_manager->add(std::make_unique<BackgroundRenderer>());
-    rendering_manager->add(std::make_unique<MainRenderer>());
-    rendering_manager->add(std::make_unique<WireframeRenderer>());
-    rendering_manager->add(std::make_unique<GUIRenderer>());
-    m_system_managers[m_system_managers_amount] = std::move(rendering_manager);
-    Debug("Adding system " << m_system_managers[m_system_managers_amount++]->get_name());
+    // // TODO add helper function
+    // auto rendering_manager = std::make_unique<SystemManager>("Rendering System Manager");
+    // rendering_manager->add(std::make_unique<PreRenderer>());
+    // rendering_manager->add(std::make_unique<BackgroundRenderer>());
+    // rendering_manager->add(std::make_unique<MainRenderer>());
+    // rendering_manager->add(std::make_unique<WireframeRenderer>());
+    // rendering_manager->add(std::make_unique<GUIRenderer>());
+    // m_system_managers[m_system_managers_amount] = std::move(rendering_manager);
+    // Debug("Adding system " << m_system_managers[m_system_managers_amount++]->get_name());
 
-    auto animation_manager = std::make_unique<SystemManager>("Animation System Manager");
-    animation_manager->add(std::make_unique<BGAnimation>());
-    animation_manager->add(std::make_unique<CharacterAnimation>());
-    animation_manager->add(std::make_unique<GUIAnimation>());
-    m_system_managers[m_system_managers_amount] = std::move(animation_manager);
-    Debug("Adding system " << m_system_managers[m_system_managers_amount++]->get_name());
+    // auto animation_manager = std::make_unique<SystemManager>("Animation System Manager");
+    // animation_manager->add(std::make_unique<BGAnimation>());
+    // animation_manager->add(std::make_unique<CharacterAnimation>());
+    // animation_manager->add(std::make_unique<GUIAnimation>());
+    // m_system_managers[m_system_managers_amount] = std::move(animation_manager);
+    // Debug("Adding system " << m_system_managers[m_system_managers_amount++]->get_name());
 
 
     prev_mouse_pos = GetMousePos();
@@ -89,7 +82,7 @@ bool TacticalGame::OnUserCreate()
 #include "components/animation.hpp"
 bool TacticalGame::OnUserUpdate(float dt)
 {
-    if (!m_pause_update || (m_pause_update && GetKey(olc::Key::SPACE).bHeld)) {
+    if (!m_pause_update || (m_pause_update && GetKey(olc::Key::ENTER).bHeld)) {
         // HACK for testing
         Clear(olc::BLACK);
 
@@ -132,36 +125,17 @@ bool TacticalGame::OnUserUpdate(float dt)
 
         handle_inputs();
 
-        // for (auto &layer : std::views::reverse(m_layers)) {
+        System_Render(dt);
+        System_Camera(dt);
+        
         for (auto &layer : m_layers) {
             layer->update();
             layer->draw();
         }
 
-        for (int i = 0; i < m_system_managers_amount; ++i) {
-            m_system_managers[i]->dispatch(this);
-        }
+        // dispatch possible events and systems
+        m_registry->update(dt, m_animation_tick);
 
-        // dispatch possible events
-        m_registry->update(dt);
-
-        // HACK move to a camera system
-        Component::World::Camera camera;
-        auto has_camera =
-            m_registry->get_world_component<Component::World::Camera>(camera);
-        if (has_camera) {
-            if (camera.is_panning) {
-                auto pos_mouse = GetMousePos();
-                get_tv()->UpdatePan(pos_mouse);
-            }
-            if (camera.is_panning && !camera_is_panning) {
-                camera_is_panning = true;
-                get_tv()->StartPan(GetMousePos());
-            } else if (!camera.is_panning && camera_is_panning) {
-                camera_is_panning = false;
-                get_tv()->EndPan(GetMousePos());
-            }
-        }
         m_animation_tick = false;
     }
     return true;    
@@ -201,8 +175,6 @@ void TacticalGame::handle_inputs()
 
 
 
-    /////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////
@@ -279,5 +251,41 @@ void TacticalGame::handle_inputs()
         auto event = std::make_shared<Engine::MouseMovedEvent>(prev_mouse_pos.x, prev_mouse_pos.y,
                                       world_mouse_pos.x, world_mouse_pos.y);
         raise_event(event);
+    }
+}
+
+void TacticalGame::System_Camera(float dt)
+{
+    // HACK this is just for developing, there is no free
+    // camera control in the game
+    if(GetMouseWheel()>0) {
+        get_tv()->ZoomAtScreenPos(2, GetMousePos());
+    }
+    if(GetMouseWheel()<0) {
+        get_tv()->ZoomAtScreenPos(0.5, GetMousePos());
+    }
+    if (GetMouse(MOUSE_MBUTTON).bPressed) {
+        auto &camera = m_registry->unsafe_get_world_component<Component::World::Camera>();
+        camera.is_panning = true;
+    }
+    if (GetMouse(MOUSE_MBUTTON).bReleased) {
+        auto &camera = m_registry->unsafe_get_world_component<Component::World::Camera>();
+        camera.is_panning = false;
+    }
+
+    Component::World::Camera camera;
+    if (auto has_camera = m_registry->get_world_component<Component::World::Camera>(camera); has_camera) {
+
+        if (camera.is_panning) {
+            auto pos_mouse = GetMousePos();
+            get_tv()->UpdatePan(pos_mouse);
+        }
+        if (camera.is_panning && !camera_is_panning) {
+            camera_is_panning = true;
+            get_tv()->StartPan(GetMousePos());
+        } else if (!camera.is_panning && camera_is_panning) {
+            camera_is_panning = false;
+            get_tv()->EndPan(GetMousePos());
+        }
     }
 }

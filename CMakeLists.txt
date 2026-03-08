@@ -41,8 +41,8 @@ set(SRC_ENGINE
 )
 
 set(SRC_SYSTEMS
-    src/systems/animation.cpp
-    src/systems/rendering.cpp
+    src/render.cpp
+    src/registry/registry.cpp
 )
 
 set(SRC_GAME

@@ -1,5 +1,5 @@
 #include "combatstate_playeraction.hpp"
-using namespace PlayingState;
+using namespace State::Playing::Combat;
 
 // HACK for testing
 void CombatStatePlayerAction::update()

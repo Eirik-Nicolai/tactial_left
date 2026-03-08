@@ -1,15 +1,12 @@
 #include "combatstate_initialize.hpp"
 #include "combatstate_playermovement.hpp"
-#include "utils/ecs.hpp"
-#include "utils/geometry.hpp"
-#include "utils/complex_datatypes.hpp"
 
 #include "asset_manager.hpp"
 
 using namespace TransitionState;
 
 CombatStateInit::CombatStateInit(TacticalGame *ge, std::shared_ptr<GameRegistry> reg)
-    : PlayingState::CombatState(ge, reg)
+    : State::Playing::Combat::CombatState(ge, reg)
 {
     LOG_FUNC
     handler = std::make_unique<InputHandler>();
@@ -196,7 +193,7 @@ void CombatStateInit::handle_input(Engine::Event& event) {
 bool CombatStateInit::key_released(Engine::KeyReleasedEvent &event)
 {
     if (event.get_key() == olc::Key::SPACE) {
-        m_change_state_to<PlayingState::CombatStatePlayerMovement>();
+        m_change_state_to<State::Playing::Combat::CombatStatePlayerMovement>();
     }
     return false;
 }

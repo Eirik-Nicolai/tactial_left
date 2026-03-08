@@ -3,7 +3,6 @@
 #include "olc/olcPGEX_TransformedView.h"
 #include "registry/registry.hpp"
 #include "layers/layer.hpp"
-#include "systems/system.hpp"
 
 class Layer;
 constexpr auto ANIMATION_TICK_TIME = 0.017;
@@ -54,6 +53,10 @@ class TacticalGame : public olc::PixelGameEngine
         m_layers.push_back(std::make_unique<L>(this, m_registry));
     }
 
+  public: // SYSTEM
+    void System_Render(float deltatime);
+    void System_Camera(float deltatime);
+
   public:
     // void push_state(GameState* state);
     // void pop_state();
@@ -72,9 +75,6 @@ class TacticalGame : public olc::PixelGameEngine
     std::vector<std::unique_ptr<Layer>> m_layers;
     std::shared_ptr<GameRegistry> m_registry;
     std::string get_name() const { return "MAIN ENGINE"; }
-
-    unsigned m_system_managers_amount;
-    std::array<std::unique_ptr<SystemManager>, MAX_SYSTEM_AMOUNT> m_system_managers;
 
     // unsigned m_decals_amount;
     // std::array<std::shared_ptr<olc::Decal>, MAX_SPRITE_SHEETS> m_decals;

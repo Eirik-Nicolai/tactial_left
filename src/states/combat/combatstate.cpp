@@ -8,112 +8,8 @@
 
 #include "asset_manager.hpp"
 
-using namespace PlayingState;
+using namespace State::Playing::Combat;
 
-class TestInput : public Input
-{
-  public:
-    std::string get_name() const final { return "Test Input StarState key P"; };
-    void execute(TacticalGame *ge) final
-    {
-        
-    }
-};
-
-class PanInputStart : public Input
-{
-  public:
-    std::string get_name() const final { return "InputPanningStart"; };
-    void execute(TacticalGame *ge) final
-    {
-        auto tv = ge->get_tv();
-        auto pos_mouse = ge->GetMousePos();
-        ge->get_tv()->StartPan(pos_mouse);
-    }
-};
-
-class ScrollUpInput : public Input
-{
-  public:
-    std::string get_name() const final { return "ScrollUpInputStart"; };
-    void execute(TacticalGame *ge) final
-    {
-        auto tv = ge->get_tv();
-        auto pos_mouse = ge->GetMousePos();
-        tv->ZoomAtScreenPos(0.5f, pos_mouse);
-    }
-};
-
-class ScrollDownInput : public Input
-{
-  public:
-    std::string get_name() const final { return "ScrollDownInputStart"; };
-    void execute(TacticalGame *ge) final
-    {
-        auto tv = ge->get_tv();
-        auto pos_mouse = ge->GetMousePos();
-        tv->ZoomAtScreenPos(2.f, pos_mouse);
-    }
-};
-
-class PanInputEnd : public Input
-{
-  public:
-    std::string get_name() const final { return "InputPanningEnd"; };
-    void execute(TacticalGame *ge) final
-    {
-        auto tv = ge->get_tv();
-        auto pos_mouse = ge->GetMousePos();
-        ge->get_tv()->EndPan(pos_mouse);
-    }
-};
-
-class PanInputUpdate : public Input
-{
-  public:
-    std::string get_name() const final { return "InputPanningUpdate"; };
-    void execute(TacticalGame *ge) final
-    {
-        auto tv = ge->get_tv();
-        auto pos_mouse = ge->GetMousePos();
-        ge->get_tv()->UpdatePan(pos_mouse);
-    }
-};
-
-bool CombatState::mouse_button_released(Engine::MouseButtonReleasedEvent &event)
-{
-    auto get_name = []() { return "Combat - mouse_button_released()"; };
-    if (event.get_button() == Engine::MouseButtonEvent::MouseButton::MiddleMouseButton) {
-        auto &camera = m_registry->unsafe_get_world_component<Component::World::Camera>();
-        camera.is_panning = false;
-        return true;
-    }
-
-    return false;
-}
-bool CombatState::mouse_button_pressed(Engine::MouseButtonPressedEvent &event)
-{
-    auto get_name = []() { return "Combat - mouse_button_pressed()"; };
-    if (event.get_button() == Engine::MouseButtonEvent::MouseButton::MiddleMouseButton) {
-        auto &camera = m_registry->unsafe_get_world_component<Component::World::Camera>();
-        camera.is_panning = true;
-        return true;
-    }
-    return false;
-}
-// bool CombatState::mouse_button_pressed(GameEvent &event)
-// {
-//     auto get_name = []() { return "Combat - mouse_button_pressed()"; };
-//     if (event.get_button() == Engine::MouseButtonEvent::MouseButton::MiddleMouseButton) {
-//         auto tv = ge->get_tv();
-//         auto pos_mouse = ge->GetMousePos();
-//         ge->get_tv()->StartPan(pos_mouse);
-
-//         is_panning = true;
-//         return true;
-//     }
-//     return false;
-// }
 void CombatState::pause() { LOG_FUNC }
 void CombatState::resume() { LOG_FUNC }
 
@@ -131,26 +27,29 @@ void CombatState::handle_input(Engine::Event &event)
             return mouse_button_released(e);
         });
 }
+bool CombatState::mouse_button_released(Engine::MouseButtonReleasedEvent &event)
+{
+    auto get_name = []() { return "Combat - mouse_button_released()"; };
+    return false;
+}
+
+bool CombatState::mouse_button_pressed(Engine::MouseButtonPressedEvent &event)
+{
+    auto get_name = []() { return "Combat - mouse_button_pressed()"; };
+    return false;
+}
 
 void CombatState::update()
 {
-
+    System_CombatProgression();
+    System_StatusEffectProgression();
 }
 
 void CombatState::draw()
-{
-    // HACK
-    if(m_game->GetMouseWheel()>0) {
-        m_game->get_tv()->ZoomAtScreenPos(2, m_game->GetMousePos());
-    }
-    if(m_game->GetMouseWheel()<0) {
-        m_game->get_tv()->ZoomAtScreenPos(0.5, m_game->GetMousePos());
-    }
-    
-}
+{}
 
 // TODO move to separate thread
-void CombatState::solve_a_star()
+void CombatState::System_Onecall_SolveAStar()
 {
     auto get_node_pos = [this](entt::entity e) { return m_registry->entity_name(e); };
 
@@ -233,4 +132,14 @@ void CombatState::solve_a_star()
             }
         }
     }
+}
+
+void CombatState::System_CombatProgression() {
+    
+}
+void CombatState::System_StatusEffectProgression() {
+    
+}
+
+void CombatState::System_Onecall_ApplyToBaseStats(entt::entity &effect, entt::entity &target) {
 }

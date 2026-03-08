@@ -1,15 +1,14 @@
-#include "animation.hpp"
-#include "utils/ecs.hpp"
+#include "registry.hpp"
+
+#include "game.hpp"
+#include "logger.hpp"
+
 #include "components/animation.hpp"
 #include "components/rendering.hpp"
-using namespace Component;
-void GUIAnimation::execute(TacticalGame *ge)
+
+void GUIAnimation(std::shared_ptr<GameRegistry> reg)
 {
-
-    if (!ge->animation_tick())
-        return;
-
-    auto reg = ge->registry();
+    GET_NAME_FUNC(GUIAnimation);
 
     // for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal,
     //         Rendering::Layer::_first>().each())
@@ -18,12 +17,13 @@ void GUIAnimation::execute(TacticalGame *ge)
     // }
 }
 
-void CharacterAnimation::execute(TacticalGame *ge)
+void CharacterAnimation(std::shared_ptr<GameRegistry> reg)
 {
-    if (!ge->animation_tick())
-        return;
+    using namespace Component;
+    GET_NAME_FUNC(GUIAnimation);
+
     Trace("Animation manager");
-    auto reg = ge->registry();
+
     for (auto &&[ent, mng] : reg->get().view<Animation::AnimManager>().each()) {
         Trace("Elapsed frames "
               << mng.frames_elapsed << " / "
@@ -74,15 +74,19 @@ void CharacterAnimation::execute(TacticalGame *ge)
     }
 }
 
-void BGAnimation::execute(TacticalGame *ge)
+void BGAnimation(std::shared_ptr<GameRegistry> reg)
 {
-    if (!ge->animation_tick())
-        return;
-    auto reg = ge->registry();
-
+    GET_NAME_FUNC(GUIAnimation);
     // for(auto [ent, pos, size, decal] : reg.view<Pos, Size, Rendering::Decal,
     // Rendering::Layer::_second>().each())
     // {
 
     // }
 }
+
+void GameRegistry::System_Animation(float dt) {
+    GUIAnimation(shared_from_this());
+    CharacterAnimation(shared_from_this());
+    BGAnimation(shared_from_this());
+}
+
