@@ -10,7 +10,7 @@ class CombatStatePlayerAction : public CombatState
 
     /// --------- STATE LOGIC --------- ///
   public:
-    CombatStatePlayerAction(TacticalGame* ge, std::shared_ptr<GameRegistry> reg) : CombatState(ge, reg) {};
+    CombatStatePlayerAction(TacticalGame* ge, std::shared_ptr<GameRegistry> reg);
     ~CombatStatePlayerAction() {LOG_FUNC};
 
     void handle_input(Engine::Event &) final {};

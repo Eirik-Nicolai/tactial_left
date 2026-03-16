@@ -12,8 +12,6 @@ namespace World
 Component(TileInfo)
     Size s;
 };
-Component(CombatState)
-};
 
 Component(CombatTurn)
 };
@@ -25,6 +23,7 @@ Component(BaseStats)
     int mana;
     int defense;    // diff types ?
     int move_speed; // in tile amt
+    int speed;      // how often is my turn
 };
 
 Tag(Ability)
@@ -86,10 +85,13 @@ Component(CanCrit)
     float luck;
     float crit_modifier;
 };
+
+Component(Does)
+    std::array<entt::entity, 20> effects; 
+};
 // RENDERING abilities have an animation and asset component
 // Modify stat
 };
-
 
 
 Component(Moving) //{
@@ -98,9 +100,7 @@ Component(Moving) //{
 
     Pos directional_speed; // TODO change type to smth else
     int moving_speed;
-    std::function<void(std::shared_ptr<GameRegistry>)> on_reached_dest;
 };
-
 
 Component(Node)
 void add_neighbour(entt::entity neighbour)

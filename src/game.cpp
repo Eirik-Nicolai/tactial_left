@@ -132,7 +132,7 @@ bool TacticalGame::OnUserUpdate(float dt)
             layer->update();
             layer->draw();
         }
-
+        
         // dispatch possible events and systems
         m_registry->update(dt, m_animation_tick);
 
@@ -259,10 +259,10 @@ void TacticalGame::System_Camera(float dt)
     // HACK this is just for developing, there is no free
     // camera control in the game
     if(GetMouseWheel()>0) {
-        get_tv()->ZoomAtScreenPos(2, GetMousePos());
+        get_tv()->ZoomAtScreenPos(1.5, GetMousePos());
     }
     if(GetMouseWheel()<0) {
-        get_tv()->ZoomAtScreenPos(0.5, GetMousePos());
+        get_tv()->ZoomAtScreenPos(0.75, GetMousePos());
     }
     if (GetMouse(MOUSE_MBUTTON).bPressed) {
         auto &camera = m_registry->unsafe_get_world_component<Component::World::Camera>();
